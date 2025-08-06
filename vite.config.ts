@@ -12,5 +12,12 @@ export default defineConfig({
     port: 5173,
     host: true, // enables access from network
     allowedHosts: ['.gitpod.io'], // allow any Gitpod domain
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 });
