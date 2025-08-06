@@ -1,0 +1,49 @@
+.
+├── .env.example                  # Example env vars shared across environments
+├── .gitignore                   # Ignore build, node_modules, and local artifacts
+├── .gitpod.yml                  # Gitpod workspace configuration
+├── .gitpod.Dockerfile           # Dockerfile for Gitpod setup
+├── LICENSE                     # Project license
+├── README.md                   # Root README, project overview & setup
+├── docs/                       # Project documentation folder
+│   ├── README.md               # Docs folder index
+│   ├── ARCHITECTURE.md        # Technical architecture and decisions
+│   ├── NOTNOW.md              # Parking lot for postponed features
+│   ├── PATH.md                # Prioritized backlog & next steps
+│   ├── ROADMAP.md             # High-level project milestones & timeline
+│   ├── RELEASES.md            # Changelog and version history
+│   ├── RISKS.md               # Known risks and mitigations
+│   ├── SCOPE.md               # In-scope/out-of-scope definitions
+│   ├── USER_FLOWS.md          # Detailed user journeys and edge cases
+│   ├── proposed-filetree.txt  # Canonical filetree blueprint (this file)
+│
+├── package.json               # Root package config
+├── package-lock.json          # Root lockfile for dependencies
+├── scripts/                   # Shell scripts for setup/bootstrap tasks
+│   └── bootstrap.sh           # One-liner to setup DB, run seeds, start servers
+│
+├── src/
+│   ├── client/                # Frontend React + Vite + TypeScript
+│   │   ├── index.html         # Main HTML entrypoint
+│   │   ├── main.tsx           # React root & app initialization
+│   │   ├── App.tsx            # App shell with routing
+│   │   ├── styles/            # CSS / Tailwind styles
+│   │   ├── assets/            # Static assets (logos, icons)
+│   │   ├── pages/             # Page components (HandshakePage etc.)
+│   │   ├── components/        # Reusable UI components (forms, inputs)
+│   │   ├── vite-env.d.ts      # Vite environment typings
+│   │   ├── tsconfig.json      # Client-specific TypeScript config
+│   │   └── vite.config.ts     # Vite config
+│   │
+│   └── server/                # Backend Express + TypeScript
+│       ├── index.ts           # Main Express server entrypoint
+│       ├── routes/            # API route handlers
+│       ├── services/          # Business logic modules
+│       ├── db/                # DB schema, seed, connection logic
+│       │   ├── client.ts      # DB connection client
+│       │   ├── schema.sql     # Initial DB schema
+│       │   └── seed.ts        # Seeder script
+│       ├── uploads/           # (Optional) server-side file uploads handling
+│       ├── tsconfig.server.json # Server-specific TypeScript config
+│
+├── tsconfig.json              # Shared TypeScript base config

@@ -1,0 +1,41 @@
+.
+├── docs
+│   ├── NOTNOW.md
+│   ├── proposed-filetree.txt
+│   ├── USER_FLOWS.md
+│   └── VISION.md
+├── public
+│   └── uploads
+├── scripts
+│   └── bootstrap.sh
+├── src
+│   ├── client
+│   │   ├── components
+│   │   ├── pages
+│   │   ├── styles
+│   │   ├── App.tsx
+│   │   ├── index.html
+│   │   ├── main.tsx
+│   │   └── vite-env.d.ts
+│   ├── public
+│   │   └── uploads
+│   ├── server
+│   │   ├── db
+│   │   ├── routes
+│   │   └── index.ts
+│   └── shared
+│       └── types.ts
+├── docker-compose.yml
+├── Dockerfile.dev
+├── eslint.config.js
+├── filetree.txt
+├── LICENSE
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── README.md
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+
+15 directories, 23 files
