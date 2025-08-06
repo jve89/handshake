@@ -1,0 +1,4 @@
+FROM postgres:15
+ENV POSTGRES_DB=handshake
+ENV POSTGRES_USER=handshake
+ENV POSTGRES_PASSWORD=handshake

@@ -1,0 +1,5 @@
+image: mcr.microsoft.com/devcontainers/typescript-node:20
+
+tasks:
+  - init: ./scripts/bootstrap.sh
+    command: npm run dev
