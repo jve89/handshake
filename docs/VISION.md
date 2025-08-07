@@ -12,6 +12,8 @@ Handshake is a universal intake and interaction layer between two parties. It ca
 
 **The goal**: replace chaotic email threads and disconnected uploads with one clean, branded, structured request flow.
 
+Senders have full freedom to design handshakes with any number and combination of fields (text, file, select, email, etc.), enabling tailored intake flows.
+
 ---
 
 ## 🔭 Long-Term Opportunities
@@ -22,9 +24,10 @@ Handshake is a universal intake and interaction layer between two parties. It ca
 * Smart Contracts (experimental use cases)  
 * Cross-border Payment Modules  
 * Language Localization  
-* Mobile Experience  
+* Mobile Experience (PWA and native apps planned)  
 * Zapier / Make / Integromat integrations  
-* AI: auto-validate uploads, pre-fill forms, detect missing info
+* AI: auto-validate uploads, pre-fill forms, detect missing info  
+* Scalable, cloud-based file storage (S3 or similar)
 
 ---
 
@@ -33,7 +36,11 @@ Handshake is a universal intake and interaction layer between two parties. It ca
 * Always sender-first (the one requesting controls the flow)  
 * Designed to work without an app — just a link  
 * Simple, beautiful, distraction-free experience for receiver  
-* Zero chaos for the sender (track what’s done, what’s not)
+* Zero chaos for the sender (track what’s done, what’s not)  
+* Iterative roadmap: focus on a stable MVP, then expand features based on feedback  
+* Flexible, dynamic handshake composition with unlimited fields  
+* Secure file handling with local dev storage and planned production cloud storage  
+* Mobile-first responsive design with smooth path to PWA and native apps
 
 ---
 
@@ -43,4 +50,12 @@ Handshake is a universal intake and interaction layer between two parties. It ca
 * Require logins from receivers  
 * Force install of any mobile app  
 * Lock core features behind early paywalls
+
+---
+
+## 📌 Competitive Edge
+
+Handshake stands apart by offering a frictionless, branded, and structured intake experience that empowers senders with maximum flexibility while providing receivers a zero-barrier, no-login-needed process — unlike generic form builders or file sharing tools.
+
+
 

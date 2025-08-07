@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
 - React frontend with routing and API proxy  
 - Express backend with PostgreSQL integration  
 - Local file upload handling with multer  
-- Gitpod dev environment setup  
+- Gitpod development environment with hot reload and watch mode  
 
 #### Changed
 
@@ -28,6 +28,14 @@ All notable changes to this project will be documented in this file.
 
 ### Future versions
 
-- Use semantic versioning (MAJOR.MINOR.PATCH)  
-- Add detailed entries for features, fixes, and breaking changes  
-- Reference issue numbers and PRs when applicable  
+- Follow [Semantic Versioning](https://semver.org/) (MAJOR.MINOR.PATCH)  
+- Add detailed changelog entries for new features, bug fixes, and breaking changes  
+- Reference GitHub issue numbers and pull requests where applicable  
+- Include migration notes if database schema changes  
+- Document any required configuration or environment variable updates  
+
+---
+
+## Notes
+
+- This file should be maintained with every release to provide clear project history and context.

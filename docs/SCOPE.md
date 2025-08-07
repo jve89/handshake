@@ -11,10 +11,11 @@ This document defines what is considered in-scope and out-of-scope for the Hands
 - Basic user authentication (email login or hardcoded user)  
 - Admin dashboard for creating and managing handshakes  
 - Public-facing handshake page accessible via unique URLs  
+- Dynamic handshake form composition with unlimited fields and types configurable by sender  
 - Support for file uploads, text inputs, and dropdown/select fields  
 - Storage of submissions and responses in PostgreSQL  
-- Dynamic handshake forms generated based on backend data  
-- Simple, clean UI focused on ease of use and clarity  
+- Simple, clean UI focused on ease of use, clarity, and mobile responsiveness  
+- No-login, no-app-required receiver experience  
 - Local file storage for uploads in dev environment  
 - React Router and Vite proxy configuration for smooth frontend/backend integration
 
@@ -27,7 +28,7 @@ This document defines what is considered in-scope and out-of-scope for the Hands
 - Multi-language support  
 - Team and role-based access control  
 - Custom branding and theming  
-- Mobile app development  
+- Mobile app development (native or PWA)  
 - Analytics and detailed reporting  
 - Public template marketplace  
 - API access or webhooks  
@@ -42,7 +43,8 @@ This document defines what is considered in-scope and out-of-scope for the Hands
 - Advanced form validation and AI-assisted input  
 - Payment and subscription management  
 - Template sharing and duplication  
-- Enhanced security and compliance features
+- Enhanced security and compliance features  
+- Progressive Web App (PWA) and native mobile app development  
 
 ---
 
@@ -50,4 +52,5 @@ This document defines what is considered in-scope and out-of-scope for the Hands
 
 - This document complements `/docs/NOTNOW.md` which lists features explicitly deferred.  
 - Scope boundaries are subject to periodic review as the project evolves.
+
 

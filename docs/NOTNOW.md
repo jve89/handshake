@@ -11,7 +11,7 @@ This document captures all ideas, features, or edge cases we won’t include in 
 * Revoke / reshare functionality after initial send  
 * Editing a handshake after it’s shared  
 * Preview mode for sender  
-* File type restrictions / virus scanning
+* File type restrictions / virus scanning  
 
 > ✅ Re-upload is supported before submission — no edits allowed afterward
 
