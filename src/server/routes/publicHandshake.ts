@@ -9,7 +9,6 @@ router.get('/:slug', async (req, res) => {
   const { slug } = req.params;
 
   try {
-    // 1. Fetch handshake metadata
     const handshakeResult = await db.query(
       `SELECT id, slug, title, description, created_at, expires_at
        FROM handshakes WHERE slug = $1`,
@@ -22,10 +21,10 @@ router.get('/:slug', async (req, res) => {
 
     const handshake = handshakeResult.rows[0];
 
-    // 2. Fetch attached requests
     const requestResult = await db.query(
       `SELECT id, label, type, required, options
-       FROM requests WHERE handshake_id = $1`,
+       FROM requests WHERE handshake_id = $1
+       ORDER BY id`,
       [handshake.id]
     );
 
@@ -51,7 +50,6 @@ router.post('/:slug/submit', async (req, res) => {
   }
 
   try {
-    // 1. Load handshake + all requests
     const handshakeResult = await db.query(
       `SELECT id FROM handshakes WHERE slug = $1`,
       [slug]
@@ -59,18 +57,17 @@ router.post('/:slug/submit', async (req, res) => {
     if (handshakeResult.rowCount === 0) {
       return res.status(404).json({ error: 'Handshake not found' });
     }
+
     const handshakeId = handshakeResult.rows[0].id;
 
     const requestsResult = await db.query(
       `SELECT id, type, required, options FROM requests WHERE handshake_id = $1`,
       [handshakeId]
     );
-    const requests = requestsResult.rows;
 
-    // Map request_id → request definition
+    const requests = requestsResult.rows;
     const requestsMap = new Map(requests.map(r => [r.id, r]));
 
-    // 2. Validate all response entries
     for (const r of responses) {
       if (
         typeof r.request_id !== 'number' ||
@@ -82,7 +79,6 @@ router.post('/:slug/submit', async (req, res) => {
 
       const reqDef = requestsMap.get(r.request_id);
 
-      // Validate by type
       switch (reqDef.type) {
         case 'text':
           if (reqDef.required && r.value.trim() === '') {
@@ -109,7 +105,6 @@ router.post('/:slug/submit', async (req, res) => {
       }
     }
 
-    // 3. Verify all required fields present
     const answeredRequestIds = new Set(responses.map(r => r.request_id));
     for (const reqDef of requests) {
       if (reqDef.required && !answeredRequestIds.has(reqDef.id)) {
@@ -117,15 +112,13 @@ router.post('/:slug/submit', async (req, res) => {
       }
     }
 
-    // 4. Insert submission row
     const submissionResult = await db.query(
       `INSERT INTO submissions (handshake_id) VALUES ($1) RETURNING id`,
       [handshakeId]
     );
 
-    const submissionId: number = submissionResult.rows[0].id;
+    const submissionId = submissionResult.rows[0].id;
 
-    // 5. Insert all responses (safe batch)
     const insertValues: string[] = [];
     const params: any[] = [];
 

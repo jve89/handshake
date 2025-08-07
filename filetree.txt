@@ -30,7 +30,9 @@
 ├── src
 │   ├── client
 │   │   ├── api
-│   │   │   └── handshakeRequests.ts
+│   │   │   ├── getSubmissions.ts
+│   │   │   ├── handshakeRequests.ts
+│   │   │   └── submitResponses.ts
 │   │   ├── App.tsx
 │   │   ├── components
 │   │   │   └── HandshakeForm.tsx
@@ -41,7 +43,8 @@
 │   │   │   │   ├── HandshakeForm.tsx
 │   │   │   │   ├── HandshakeList.tsx
 │   │   │   │   └── HandshakeRequests.tsx
-│   │   │   └── HandshakePage.tsx
+│   │   │   ├── HandshakePage.tsx
+│   │   │   └── ThankYouPage.tsx
 │   │   ├── styles
 │   │   │   └── tailwind.css
 │   │   └── vite-env.d.ts
@@ -75,4 +78,4 @@
 ├── tsconfig.seed.json
 └── vite.config.ts
 
-19 directories, 57 files
+19 directories, 60 files
