@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authMiddleware, { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { getSubmissionsForHandshake } from '../services/userHandshakeService';
 import { Response } from 'express';
 import {
   listHandshakes,
@@ -77,6 +78,20 @@ router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
     res.json({ success: true });
   } catch (err) {
     console.error('Error deleting handshake:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+router.get('/:id/submissions', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const handshakeId = Number(req.params.id);
+    const userId = req.user!.id;
+
+    const submissions = await getSubmissionsForHandshake(userId, handshakeId);
+    res.json({ submissions });
+  } catch (err) {
+    console.error('Error loading submissions:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
