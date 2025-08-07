@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HandshakePage from './pages/HandshakePage';
 import HandshakeList from './pages/dashboard/HandshakeList';
 import HandshakeForm from './pages/dashboard/HandshakeForm';
+import ThankYouPage from './pages/ThankYouPage';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/dashboard/handshakes/:id/edit" element={<HandshakeForm />} />
 
         {/* Add other routes here as needed */}
+        <Route path="/thank-you" element={<ThankYouPage />} />
       </Routes>
     </BrowserRouter>
   );

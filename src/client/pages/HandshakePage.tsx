@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import HandshakeForm, { HandshakeData, HandshakeResponse } from '../components/HandshakeForm';
 import { submitResponses } from '../api/submitResponses';
+import { useNavigate } from 'react-router-dom';
 
 export default function HandshakePage() {
   const { slug } = useParams<{ slug: string }>();
   const [handshake, setHandshake] = useState<HandshakeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  // const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!slug) return;
@@ -41,7 +43,7 @@ export default function HandshakePage() {
 
     try {
       await submitResponses(slug, responses);
-      setSuccess(true);
+      navigate('/thank-you');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -51,7 +53,7 @@ export default function HandshakePage() {
 
   if (loading) return <p>Loading handshake…</p>;
   if (error) return <p className="text-red-600">Error: {error}</p>;
-  if (success) return <p className="text-green-700 font-semibold">✅ Responses submitted successfully.</p>;
+  // if (success) return <p className="text-green-700 font-semibold">✅ Responses submitted successfully.</p>;
   if (!handshake) return <p>No handshake found.</p>;
 
   return (
