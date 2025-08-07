@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import HandshakeForm, { HandshakeData } from '../components/HandshakeForm';
+import HandshakeForm, { HandshakeData, HandshakeResponse } from '../components/HandshakeForm';
+import { submitResponses } from '../api/submitResponses';
 
 export default function HandshakePage() {
   const { slug } = useParams<{ slug: string }>();
   const [handshake, setHandshake] = useState<HandshakeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -31,15 +34,31 @@ export default function HandshakePage() {
     fetchHandshake();
   }, [slug]);
 
+  async function handleSubmit(responses: HandshakeResponse[]) {
+    if (!slug) return;
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      await submitResponses(slug, responses);
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   if (loading) return <p>Loading handshake…</p>;
   if (error) return <p className="text-red-600">Error: {error}</p>;
+  if (success) return <p className="text-green-700 font-semibold">✅ Responses submitted successfully.</p>;
   if (!handshake) return <p>No handshake found.</p>;
 
   return (
     <div className="max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">{handshake.title}</h1>
       <p className="mb-6 text-gray-700">{handshake.description}</p>
-      <HandshakeForm handshake={handshake} />
+      <HandshakeForm handshake={handshake} onSubmit={handleSubmit} disabled={submitting} />
     </div>
   );
 }

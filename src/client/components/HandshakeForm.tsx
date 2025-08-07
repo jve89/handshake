@@ -18,20 +18,20 @@ export interface HandshakeData {
   requests: Request[];
 }
 
-interface Props {
-  handshake: HandshakeData;
-}
-
-interface Response {
+export interface HandshakeResponse {
   request_id: number;
   value: string;
 }
 
-export default function HandshakeForm({ handshake }: Props) {
+interface Props {
+  handshake: HandshakeData;
+  onSubmit: (responses: HandshakeResponse[]) => void;
+  disabled?: boolean;
+}
+
+export default function HandshakeForm({ handshake, onSubmit, disabled = false }: Props) {
   const [responses, setResponses] = useState<Record<number, string>>({});
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   // Validate required fields
   const isValid = handshake.requests.every((req) =>
@@ -42,50 +42,26 @@ export default function HandshakeForm({ handshake }: Props) {
     setResponses((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) {
       setError('Please fill all required fields.');
       return;
     }
-    setSubmitting(true);
+
+    const payload: HandshakeResponse[] = handshake.requests.map((req) => ({
+      request_id: req.id,
+      value: responses[req.id] || '',
+    }));
+
     setError(null);
-    setSuccess(false);
-
-    const payload = {
-      responses: handshake.requests.map((req) => ({
-        request_id: req.id,
-        value: responses[req.id] || '',
-      })),
-    };
-
-    try {
-      const res = await fetch(`/api/handshake/${handshake.slug}/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Submission failed');
-      }
-
-      setSuccess(true);
-      setResponses({});
-    } catch (err: any) {
-      setError(err.message || 'Unexpected error');
-    } finally {
-      setSubmitting(false);
-    }
+    onSubmit(payload);
   };
 
   const handleFileChange = async (id: number, file: File | null) => {
     if (!file) return;
 
     setError(null);
-    setSuccess(false);
-    setSubmitting(true);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -105,8 +81,6 @@ export default function HandshakeForm({ handshake }: Props) {
       handleChange(id, data.url);
     } catch (err: any) {
       setError(err.message || 'Upload error');
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -126,7 +100,7 @@ export default function HandshakeForm({ handshake }: Props) {
               onChange={(e) => handleChange(req.id, e.target.value)}
               required={req.required}
               className="w-full border rounded px-3 py-2"
-              disabled={submitting}
+              disabled={disabled}
             />
           ) : req.type === 'select' && req.options ? (
             <select
@@ -134,7 +108,7 @@ export default function HandshakeForm({ handshake }: Props) {
               onChange={(e) => handleChange(req.id, e.target.value)}
               required={req.required}
               className="w-full border rounded px-3 py-2"
-              disabled={submitting}
+              disabled={disabled}
             >
               <option value="" disabled>
                 Select...
@@ -152,7 +126,7 @@ export default function HandshakeForm({ handshake }: Props) {
                 required={req.required}
                 className="w-full border rounded px-3 py-2"
                 onChange={(e) => handleFileChange(req.id, e.target.files?.[0] ?? null)}
-                disabled={submitting}
+                disabled={disabled}
               />
               {responses[req.id] && (
                 <p className="mt-1 text-sm text-gray-600">Uploaded file URL: {responses[req.id]}</p>
@@ -163,16 +137,15 @@ export default function HandshakeForm({ handshake }: Props) {
       ))}
 
       {error && <p className="text-red-600">{error}</p>}
-      {success && <p className="text-green-600">Submission successful!</p>}
 
       <button
         type="submit"
-        disabled={submitting || !isValid}
+        disabled={disabled || !isValid}
         className={`px-4 py-2 rounded text-white ${
-          submitting || !isValid ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'
+          disabled || !isValid ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'
         }`}
       >
-        {submitting ? 'Submitting...' : 'Submit'}
+        Submit
       </button>
     </form>
   );

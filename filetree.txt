@@ -29,6 +29,8 @@
 │   └── bootstrap.sh
 ├── src
 │   ├── client
+│   │   ├── api
+│   │   │   └── handshakeRequests.ts
 │   │   ├── App.tsx
 │   │   ├── components
 │   │   │   └── HandshakeForm.tsx
@@ -37,7 +39,8 @@
 │   │   ├── pages
 │   │   │   ├── dashboard
 │   │   │   │   ├── HandshakeForm.tsx
-│   │   │   │   └── HandshakeList.tsx
+│   │   │   │   ├── HandshakeList.tsx
+│   │   │   │   └── HandshakeRequests.tsx
 │   │   │   └── HandshakePage.tsx
 │   │   ├── styles
 │   │   │   └── tailwind.css
@@ -54,11 +57,13 @@
 │   │   │   └── authMiddleware.ts
 │   │   ├── routes
 │   │   │   ├── auth.ts
+│   │   │   ├── handshakeRequest.ts
 │   │   │   ├── publicHandshake.ts
 │   │   │   ├── uploads.ts
 │   │   │   └── userHandshake.ts
 │   │   ├── services
 │   │   │   ├── authService.ts
+│   │   │   ├── handshakeRequestService.ts
 │   │   │   └── userHandshakeService.ts
 │   │   └── types
 │   │       ├── express.d.ts
@@ -70,4 +75,4 @@
 ├── tsconfig.seed.json
 └── vite.config.ts
 
-18 directories, 53 files
+19 directories, 57 files
