@@ -4,11 +4,12 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-// __filename equivalent
-const __filename = fileURLToPath(import.meta.url);
+// Use import.meta.url to get __filename and __dirname in ES modules
 
-// __dirname equivalent
+// @ts-ignore
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 const router = Router();
 

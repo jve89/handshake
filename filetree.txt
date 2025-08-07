@@ -1,41 +1,73 @@
 .
-├── docs
-│   ├── NOTNOW.md
-│   ├── proposed-filetree.txt
-│   ├── USER_FLOWS.md
-│   └── VISION.md
-├── public
-│   └── uploads
-├── scripts
-│   └── bootstrap.sh
-├── src
-│   ├── client
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── styles
-│   │   ├── App.tsx
-│   │   ├── index.html
-│   │   ├── main.tsx
-│   │   └── vite-env.d.ts
-│   ├── public
-│   │   └── uploads
-│   ├── server
-│   │   ├── db
-│   │   ├── routes
-│   │   └── index.ts
-│   └── shared
-│       └── types.ts
 ├── docker-compose.yml
 ├── Dockerfile.dev
+├── docs
+│   ├── ARCHITECTURE.md
+│   ├── CONTRIBUTING.md
+│   ├── NOTNOW.md
+│   ├── PATH.md
+│   ├── proposed-filetree.txt
+│   ├── README.md
+│   ├── RELEASES.md
+│   ├── RISKS.md
+│   ├── ROADMAP.md
+│   ├── SCOPE.md
+│   ├── USER_FLOWS.md
+│   └── VISION.md
+├── .env
+├── .env.example
 ├── eslint.config.js
 ├── filetree.txt
+├── .gitignore
+├── .gitpod.yml
 ├── LICENSE
 ├── package.json
 ├── package-lock.json
 ├── postcss.config.js
 ├── README.md
+├── scripts
+│   └── bootstrap.sh
+├── src
+│   ├── client
+│   │   ├── App.tsx
+│   │   ├── components
+│   │   │   └── HandshakeForm.tsx
+│   │   ├── index.html
+│   │   ├── main.tsx
+│   │   ├── pages
+│   │   │   ├── dashboard
+│   │   │   │   ├── HandshakeForm.tsx
+│   │   │   │   └── HandshakeList.tsx
+│   │   │   └── HandshakePage.tsx
+│   │   ├── styles
+│   │   │   └── tailwind.css
+│   │   └── vite-env.d.ts
+│   ├── public
+│   │   └── uploads
+│   ├── server
+│   │   ├── db
+│   │   │   ├── client.ts
+│   │   │   ├── schema.sql
+│   │   │   └── seed.ts
+│   │   ├── index.ts
+│   │   ├── middleware
+│   │   │   └── authMiddleware.ts
+│   │   ├── routes
+│   │   │   ├── auth.ts
+│   │   │   ├── publicHandshake.ts
+│   │   │   ├── uploads.ts
+│   │   │   └── userHandshake.ts
+│   │   ├── services
+│   │   │   ├── authService.ts
+│   │   │   └── userHandshakeService.ts
+│   │   └── types
+│   │       ├── express.d.ts
+│   │       └── index.d.ts
+│   └── shared
+│       └── types.ts
 ├── tailwind.config.ts
 ├── tsconfig.json
+├── tsconfig.seed.json
 └── vite.config.ts
 
-15 directories, 23 files
+18 directories, 53 files

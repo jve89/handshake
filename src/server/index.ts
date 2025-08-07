@@ -5,14 +5,21 @@ import publicHandshakeRoutes from './routes/publicHandshake';
 import userHandshakeRoutes from './routes/userHandshake';
 import uploadRoutes from './routes/uploads';
 import authRoutes from './routes/auth';
+import handshakeRequestRoutes from './routes/handshakeRequest';
 import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
+function getDirname(importMetaUrl: string): string {
+  const __filename = fileURLToPath(importMetaUrl);
+  return path.dirname(__filename);
+}
+
+// @ts-ignore
+const __dirname = getDirname(import.meta.url);
+
 const app = express();
+
 app.use(express.json());
 
 app.get('/api/health', (_, res) => res.send({ status: 'ok' }));
@@ -20,8 +27,11 @@ app.get('/api/health', (_, res) => res.send({ status: 'ok' }));
 // Public handshake routes (no auth)
 app.use('/api/handshake', publicHandshakeRoutes);
 
-// User handshake routes (protected by authMiddleware internally)
+// User handshake routes (protected internally)
 app.use('/api/user-handshake', userHandshakeRoutes);
+
+// Handshake requests routes (protected internally)
+app.use('/api/handshakes/:handshakeId/requests', handshakeRequestRoutes);
 
 // Upload routes
 app.use('/api', uploadRoutes);

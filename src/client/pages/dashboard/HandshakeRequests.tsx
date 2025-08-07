@@ -1,0 +1,175 @@
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import {
+  fetchRequests,
+  createRequest,
+  updateRequest,
+  deleteRequest,
+  RequestInput,
+  HandshakeRequest,
+} from '../../api/handshakeRequests';
+
+export default function HandshakeRequests() {
+  const { handshakeId } = useParams<{ handshakeId: string }>();
+  const [requests, setRequests] = useState<HandshakeRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [newRequest, setNewRequest] = useState<RequestInput>({
+    label: '',
+    type: 'text',
+    required: false,
+    options: [],
+  });
+
+  useEffect(() => {
+    if (!handshakeId) return;
+    setLoading(true);
+    fetchRequests(Number(handshakeId))
+      .then(setRequests)
+      .catch(() => setError('Failed to load requests'))
+      .finally(() => setLoading(false));
+  }, [handshakeId]);
+
+  const handleCreate = async () => {
+    try {
+      const req = await createRequest(Number(handshakeId), newRequest);
+      setRequests((prev) => [...prev, req]);
+      setNewRequest({ label: '', type: 'text', required: false, options: [] });
+      setError(null);
+    } catch {
+      setError('Failed to create request');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteRequest(Number(handshakeId), id);
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+      setError(null);
+    } catch {
+      setError('Failed to delete request');
+    }
+  };
+
+  const handleUpdate = async (id: number, updates: Partial<RequestInput>) => {
+    try {
+      const updated = await updateRequest(Number(handshakeId), id, updates);
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? updated : r))
+      );
+      setError(null);
+    } catch {
+      setError('Failed to update request');
+    }
+  };
+
+  function optionsToString(options?: string[]) {
+    return options ? options.join(', ') : '';
+  }
+
+  function stringToOptions(str: string): string[] {
+    return str.split(',').map((opt) => opt.trim()).filter((opt) => opt.length > 0);
+  }
+
+  if (loading) return <div>Loading requests...</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+
+  return (
+    <div className="max-w-3xl mx-auto p-4">
+      <h2 className="text-2xl font-semibold mb-4">Handshake Requests</h2>
+      <ul className="space-y-4">
+        {requests.map((r) => (
+          <li key={r.id} className="flex flex-wrap items-center gap-2 border p-3 rounded">
+            <input
+              type="text"
+              value={r.label}
+              onChange={(e) => handleUpdate(r.id, { label: e.target.value })}
+              className="border rounded px-2 py-1 flex-grow min-w-[150px]"
+              placeholder="Label"
+            />
+            <select
+              value={r.type}
+              onChange={(e) => handleUpdate(r.id, { type: e.target.value as RequestInput['type'] })}
+              className="border rounded px-2 py-1"
+            >
+              <option value="text">Text</option>
+              <option value="email">Email</option>
+              <option value="select">Select</option>
+              <option value="file">File</option>
+            </select>
+            {r.type === 'select' && (
+              <input
+                type="text"
+                value={optionsToString(r.options)}
+                onChange={(e) => handleUpdate(r.id, { options: stringToOptions(e.target.value) })}
+                placeholder="Options (comma separated)"
+                className="border rounded px-2 py-1 flex-grow min-w-[150px]"
+              />
+            )}
+            <label className="flex items-center gap-1 select-none">
+              <input
+                type="checkbox"
+                checked={r.required}
+                onChange={(e) => handleUpdate(r.id, { required: e.target.checked })}
+              />
+              Required
+            </label>
+            <button
+              onClick={() => handleDelete(r.id)}
+              className="ml-auto bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+              aria-label={`Delete request ${r.label}`}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <h3 className="mt-8 text-xl font-semibold mb-2">Add New Request</h3>
+      <div className="flex flex-wrap items-center gap-2 border p-3 rounded">
+        <input
+          type="text"
+          placeholder="Label"
+          value={newRequest.label}
+          onChange={(e) => setNewRequest({ ...newRequest, label: e.target.value })}
+          className="border rounded px-2 py-1 flex-grow min-w-[150px]"
+        />
+        <select
+          value={newRequest.type}
+          onChange={(e) => setNewRequest({ ...newRequest, type: e.target.value as RequestInput['type'] })}
+          className="border rounded px-2 py-1"
+        >
+          <option value="text">Text</option>
+          <option value="email">Email</option>
+          <option value="select">Select</option>
+          <option value="file">File</option>
+        </select>
+        {newRequest.type === 'select' && (
+          <input
+            type="text"
+            placeholder="Options (comma separated)"
+            value={optionsToString(newRequest.options)}
+            onChange={(e) => setNewRequest({ ...newRequest, options: stringToOptions(e.target.value) })}
+            className="border rounded px-2 py-1 flex-grow min-w-[150px]"
+          />
+        )}
+        <label className="flex items-center gap-1 select-none">
+          <input
+            type="checkbox"
+            checked={newRequest.required}
+            onChange={(e) => setNewRequest({ ...newRequest, required: e.target.checked })}
+          />
+          Required
+        </label>
+        <button
+          onClick={handleCreate}
+          disabled={!newRequest.label.trim()}
+          className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700 transition disabled:opacity-50"
+        >
+          Add Request
+        </button>
+      </div>
+    </div>
+  );
+}
