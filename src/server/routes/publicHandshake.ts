@@ -125,14 +125,20 @@ router.post('/:slug/submit', async (req, res) => {
 
     const submissionId: number = submissionResult.rows[0].id;
 
-    // 5. Insert all responses
-    const insertValues = responses.map(
-      (r: any) => `(${submissionId}, ${r.request_id}, '${r.value.replace(/'/g, "''")}')`
-    ).join(',');
+    // 5. Insert all responses (safe batch)
+    const insertValues: string[] = [];
+    const params: any[] = [];
+
+    responses.forEach((r, i) => {
+      const offset = i * 3;
+      insertValues.push(`($${offset + 1}, $${offset + 2}, $${offset + 3})`);
+      params.push(submissionId, r.request_id, r.value);
+    });
 
     await db.query(
       `INSERT INTO responses (submission_id, request_id, value)
-       VALUES ${insertValues}`
+       VALUES ${insertValues.join(', ')}`,
+      params
     );
 
     res.status(201).json({ submission_id: submissionId });
