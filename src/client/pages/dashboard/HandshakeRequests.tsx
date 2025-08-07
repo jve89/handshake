@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { getSubmissions, Submission } from '../../api/getSubmissions';
 import {
   fetchRequests,
   createRequest,
@@ -14,6 +15,9 @@ export default function HandshakeRequests() {
   const [requests, setRequests] = useState<HandshakeRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [subLoading, setSubLoading] = useState(true);
+  const [subError, setSubError] = useState<string | null>(null);
 
   const [newRequest, setNewRequest] = useState<RequestInput>({
     label: '',
@@ -24,11 +28,21 @@ export default function HandshakeRequests() {
 
   useEffect(() => {
     if (!handshakeId) return;
+
     setLoading(true);
+    setSubLoading(true);
+    setError(null);
+    setSubError(null);
+
     fetchRequests(Number(handshakeId))
       .then(setRequests)
       .catch(() => setError('Failed to load requests'))
       .finally(() => setLoading(false));
+
+    getSubmissions(Number(handshakeId))
+      .then(setSubmissions)
+      .catch(() => setSubError('Failed to load submissions'))
+      .finally(() => setSubLoading(false));
   }, [handshakeId]);
 
   const handleCreate = async () => {
@@ -170,6 +184,33 @@ export default function HandshakeRequests() {
           Add Request
         </button>
       </div>
+      <h3 className="mt-8 text-xl font-semibold mb-2">Submitted Responses</h3>
+
+      {subLoading ? (
+        <p>Loading submissions...</p>
+      ) : subError ? (
+        <p className="text-red-600">{subError}</p>
+      ) : submissions.length === 0 ? (
+        <p>No submissions yet.</p>
+      ) : (
+        <div className="space-y-6 mt-2">
+          {submissions.map((submission) => (
+            <div key={submission.submission_id} className="border p-4 rounded bg-gray-50">
+              <p className="text-sm text-gray-500 mb-2">
+                Submission ID: {submission.submission_id} –{' '}
+                {new Date(submission.submitted_at).toLocaleString()}
+              </p>
+              <ul className="list-disc ml-4 text-sm">
+                {submission.responses.map((r, i) => (
+                  <li key={i}>
+                    <strong>{r.label}:</strong> {r.value}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
