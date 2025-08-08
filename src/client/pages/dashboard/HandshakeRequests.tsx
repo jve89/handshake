@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getSubmissions, Submission } from '../../api/getSubmissions';
+import { getSubmissions, Submission } from '../../utils/getSubmissions';
 import {
   fetchRequests,
   createRequest,
@@ -8,7 +8,7 @@ import {
   deleteRequest,
   RequestInput,
   HandshakeRequest,
-} from '../../api/handshakeRequests';
+} from '../../utils/handshakeRequests';
 
 export default function HandshakeRequests() {
   const { handshakeId } = useParams<{ handshakeId: string }>();

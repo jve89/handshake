@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import HandshakeForm, { HandshakeData, HandshakeResponse } from '../components/HandshakeForm';
-import { submitResponses } from '../api/submitResponses';
+import { submitResponses } from '../utils/postHandshakeResponses';
 import { useNavigate } from 'react-router-dom';
 
 export default function HandshakePage() {
