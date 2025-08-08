@@ -2,7 +2,7 @@
 
 ## Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project are tracked here.
 
 ---
 
@@ -10,11 +10,15 @@ All notable changes to this project will be documented in this file.
 
 #### Added
 
-- Initial MVP with user authentication, handshake creation, dynamic forms, file uploads, and submission storage  
-- React frontend with routing and API proxy  
-- Express backend with PostgreSQL integration  
-- Local file upload handling with multer  
-- Gitpod development environment with hot reload and watch mode  
+- Initial MVP release:
+  - Basic user authentication
+  - Handshake creation with dynamic fields (text, file, select)
+  - Submission handling with validation
+  - File uploads (local, via multer)
+  - Public submission page (no login required)
+  - React frontend with routing and Vite proxy
+  - Express backend with PostgreSQL integration
+  - Gitpod dev environment with hot reload and backend watch mode
 
 #### Changed
 
@@ -26,16 +30,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-### Future versions
+## 🧭 Future Releases
 
-- Follow [Semantic Versioning](https://semver.org/) (MAJOR.MINOR.PATCH)  
-- Add detailed changelog entries for new features, bug fixes, and breaking changes  
-- Reference GitHub issue numbers and pull requests where applicable  
-- Include migration notes if database schema changes  
-- Document any required configuration or environment variable updates  
+Follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
+
+- Log all **new features**, **bug fixes**, and **breaking changes**
+- Reference related issue numbers or pull requests (e.g., `#42`, `PR #55`)
+- Note **DB schema migrations** or breaking API changes
+- Include required updates to `.env` or configuration
 
 ---
 
 ## Notes
 
-- This file should be maintained with every release to provide clear project history and context.
+- Update this file on **every release tag or production deployment**  
+- Keep entries concise but traceable  
+- For high-impact changes, consider linking to `/docs/PATH.md` or internal RFCs
+
+

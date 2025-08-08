@@ -42,7 +42,13 @@ Handshake’s development follows an iterative, phased approach focused on deliv
 - API access and integrations  
 - Analytics and usage reporting  
 - Localization and multi-language support  
-- Public branding and custom domains
+- Public branding and custom domains  
+- **Inbox support for recipients with accounts**  
+  - Handshakes submitted by logged-in users appear in their personal inbox  
+  - New dashboard route: `/dashboard/inbox`  
+  - Submissions are linked to sender accounts where applicable  
+  - Each public handshake page optionally shows a **“Log in to save to inbox”** button  
+  - Anonymous use still fully supported (login not required to submit)
 
 ---
 

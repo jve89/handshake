@@ -38,3 +38,14 @@ This document captures all ideas, features, or edge cases we won’t include in 
 * Blockchain proofs / notarization  
 * Smart contracts  
 * PDF generation of the full handshake
+
+---
+
+## ✅ Already Promoted for v0.2+
+
+* Inbox view for receivers who choose to log in  
+  - If a recipient logs in before or after submitting a handshake, it will be added to their personal dashboard  
+  - Enables optional 2-way interaction while remaining fully usable for anonymous 1-way handshakes
+
+
+

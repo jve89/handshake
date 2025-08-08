@@ -2,56 +2,60 @@
 
 ## Overview
 
-This document serves as a prioritized task list guiding ongoing development. It is a living document and should be regularly updated.
+This document outlines the tactical development path for Handshake. It serves as a living, prioritized task list and should be regularly reviewed to reflect the most current priorities, dependencies, and user feedback.
 
 ---
 
-## Immediate Priorities (Next 1-2 weeks)
+## 🎯 Immediate Priorities (Next 1–2 Weeks)
 
-- [ ] Add per-field validation error display in frontend form  
-- [ ] Implement loading spinners and disable submit button during submission  
-- [ ] Integrate persistent file storage (S3) for production uploads  
-- [ ] Build admin dashboard views for managing handshakes and viewing submissions  
-- [ ] Write automated backend tests for API routes (unit + integration)  
-- [ ] Setup frontend testing with React Testing Library / Jest
-
----
-
-## Short-Term Improvements (Next 1-3 months)
-
-- [ ] Implement user authentication and authorization fully  
-- [ ] Enhance error handling and user notifications  
-- [ ] Add search and filtering in admin dashboard  
-- [ ] Implement resend and revoke handshake functionality  
-- [ ] Add API documentation and public API endpoints  
-- [ ] Optimize database schema and queries
+- [ ] Add per-field validation and error display in public submission form  
+- [ ] Implement loading spinners + disable submit button during async actions  
+- [ ] Connect file uploads to persistent storage (S3) in production  
+- [ ] Build admin dashboard views:  
+  - [ ] List of handshakes  
+  - [ ] Submissions viewer  
+  - [ ] Archive/delete flow  
+- [ ] Write backend unit + integration tests for all API routes  
+- [ ] Setup frontend test harness with React Testing Library + Jest
 
 ---
 
-## Mid-Term Features (3-6 months)
+## 🔧 Short-Term Enhancements (1–3 Months)
 
-- [ ] Payment processing integration (Stripe)  
-- [ ] E-signature capture and verification  
-- [ ] Template library and marketplace  
-- [ ] Multi-language support and localization  
-- [ ] Team and role-based access control
-
----
-
-## Long-Term Vision (6+ months)
-
-- [ ] AI-powered form autofill and validation  
-- [ ] Smart contract integration  
-- [ ] Mobile app development  
-- [ ] Analytics dashboard and reporting  
-- [ ] Webhooks and third-party integrations  
+- [ ] Complete full user auth flows and access control  
+- [ ] Add structured error feedback across UI  
+- [ ] Add inbox view for receivers (logged-in users)  
+- [ ] Implement resend, revoke, and archive logic for handshakes  
+- [ ] Add search, filtering, and sorting in dashboard views  
+- [ ] Add API documentation for internal and public endpoints  
+- [ ] Optimize DB schema (indexes, constraints, relationships)
 
 ---
 
-## Notes
+## 🧩 Mid-Term Features (3–6 Months)
 
-- Task priorities are subject to change based on user feedback and resource availability.  
-- Regular reviews of this document ensure alignment with business goals.
+- [ ] Stripe payment integration (one-time and subscription)  
+- [ ] E-signature capture with audit trail  
+- [ ] Template library (HR, Freelance, Legal, etc.)  
+- [ ] Public template marketplace  
+- [ ] Localization and multi-language UI  
+- [ ] Team support (multi-user dashboards, roles, permissions)
 
+---
 
+## 🚀 Long-Term Vision (6+ Months)
 
+- [ ] AI-powered form autofill and content validation  
+- [ ] Smart contract integration for notarized workflows  
+- [ ] Mobile app (native or PWA)  
+- [ ] Analytics dashboards (submission rates, completion stats)  
+- [ ] Webhooks, Zapier, and third-party integration support  
+- [ ] Versioned handshake flows and file expiration handling
+
+---
+
+## 📌 Notes
+
+- Tasks are not always sequential — parallel progress is encouraged where feasible.  
+- This file works alongside `ROADMAP.md`, `SCOPE.md`, and `NOTNOW.md`.  
+- Update this file after sprint reviews, roadmap changes, or major architectural decisions.  

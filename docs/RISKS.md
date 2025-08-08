@@ -2,63 +2,78 @@
 
 ## Overview
 
-This document identifies known risks that could impact the Handshake project and outlines mitigation strategies.
+This document identifies known risks to the Handshake project and outlines mitigation strategies. It is updated continuously alongside architectural and roadmap decisions.
 
 ---
 
-## Technical Risks
+## ⚙️ Technical Risks
 
-- **Ephemeral filesystem on Heroku**  
-  *Uploads stored locally will be lost on dyno restart.*  
-  _Mitigation_: Implement S3 or other persistent storage for production environments as soon as feasible.
+- **Ephemeral Filesystem on Heroku**  
+  Uploads stored locally are lost on dyno restart.  
+  _Mitigation_: Prioritize persistent storage (S3 or equivalent) for all production uploads.
 
-- **Scaling database connections**  
-  _Mitigation_: Monitor connection pool usage and optimize queries; plan for read replicas or managed DB scaling if needed.
+- **Database Connection Limits / Scaling**  
+  PostgreSQL instances may hit connection ceilings with growing load.  
+  _Mitigation_: Use connection pooling; monitor usage; plan for read replicas or managed DB scaling.
 
-- **Third-party dependencies and breaking changes**  
-  _Mitigation_: Minimize dependencies; maintain regular updates; pin versions and audit security patches frequently.
+- **Dependency Instability or Breaking Changes**  
+  Libraries may introduce regressions or security issues.  
+  _Mitigation_: Minimize dependencies; pin versions; audit weekly; automate checks in CI/CD.
 
-- **ES module quirks and environment inconsistencies**  
-  _Mitigation_: Strict code review and testing in dev environments; standardized tooling and config files.
-
----
-
-## Product Risks
-
-- **Scope creep and feature bloat**  
-  _Mitigation_: Strict adherence to NOTNOW.md and SCOPE.md; prioritize MVP delivery and iterative improvement.
-
-- **User adoption and feedback lag**  
-  _Mitigation_: Engage early testers; rapid iteration cycles; gather qualitative and quantitative feedback continuously.
-
-- **UX complexity for sender interface**  
-  _Mitigation_: Invest in clear UI/UX design; user testing for form composition workflow.
+- **ESM/Node Environment Mismatch**  
+  Differences between local, Gitpod, and production runtimes may introduce bugs.  
+  _Mitigation_: Standardize `.nvmrc`, `tsconfig`, `vite.config.ts`, and testing across all environments.
 
 ---
 
-## Security Risks
+## 🧠 Product Risks
 
-- **File upload vulnerabilities (e.g., virus, malicious files)**  
-  _Mitigation_: Plan and implement file type restrictions, virus scanning, and secure storage in future releases.
+- **Feature Creep and Scope Drift**  
+  MVP can become unstable if overloaded.  
+  _Mitigation_: Lock scope with [`SCOPE.md`](./SCOPE.md) and [`NOTNOW.md`](./NOTNOW.md); defer non-core features post-v0.1.
 
-- **Unauthorized access to submissions or data leaks**  
-  _Mitigation_: Enforce robust authentication and authorization as system scales; audit access logs regularly.
+- **Lack of Early User Adoption**  
+  Poor validation or feedback cycles can stall momentum.  
+  _Mitigation_: Launch early; collect feedback fast; iterate weekly based on user actions, not opinions.
 
-- **Data privacy and compliance**  
-  _Mitigation_: Adopt GDPR and other relevant compliance measures early; keep user data minimization in mind.
-
----
-
-## Operational Risks
-
-- **CI/CD pipeline failures or flaky tests**  
-  _Mitigation_: Build automated tests and monitoring early; adopt best practices for deployment pipelines.
-
-- **Infrastructure downtime or outages**  
-  _Mitigation_: Use reliable cloud providers; implement backups and recovery plans; monitor uptime proactively.
+- **Sender UX Complexity**  
+  Overloaded or unclear form composition UI may lead to drop-off.  
+  _Mitigation_: Maintain ruthless simplicity; test workflows early; defer advanced logic to templates or v1.0+.
 
 ---
 
-## Notes
+## 🔒 Security Risks
 
-This document is living and should be updated as new risks are identified or mitigation strategies evolve.
+- **Malicious File Uploads**  
+  Uploaded files could contain viruses or harmful content.  
+  _Mitigation_: Add MIME type restrictions, size limits, and virus scanning in post-MVP release.
+
+- **Unauthorized Data Access**  
+  Weak auth logic may expose sensitive handshake data.  
+  _Mitigation_: Enforce strict access control (sender-only dashboard visibility); log access events.
+
+- **Privacy and Compliance Gaps**  
+  Unclear data retention or consent flows may breach GDPR or other laws.  
+  _Mitigation_: Adopt data minimization by default; maintain clear audit logs; implement terms/privacy early.
+
+---
+
+## 🔧 Operational Risks
+
+- **CI/CD Failures or Test Inconsistency**  
+  Broken pipelines slow down velocity.  
+  _Mitigation_: Maintain green test suite; isolate unit and integration tests; monitor builds per PR.
+
+- **Downtime, Crashes, or Platform Outages**  
+  Infrastructure volatility could impact reliability.  
+  _Mitigation_: Use trusted cloud providers; implement backups, rate-limiting, and basic uptime alerts.
+
+---
+
+## 📌 Notes
+
+- This file is **complementary** to [`ROADMAP.md`](./ROADMAP.md) and [`PATH.md`](./PATH.md).  
+- Update this document **before each major release milestone** or when introducing new system components.
+
+
+

@@ -30,6 +30,18 @@ Handshake is a modern, branded, all-in-one platform that lets one party (an indi
 
 ---
 
+## 📬 The Handshake Model: Inbox & Outbox
+
+Every handshake flows from a **sender’s outbox** to a **receiver’s inbox** — even if the receiver doesn’t log in.
+
+* The **Outbox** holds all sent handshakes by the sender.  
+* The **Inbox** appears **only if** the receiver logs in with the same email they submitted with.  
+* No login is ever required to **respond**, but when logged in, **receivers see all handshakes addressed to them**.
+
+This allows for seamless **1-way handshakes**, while also supporting **power users** who want to track everything from both ends.
+
+---
+
 ## 🛠 Tech Stack
 
 * **Frontend**: React + Vite + TypeScript  
@@ -63,16 +75,18 @@ See [`/docs/proposed-filetree.txt`](./docs/proposed-filetree.txt) for the canoni
 * E-signature integration (optional)  
 * Payment handling across currencies  
 * Team access, permission layers  
+* **Inbox/Outbox system for logged-in users (track sent and received handshakes)**  
 * Template marketplace / store  
 * Zapier / Make / API integrations  
 * File expiration and versioning  
 * Persistent production file storage (S3 or similar)
 
+
 ---
 
 ## 📌 Market Positioning
 
-Handshake focuses on delivering a frictionless, branded, and structured intake experience that outperforms generic form builders and file sharing tools by empowering senders with maximum flexibility and receivers with zero barriers.
+Handshake focuses on delivering a frictionless, branded, and structured intake experience that outperforms generic form builders and file sharing tools by empowering senders with maximum flexibility and receivers with zero barriers — no app, no account, just a link.
 
 ---
 
@@ -91,7 +105,8 @@ We may still change the name. Alternatives considered:
 * [ ] Finalize `/docs/USER_FLOWS.md` for every MVP interaction.  
 * [ ] Define DB schema.  
 * [ ] Build atomic components for forms & file upload.  
-* [ ] Implement backend endpoints (handshake creation, retrieval).
+* [ ] Implement backend endpoints (handshake creation, retrieval).  
+* [ ] Define future support for receiver inbox (accounts + received handshakes)
 
 ---
 
@@ -107,8 +122,3 @@ All supporting documentation lives in the [`/docs`](./docs) folder:
 - Releases  
 - Risks  
 - And more...
-
----
-
-
-

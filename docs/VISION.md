@@ -19,6 +19,7 @@ Senders have full freedom to design handshakes with any number and combination o
 ## 🔭 Long-Term Opportunities
 
 * Handshake Templates Store (HR, Legal, Freelance, Events)  
+* Inbox support for receivers with accounts (optional login = 2-way access)  
 * Paid Tiers (storage, branding, analytics, API access)  
 * E-signatures (NDAs, contracts)  
 * Smart Contracts (experimental use cases)  
@@ -35,7 +36,8 @@ Senders have full freedom to design handshakes with any number and combination o
 
 * Always sender-first (the one requesting controls the flow)  
 * Designed to work without an app — just a link  
-* Simple, beautiful, distraction-free experience for receiver  
+* No login required for receivers, but optional accounts unlock extra features (like inbox tracking)  
+* Simple, beautiful, distraction-free experience for receivers  
 * Zero chaos for the sender (track what’s done, what’s not)  
 * Iterative roadmap: focus on a stable MVP, then expand features based on feedback  
 * Flexible, dynamic handshake composition with unlimited fields  
@@ -56,6 +58,7 @@ Senders have full freedom to design handshakes with any number and combination o
 ## 📌 Competitive Edge
 
 Handshake stands apart by offering a frictionless, branded, and structured intake experience that empowers senders with maximum flexibility while providing receivers a zero-barrier, no-login-needed process — unlike generic form builders or file sharing tools.
+
 
 
 

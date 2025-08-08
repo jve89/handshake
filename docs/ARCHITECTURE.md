@@ -37,6 +37,26 @@ See [`/docs/proposed-filetree.txt`](./proposed-filetree.txt) for full layout.
 
 ---
 
+## 🧭 Handshake Flow Model: Outbox & Inbox
+
+All handshakes are fundamentally **outbound requests**. They originate in a **sender’s Outbox** and may optionally be received into a **receiver’s Inbox** if that person logs in.
+
+### Outbox (Sender)
+- All created handshakes are stored under the authenticated user's account.
+- Tracked in the `handshakes` table and linked to `users(id)` as `owner_id`.
+- Submissions received are shown per-handshake in the sender’s dashboard.
+
+### Inbox (Receiver)
+- By default, receivers do **not need to log in** — they submit anonymously via the public handshake link.
+- If a receiver later creates an account using the same email used in a previous submission:
+  - All their matching `submissions` are shown in an **Inbox dashboard**.
+  - This is planned as an **opt-in feature**, not part of MVP.
+- Lookup will be based on email in `submissions`, cross-referenced with `users`.
+
+> The inbox/outbox architecture allows for a **zero-friction entry point**, while unlocking additional functionality for power users who do choose to register.
+
+---
+
 ## Backend Details
 
 - Routes separated in `/routes`  
@@ -67,8 +87,7 @@ See [`/docs/proposed-filetree.txt`](./proposed-filetree.txt) for full layout.
 
 - Microservice separation considered for scaling  
 - API versioning strategy planned  
-- CI/CD pipelines to be added
-
+- CI/CD pipelines to be added  
 
 
 

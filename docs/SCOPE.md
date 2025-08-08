@@ -34,11 +34,17 @@ This document defines what is considered in-scope and out-of-scope for the Hands
 - API access or webhooks  
 - Autosave or draft submission support  
 - File type restrictions or virus scanning  
+- Inbox visibility for recipients with accounts  
+- Login button on public handshakes  
 
 ---
 
 ## Future Considerations
 
+- Inbox support for recipients with accounts  
+  - Handshakes submitted while logged in will appear in the recipient’s dashboard  
+  - New `/dashboard/inbox` route to display incoming handshakes  
+  - Optional login prompt shown on public pages for recipients who want to track responses  
 - Persistent file storage via S3 or equivalent for production  
 - Advanced form validation and AI-assisted input  
 - Payment and subscription management  
@@ -52,5 +58,6 @@ This document defines what is considered in-scope and out-of-scope for the Hands
 
 - This document complements `/docs/NOTNOW.md` which lists features explicitly deferred.  
 - Scope boundaries are subject to periodic review as the project evolves.
+
 
 
