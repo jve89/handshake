@@ -9,6 +9,7 @@ import uploadRoutes from './routes/uploads';
 import authRoutes from './routes/auth';
 import handshakeRequestRoutes from './routes/handshakeRequest';
 import inboxRoutes from './routes/inbox';
+import outboxInboxTokenRoutes from './routes/outboxInboxToken'; // 🔹 NEW
 
 dotenv.config();
 
@@ -38,7 +39,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/outbox/handshakes', userHandshakeRoutes);
 app.use('/api/outbox/handshakes/:handshakeId/requests', handshakeRequestRoutes);
 
-// Inbox placeholder (stub only)
+// 🔹 New route for issuing inbox tokens
+app.use('/api/outbox/handshakes', outboxInboxTokenRoutes);
+
+// Inbox routes
 app.use('/api/inbox', inboxRoutes);
 
 // Public file access
