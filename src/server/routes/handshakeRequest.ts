@@ -1,12 +1,12 @@
 // src/server/routes/handshakeRequest.ts
 
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import authMiddleware, { AuthenticatedRequest } from '../middleware/authMiddleware';
 import {
   listRequests,
   createRequest,
   updateRequest,
-  deleteRequest,
+  deleteRequest, // current signature: (requestId: number)
   RequestInput,
 } from '../services/handshakeRequestService';
 import { db } from '../db/client';
@@ -18,6 +18,9 @@ router.use(authMiddleware);
 // Middleware: verify that the handshake belongs to the authenticated user
 async function verifyOwnership(req: AuthenticatedRequest, res: Response, next: () => void) {
   const handshakeId = Number(req.params.handshakeId);
+  if (!Number.isFinite(handshakeId)) {
+    return res.status(400).json({ error: 'Invalid handshakeId' });
+  }
   const userId = req.user!.id;
 
   try {
@@ -40,6 +43,9 @@ router.use(verifyOwnership);
 // GET /api/handshakes/:handshakeId/requests
 router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   const handshakeId = Number(req.params.handshakeId);
+  if (!Number.isFinite(handshakeId)) {
+    return res.status(400).json({ error: 'Invalid handshakeId' });
+  }
 
   try {
     const requests = await listRequests(req.user!.id, handshakeId);
@@ -53,13 +59,18 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
 // POST /api/handshakes/:handshakeId/requests
 router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   const handshakeId = Number(req.params.handshakeId);
+  if (!Number.isFinite(handshakeId)) {
+    return res.status(400).json({ error: 'Invalid handshakeId' });
+  }
+
   const data: RequestInput = req.body;
 
   if (
-    !data.label ||
+    !data ||
+    typeof data.label !== 'string' ||
     !['text', 'email', 'select', 'file'].includes(data.type) ||
     typeof data.required !== 'boolean' ||
-    (data.type === 'select' && (!data.options || !Array.isArray(data.options)))
+    (data.type === 'select' && (!Array.isArray(data.options) || data.options.length === 0))
   ) {
     return res.status(400).json({ error: 'Invalid request data' });
   }
@@ -76,8 +87,11 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
 // PUT /api/handshakes/:handshakeId/requests/:requestId
 router.put('/:requestId', async (req: AuthenticatedRequest, res: Response) => {
   const requestId = Number(req.params.requestId);
-  const data: Partial<RequestInput> = req.body;
+  if (!Number.isFinite(requestId)) {
+    return res.status(400).json({ error: 'Invalid requestId' });
+  }
 
+  const data: Partial<RequestInput> = req.body ?? {};
   if (
     (data.type && !['text', 'email', 'select', 'file'].includes(data.type)) ||
     (data.required !== undefined && typeof data.required !== 'boolean') ||
@@ -99,9 +113,12 @@ router.put('/:requestId', async (req: AuthenticatedRequest, res: Response) => {
 // DELETE /api/handshakes/:handshakeId/requests/:requestId
 router.delete('/:requestId', async (req: AuthenticatedRequest, res: Response) => {
   const requestId = Number(req.params.requestId);
+  if (!Number.isFinite(requestId)) {
+    return res.status(400).json({ error: 'Invalid requestId' });
+  }
 
   try {
-    const success = await deleteRequest(requestId);
+    const success = await deleteRequest(requestId, req.user!.id);
     if (!success) return res.status(404).json({ error: 'Request not found' });
     res.json({ success: true });
   } catch (err) {

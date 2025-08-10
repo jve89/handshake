@@ -45,15 +45,18 @@ router.get('/submissions/:submissionId', async (req: Request, res: Response) => 
   if (!Number.isFinite(submissionId)) return res.status(400).json({ error: 'Invalid submissionId' });
 
   // Ensure submission belongs to the token's handshake scope
+  let hid: number | null = null;
   if (scope.handshakeId) {
-    const hid = await getSubmissionHandshakeId(submissionId);
+    hid = await getSubmissionHandshakeId(submissionId);
     if (!hid) return res.status(404).json({ error: 'Not found' });
     if (hid !== scope.handshakeId) return res.status(403).json({ error: 'Token not scoped for this submission' });
   }
 
   const sub = await getSubmission(submissionId);
   if (!sub) return res.status(404).json({ error: 'Not found' });
-  res.json({ submission: sub });
+
+  // Include handshake_id explicitly for client navigation
+  res.json({ submission: sub, handshake_id: hid });
 });
 
 export default router;
