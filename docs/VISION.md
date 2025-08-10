@@ -1,64 +1,103 @@
 # VISION.md
 
-## 🌐 What is Handshake Really?
+## 🌐 What is Handshake?
 
-Handshake is a universal intake and interaction layer between two parties. It can be used for:
+**Handshake** is a universal intake and interaction layer between two parties. It replaces messy email threads and scattered uploads with a single, branded, structured request link.
 
-* File requests  
-* Form collection  
-* Payments (later)  
-* Confirmations  
-* Agreements (eventually, e-signatures)
+Use it for:
+- File requests
+- Form collection
+- Confirmations & light approvals
+- (Later) Payments and e-signatures
 
-**The goal**: replace chaotic email threads and disconnected uploads with one clean, branded, structured request flow.
-
-Senders have full freedom to design handshakes with any number and combination of fields (text, file, select, email, etc.), enabling tailored intake flows.
+**Philosophy:** one link per request, zero friction for receivers, full control for senders.
 
 ---
 
-## 🔭 Long-Term Opportunities
+## 🧭 Product Model (at a glance)
 
-* Handshake Templates Store (HR, Legal, Freelance, Events)  
-* Inbox support for receivers with accounts (optional login = 2-way access)  
-* Paid Tiers (storage, branding, analytics, API access)  
-* E-signatures (NDAs, contracts)  
-* Smart Contracts (experimental use cases)  
-* Cross-border Payment Modules  
-* Language Localization  
-* Mobile Experience (PWA and native apps planned)  
-* Zapier / Make / Integromat integrations  
-* AI: auto-validate uploads, pre-fill forms, detect missing info  
-* Scalable, cloud-based file storage (S3 or similar)
+- **Outbox (Sender):** create and manage requests (handshakes). Track submissions.
+- **Inbox (Receiver):** read-only via a **tokened link** today; optional receiver accounts later.
+- **Public Form:** anyone with the link can submit; no login required.
+
+This keeps the barrier to entry near zero while preserving a clean path to richer workflows.
+
+---
+
+## 🎯 MVP Scope (shipped & near-term)
+
+- Structured requests: text, email, select, file
+- Public submission with server-side validation (defensive for `select`)
+- Sender dashboard (legacy) + **Outbox** API aliases (non-breaking)
+- **Inbox (read-only)** via token: list + detail of submissions
+- Local uploads in dev; S3 planned for prod
+- Auth for senders (JWT)
+
+> We keep non-destructive aliases during refactors to avoid regressions.
 
 ---
 
 ## 💡 Core Principles
 
-* Always sender-first (the one requesting controls the flow)  
-* Designed to work without an app — just a link  
-* No login required for receivers, but optional accounts unlock extra features (like inbox tracking)  
-* Simple, beautiful, distraction-free experience for receivers  
-* Zero chaos for the sender (track what’s done, what’s not)  
-* Iterative roadmap: focus on a stable MVP, then expand features based on feedback  
-* Flexible, dynamic handshake composition with unlimited fields  
-* Secure file handling with local dev storage and planned production cloud storage  
-* Mobile-first responsive design with smooth path to PWA and native apps
+- **Sender-first:** the requester controls structure, timing, and brand.
+- **Zero-friction for receivers:** no app, no account, just a link.
+- **One purpose per file / clean contracts:** predictable behavior; no hidden side effects.
+- **Data integrity by default:** strict validation, additive migrations, reversible changes.
+- **Operational simplicity:** minimal moving parts, clear env/config, observable health.
 
 ---
 
-## ❌ What We Won’t Do
+## 🏆 Competitive Edge
 
-* Become a full CRM or task manager  
-* Require logins from receivers  
-* Force install of any mobile app  
-* Lock core features behind early paywalls
+- Frictionless intake with **single-link flows**
+- **Structured** data (not just files) for downstream automation
+- **No-login** receiver experience (with a path to account-based features)
+- Clear separation of **Outbox** (sender ops) and **Inbox** (receiver viewing)
 
 ---
 
-## 📌 Competitive Edge
+## 🔭 Long-Term Opportunities
 
-Handshake stands apart by offering a frictionless, branded, and structured intake experience that empowers senders with maximum flexibility while providing receivers a zero-barrier, no-login-needed process — unlike generic form builders or file sharing tools.
+- **Templates Store** (HR, Legal, Freelance, Events)
+- **Receiver accounts** (optional): unified Inbox across handshakes
+- **Paid tiers:** storage, branding, analytics, API access, priority support
+- **E-signatures** (NDAs, contracts) with audit trail
+- **Payments** (one-off and recurring), invoice-like handshakes
+- **Integrations:** Zapier/Make, webhooks, Slack/Email notifications
+- **Localization** and multi-language flows
+- **Mobile** (PWA first; native later)
+- **AI assists:** auto-validate uploads, pre-fill forms, detect missing info
 
+---
 
+## 🧱 Non-Goals
 
+- Full CRM or project manager
+- Mandatory receiver logins
+- Heavy, multi-app dependency graph
+- Early paywalling of the core single-link flow
 
+---
+
+## 🔐 Trust & Safety (direction)
+
+- Token-based Inbox access with expiries and revocation
+- Server-side validation and safe upload handling
+- Audit-friendly event trail (submissions, token usage)
+- (Planned) Token hashing at rest; rate limiting on sensitive endpoints
+
+---
+
+## 📈 Monetization Sketch
+
+- **Free:** core single-link intake, basic limits
+- **Pro:** custom branding, increased storage, analytics, integrations
+- **Business:** SSO, audit trail, role-based access, advanced automation
+
+---
+
+## 🛣️ Execution Notes
+
+- Ship in **small, reversible steps** (additive DB migrations, alias routes)
+- Maintain **legacy paths** until replaced end-to-end
+- Keep docs current with each change (routes, schema, tokens)

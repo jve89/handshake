@@ -2,123 +2,168 @@
 
 **The easiest way to request or deliver structured information between two parties.**
 
-Handshake is a modern, branded, all-in-one platform that lets one party (an individual or business) request files, forms, payments, or actions from another party via a single shareable link. Inspired by the simplicity of tools like Tikkie and the power of onboarding platforms, Handshake combines automation, structure, and versatility in a way email attachments and shared folders never could.
+Handshake lets a sender request files, form fields, or actions from a receiver via a single shareable link. It combines the simplicity of a payment link with the structure of an onboarding form—without email chaos or shared-folder sprawl.
 
 ---
 
 ## 🌍 Use Cases
 
-* **Freelancers**: Request documents and deposits from new clients.  
-* **HR teams**: Collect license copies, forms, and signatures from hundreds of applicants.  
-* **Event organizers**: Gather RSVPs, documents, and participation fees in one go.  
-* **Service providers**: Bundle intake questions, NDAs, and uploads into one branded link.  
-* **Anyone**: Need a passport scan, form, and payment from a friend? Send them a handshake.
+- **Freelancers:** request onboarding docs, questionnaires, and deposits.
+- **HR teams:** collect IDs, forms, and confirmations at scale.
+- **Event organizers:** gather RSVPs, consents, and uploads in one go.
+- **Service providers:** bundle intake questions, NDAs, and uploads into one branded link.
+- **Anyone:** need a passport scan + a short form from a friend? Send a handshake.
 
 ---
 
 ## 🚀 MVP Scope (v0.1)
 
-* Basic user authentication (email login or hardcoded user)  
-* Admin dashboard to create and manage handshakes with full flexibility — senders can build custom handshakes composed of any number and combination of fields (text, file uploads, selects, email, etc.)  
-* Public-facing Handshake page accessible via unique, no-login-needed URLs for minimal receiver friction  
-* Support for:  
-  * File upload requests (local storage for dev, S3 planned for production)  
-  * Text input fields  
-  * Dropdown/select fields  
-* Submission viewer to inspect incoming responses  
-* Clean, responsive UI for both public and admin views
+- Auth: email+password with JWT (sender-side dashboard).
+- **Outbox (sender)**
+  - Create/list/update/delete handshakes.
+  - Define dynamic fields: `text`, `email`, `select`, `file`.
+  - Mint **Inbox tokens** scoped to a handshake (read-only receiver view).
+- **Public submission**
+  - Unique slug URL for each handshake.
+  - Validations:
+    - Required fields enforced.
+    - For `select`: required → must be allowed option; optional → empty allowed, otherwise must be allowed.
+  - File uploads (dev: local disk; prod: S3 planned).
+- **Inbox (receiver)**
+  - **Token-gated read-only** submissions list & detail (no login required).
+  - (Future) Receiver account linking by email is out of scope for MVP.
+- Clean, responsive UI (React + Tailwind).
 
 ---
 
-## 📬 The Handshake Model: Inbox & Outbox
+## 📬 The Handshake Model: Outbox & Inbox
 
-Every handshake flows from a **sender’s outbox** to a **receiver’s inbox** — even if the receiver doesn’t log in.
-
-* The **Outbox** holds all sent handshakes by the sender.  
-* The **Inbox** appears **only if** the receiver logs in with the same email they submitted with.  
-* No login is ever required to **respond**, but when logged in, **receivers see all handshakes addressed to them**.
-
-This allows for seamless **1-way handshakes**, while also supporting **power users** who want to track everything from both ends.
+- **Outbox (sender):** where handshakes are composed and managed; submissions are visible per handshake.
+- **Inbox (receiver):** a **token-gated** view the sender can share (list + detail of submissions for that handshake).
+- **Future (post-MVP):** optional receiver login that auto-collects their submissions into a personal inbox based on email—tracked in `docs/NOTNOW.md` and roadmap.
 
 ---
 
 ## 🛠 Tech Stack
 
-* **Frontend**: React + Vite + TypeScript  
-* **Backend**: Express.js + TypeScript  
-* **Database**: PostgreSQL  
-* **Styling**: TailwindCSS  
-* **Dev Tools**: Gitpod, tsx, dotenv, ESLint
+- **Frontend:** React, Vite, TypeScript, TailwindCSS
+- **Backend:** Express.js, TypeScript
+- **Database:** PostgreSQL
+- **Dev Tools:** Gitpod, `tsx`, `dotenv`, ESLint
 
 ---
 
-## 🧠 Project Philosophy
+## 🧪 Quickstart (Dev)
 
-* **One purpose per file**: All logic and views are cleanly separated.  
-* **Minimal dependencies**: Prefer in-house logic over fragile APIs.  
-* **Scalable by design**: Structure comes first, then logic.  
-* **Zero bloat**: Everything in the file tree exists for a reason.  
-* **Iterative development**: Focus on a stable core MVP, then expand with payments, team features, and integrations.
+1. Install deps
+
+       npm ci
+
+2. Configure environment
+
+       cp .env.example .env
+       # Fill values (at minimum):
+       # JWT_SECRET=...
+       # DATABASE_URL=postgres://...
+
+3. Run servers (in separate terminals)
+
+       npm run dev        # Frontend (Vite @5173)
+       npm run dev:server # Backend (Express @3000)
+
+4. Smoke checks
+
+       # API health (should be 200)
+       curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/api/health
+
+       # Inbox health (should be JSON)
+       curl -s http://localhost:3000/api/inbox/health
+
+5. Minimal flow (sender token required)
+   - Sign up or log in via `/api/auth/signup` or `/api/auth/login` (returns JWT).
+   - Create a handshake via `/api/outbox/handshakes`.
+   - Add a request field via `/api/outbox/handshakes/:id/requests`.
+   - Load public page at `/handshake/:slug` and submit.
+   - Mint an inbox token via `/api/outbox/handshakes/:id/inbox-token`.
+   - View receiver list: `/inbox/handshakes/:id?token=...`
+   - View receiver detail: `/inbox/submissions/:submissionId?token=...&handshakeId=:id`
+
+---
+
+## 🔌 API Overview (MVP)
+
+- **Public**
+  - `GET /api/handshake/:slug`
+  - `POST /api/handshake/:slug/submit`
+
+- **Outbox (sender, JWT)**
+  - `GET/POST /api/outbox/handshakes`
+  - `GET/PUT/DELETE /api/outbox/handshakes/:handshakeId`
+  - `GET/POST /api/outbox/handshakes/:handshakeId/requests`
+  - `PUT/DELETE /api/outbox/handshakes/:handshakeId/requests/:requestId`
+  - `POST /api/outbox/handshakes/:handshakeId/inbox-token`
+
+- **Inbox (token)**
+  - `GET /api/inbox/handshakes/:handshakeId/submissions`
+  - `GET /api/inbox/submissions/:submissionId`
+  - `GET /api/inbox/health`
+
+- **Auth**
+  - `POST /api/auth/signup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
+
+> Legacy routes remain mounted for safety during transition (see `docs/ARCHITECTURE.md`).
 
 ---
 
 ## 📁 Project Structure
 
-See [`/docs/proposed-filetree.txt`](./docs/proposed-filetree.txt) for the canonical project layout.
+- `src/client` — React app (pages for public, outbox, and inbox)
+- `src/server` — Express API (routes, services, middleware)
+- `src/server/db` — Postgres client, schema, seed
+- `migrations` — SQL-first, additive migrations
+- `docs` — Architecture, scope, roadmap, and more
+
+See canonical layout: `docs/proposed-filetree.txt`.
 
 ---
 
 ## 🔮 Vision (Beyond MVP)
 
-* Handshake templates (HR, freelancers, schools, etc.)  
-* Branded handshakes with custom domain and design  
-* E-signature integration (optional)  
-* Payment handling across currencies  
-* Team access, permission layers  
-* **Inbox/Outbox system for logged-in users (track sent and received handshakes)**  
-* Template marketplace / store  
-* Zapier / Make / API integrations  
-* File expiration and versioning  
-* Persistent production file storage (S3 or similar)
-
+- Template library and marketplace
+- Branded handshakes + custom domains
+- E-signatures with audit trail
+- Payments & subscriptions (Stripe)
+- Team roles/permissions
+- Receiver login for personal inbox
+- Zapier/Make/API integrations
+- S3 (prod) with signed URLs and malware scanning
+- File expiration and versioning
 
 ---
 
 ## 📌 Market Positioning
 
-Handshake focuses on delivering a frictionless, branded, and structured intake experience that outperforms generic form builders and file sharing tools by empowering senders with maximum flexibility and receivers with zero barriers — no app, no account, just a link.
-
----
-
-## 📌 Naming
-
-We may still change the name. Alternatives considered:
-
-* DropZone (technical feel)  
-* Relay (focused on action handoffs)  
-* Handshake (current, strong, universal)
+Frictionless, branded, and structured intake—stronger than generic form builders and far less painful than email+attachments. Senders get maximum flexibility; receivers need only a link.
 
 ---
 
 ## 🧭 Next Steps
 
-* [ ] Finalize `/docs/USER_FLOWS.md` for every MVP interaction.  
-* [ ] Define DB schema.  
-* [ ] Build atomic components for forms & file upload.  
-* [ ] Implement backend endpoints (handshake creation, retrieval).  
-* [ ] Define future support for receiver inbox (accounts + received handshakes)
+- Per-field errors + loading/disabled states on public form.
+- Minimal Outbox submissions list/detail in the sender UI.
+- Automated tests (public submit, outbox CRUD, inbox reads).
+- S3 wiring for production uploads (dev remains local).
+- Token lifecycle hardening (default expiry, revoke/rotate, hash at rest).
+- Consolidate docs with code in PRs (see `docs/CONTRIBUTING.md`).
 
 ---
 
-## 📚 Documentation Folder
+## 📚 Documentation
 
-All supporting documentation lives in the [`/docs`](./docs) folder:
+All docs live under [`/docs`](./docs):
 
-- Architecture  
-- Roadmap  
-- Path  
-- Scope  
-- Contributing  
-- Releases  
-- Risks  
-- And more...
+- Architecture • Scope • Path • Roadmap • Risks
+- Contributing • Releases • User Flows • Not Now
+- `proposed-filetree.txt` (canonical structure)
+
+For contribution and migration details, read `docs/CONTRIBUTING.md` and `docs/RELEASES.md`.

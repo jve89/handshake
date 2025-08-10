@@ -1,135 +1,174 @@
 # User Flows — Handshake
 
-This file outlines the core interactions for two personas:
+This file outlines the core interactions for two roles:
 
-* **Sender (Entity A)**: Person or business requesting files/info/etc.  
-* **Receiver (Entity B)**: Person responding to a handshake request
+- **Sender (Entity A)** — creates and manages a handshake (request)
+- **Receiver (Entity B)** — completes the request via the public link
+- **(Viewer via token)** — anyone with an **inbox token link** can view submissions (read-only)
 
 ---
 
 ## 👤 Sender Flow (Entity A)
 
-> Creating and managing a handshake link
+> Creating and distributing a handshake link; monitoring responses
 
-### 1. Dashboard Access
+### 1) Access
+- [x] Sender signs up/logs in
+- [x] Lands on dashboard with their handshakes (`/dashboard/handshakes`)
 
-* [x] User signs up/logs in  
-* [x] Lands in dashboard showing all past handshakes
+### 2) Create
+- [x] Create new handshake (slug, title, description, expiry optional)
+- Fields (requests):
+  - [x] API supports text/email/select/file with `required` and `options[]`
+  - [~] UI management exists but is **legacy/placeholder**; dedicated Outbox UI is in progress
 
-### 2. Create New Handshake
+### 3) Share
+- [x] **Public form** link (no auth): `/handshake/:slug`
+- [x] **Inbox (read-only) link**: mint token → `/inbox/handshakes/:id?token=<TOKEN>`
 
-* [x] Clicks “Create new handshake”  
-* [x] Chooses:  
-  * Title / description  
-  * What is being requested:  
-    * [x] File uploads  
-    * [x] Text input (e.g. name, comment)  
-    * [x] Dropdown/select options  
-  * [x] Dynamically add, reorder, and configure unlimited fields of various types (file, text, select, email, etc.) using intuitive UI controls
+### 4) Monitor
+- [x] Read-only **Inbox** web UI via token lists and shows submissions
+- [~] Sender dashboard view for submissions is **partial** (API complete; UI consolidation pending)
 
-> ❌ Payment tracking, due dates, and advanced form logic are out of scope for v0.1
-
-* [ ] Optionally selects a template (e.g. Freelance onboarding, HR form)
-
-### 3. Generate & Share Link
-
-* [x] Handshake link is generated (e.g. `handshake.app/h/xyz123`)  
-* [x] Sender shares this via email, chat, etc.
-
-### 4. Monitor Submissions
-
-* [x] Dashboard shows who has submitted, what’s missing  
-* [ ] Optionally marks as “complete” manually
-
-### 5. Manage Handshake
-
-* [x] Can archive or delete a handshake  
-* [x] Cannot edit content after link creation in v0.1
+### 5) Manage
+- [x] Edit handshake metadata (title/description/expiry)
+- [x] Add/update/delete fields (API)
+- [x] Delete handshake (API)
+- [ ] Archive/duplicate flows (planned)
+- Note: We do **not** lock edits after creation yet; locking rules TBD (e.g., after first submission)
 
 ---
 
 ## 👥 Receiver Flow (Entity B)
 
-> Completing a request via the shared handshake link
+> Completing the request via the shared public link
 
-### 1. Open Link
+### 1) Open
+- [x] Opens `/handshake/:slug`
+- [x] Sees title/description/fields; responsive UI
 
-* [x] Receiver opens `handshake.app/h/xyz123`  
-* [x] Sees the title, description, and requested fields/files  
-* [x] UI is fully responsive and optimized for desktop and mobile devices  
-* [x] Sees optional **“Sign in to save this in your inbox”** link or button
+### 2) Submit
+- [x] Fills fields; uploads files (dev: local storage; prod: S3 planned)
+- [x] Server-side validation:
+  - `text/file`: `required` enforced
+  - `email`: must be a valid email when required
+  - `select`: **defensive rule** — if required, value must be in options; if optional and provided, must be in options
 
-> If signed in, this handshake will appear in the receiver's dashboard inbox after submission.
+### 3) Success
+- [x] Shown confirmation / thank-you screen
 
-### 2. Submit Data
-
-* [x] Fills out requested fields  
-* [x] Uploads documents  
-* [x] Real-time validation ensures all required fields are completed correctly before submission  
-* [x] Clicks “Submit” (or Save as Draft if allowed — ❌ not in v0.1)
-
-### 3. Success Screen
-
-* [x] Confirmation message: “Your handshake is complete”  
-* [ ] Optionally shows sender info/contact (e.g. HR email)
-
-### 4. Re-submission (v0.1 supported ✅)
-
-* [x] Receiver may re-upload a file before final submission  
-* [x] No changes allowed after submission, including text inputs
+### 4) Changes
+- [x] Can modify inputs **before** clicking Submit
+- [x] No edits **after** submission (no drafts/autosave in v0)
 
 ---
 
-## 📥 Inbox Flow (Optional, if Receiver Logs In)
+## 📥 Inbox — Token Viewer Flow (read-only, no login)
 
-> Enhances experience for recipients who want a dashboard overview
+> For senders or designated reviewers to see submissions without an account
 
-### When Logged In:
-* [x] Public page offers login prompt ("Sign in to track this handshake")  
-* [x] Upon submission, the handshake appears in `/dashboard/inbox`  
-* [ ] Receiver can browse all submitted handshakes received while logged in  
-* [ ] View details, download uploaded files, see timestamps, etc.
+1. **Sender** mints a token: `POST /api/outbox/handshakes/:id/inbox-token`
+2. **Viewer** opens:
+   - List: `/inbox/handshakes/:id?token=<TOKEN>`
+   - Detail: `/inbox/submissions/:submissionId?token=<TOKEN>&handshakeId=:id`
+3. **Viewer** can:
+   - [x] List submissions for the handshake (scoped by token)
+   - [x] View a submission detail (server returns `handshake_id` for back link)
+   - [ ] Download files (planned)
+
+> Tokens are currently stored plaintext; expiry/revocation/hashing to be added.
 
 ---
 
 ## 🔍 Edge Cases
 
-| Situation                                     | v0.1 Handling                                |
-| --------------------------------------------- | -------------------------------------------- |
-| Receiver uploads wrong file                   | ✅ Can re-upload before submitting            |
-| Receiver edits text responses before submission | ❌ Not supported                            |
-| Handshake opened after expiry                 | ❌ Not implemented in v0.1                    |
-| Sender deletes handshake                      | ✅ Show "Not found / deleted" message on open |
-| Sender wants to duplicate or resend handshake | ❌ Tracked in `NOTNOW.md`                     |
-| Receiver leaves page mid-fill                 | ❌ No autosave/draft in v0.1                  |
-| Handshake link brute-forced                   | ✅ Hash is unguessable (e.g. `xyz123abc789`)  |
-| Receiver logs in after submission             | ✅ Submission still counted and accessible    |
-| Receiver opens link while logged in           | ✅ Submission links automatically to inbox    |
+| Situation                                          | v0 Handling                                      |
+|---------------------------------------------------|--------------------------------------------------|
+| Wrong file uploaded                                | ✅ Change before submitting                       |
+| Edit text after submission                         | ❌ Not supported                                  |
+| Handshake expired                                  | ❌ Expiry logic not enforced yet                  |
+| Sender deletes handshake                           | ✅ Public link returns Not Found after delete     |
+| Duplicate/resend a handshake                       | ❌ Not implemented (tracked)                      |
+| Receiver leaves mid-fill                           | ❌ No autosave/draft                              |
+| Link brute-force attempt                           | ✅ Slug unguessable; token required for inbox     |
+| Viewer opens inbox link without token              | ❌ 401/403                                        |
+| Token expired/revoked                              | ❌ Not implemented yet (planned)                  |
 
 ---
 
-## Notes
+## 🧭 Model Summary (Outbox/Inbox)
 
-* No login required for receivers — login is optional  
-* Expired or deleted handshakes never show sender data  
-* Submissions are not editable after hitting "Submit"  
-* UI designed for simplicity and mobile responsiveness  
-* Inbox support does not interfere with 1-way flows
+- **Outbox (Sender):** create/manage the handshake; canonical API under `/api/outbox/handshakes`
+- **Public form:** anyone can submit via `/handshake/:slug`
+- **Inbox (token):** read-only viewing via `/api/inbox/*` and `/inbox/*` with `?token=…`
+- **Receiver accounts:** not required; future feature for attribution and personal inbox
 
 ---
 
-## 📥 Inbox/Outbox Model
+## 🔧 Executable quickstart (cURL)
 
-Each handshake link has a sender (“outbox”) and optionally a receiver (“inbox”).
+> Minimal end-to-end: create handshake → add a field → mint inbox token → submit → read via inbox → open UI links.
 
-- Every **sender** sees their created handshakes in their **Outbox** (dashboard).
-- Every **receiver** can complete the handshake with **no login**.
-- If the receiver logs in (or creates an account), the handshake is added to their **Inbox** automatically, enabling tracking and reuse later.
+```bash
+# 0) Health
+curl -s http://localhost:3000/api/health
 
-This model supports both:
-- ✅ One-way, no-login flows (maximum simplicity)
-- ✅ Two-way, account-based workflows (for power users or recurring use)
+# 1) Sender auth (login; use signup once if needed)
+EMAIL="you@example.com"
+PASSWORD="changeme123"
+SENDER_TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}" | jq -r '.token')
+echo "sender token len=${#SENDER_TOKEN}"
 
+# 2) Create a handshake (canonical outbox route)
+SLUG="demo-$(date +%s)"
+HANDSHAKE_ID=$(curl -s -X POST http://localhost:3000/api/outbox/handshakes \
+  -H "Authorization: Bearer $SENDER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"slug\":\"$SLUG\",\"title\":\"Demo Handshake\"}" | jq -r '.handshake.id')
+echo "HANDSHAKE_ID=$HANDSHAKE_ID  SLUG=$SLUG"
 
+# 3) Add a field (request) to the handshake
+REQUEST_ID=$(curl -s -X POST http://localhost:3000/api/outbox/handshakes/$HANDSHAKE_ID/requests \
+  -H "Authorization: Bearer $SENDER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"label":"Full name","type":"text","required":true}' | jq -r '.request.id')
+echo "REQUEST_ID=$REQUEST_ID"
 
+# 4) Mint an inbox token (handshake-scoped)
+INBOX_TOKEN=$(curl -s -X POST http://localhost:3000/api/outbox/handshakes/$HANDSHAKE_ID/inbox-token \
+  -H "Authorization: Bearer $SENDER_TOKEN" | jq -r '.token')
+echo "INBOX_TOKEN=$INBOX_TOKEN"
 
+# 5) Submit via public form (no auth)
+SUB_ID=$(curl -s -X POST http://localhost:3000/api/handshake/$SLUG/submit \
+  -H "Content-Type: application/json" \
+  -d "{\"responses\":[{\"request_id\":$REQUEST_ID,\"value\":\"Ada Lovelace\"}]}" | jq -r '.submission_id')
+echo "SUB_ID=$SUB_ID"
+
+# 6a) Read via Inbox API (Authorization header)
+curl -s http://localhost:3000/api/inbox/handshakes/$HANDSHAKE_ID/submissions \
+  -H "Authorization: Bearer $INBOX_TOKEN" | jq
+
+curl -s http://localhost:3000/api/inbox/submissions/$SUB_ID \
+  -H "Authorization: Bearer $INBOX_TOKEN" | jq
+
+# 6b) Or via token query param (same results)
+curl -s "http://localhost:3000/api/inbox/handshakes/$HANDSHAKE_ID/submissions?token=$INBOX_TOKEN" | jq
+
+# 7) UI links (open in browser)
+FRONTEND="http://localhost:5173"   # replace with your Gitpod origin if applicable
+echo "$FRONTEND/handshake/$SLUG"
+echo "$FRONTEND/inbox/handshakes/$HANDSHAKE_ID?token=$INBOX_TOKEN"
+echo "$FRONTEND/inbox/submissions/$SUB_ID?token=$INBOX_TOKEN&handshakeId=$HANDSHAKE_ID"
+
+---
+
+## 🧹 Cleanup (optional)
+
+Delete only the temp field:
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" \
+  -X DELETE http://localhost:3000/api/outbox/handshakes/$HANDSHAKE_ID/requests/$REQUEST_ID \
+  -H "Authorization: Bearer $SENDER_TOKEN"

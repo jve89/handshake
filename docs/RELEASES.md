@@ -1,50 +1,75 @@
 # RELEASES.md
 
 ## Changelog
-
-All notable changes to this project are tracked here.
+All notable changes to this project are tracked here. Keep entries concise and traceable.
 
 ---
 
-### [v0.1.0] - YYYY-MM-DD
+### [2025-08-10] - 2025-08-10
 
 #### Added
-
-- Initial MVP release:
-  - Basic user authentication
-  - Handshake creation with dynamic fields (text, file, select)
-  - Submission handling with validation
-  - File uploads (local, via multer)
-  - Public submission page (no login required)
-  - React frontend with routing and Vite proxy
-  - Express backend with PostgreSQL integration
-  - Gitpod dev environment with hot reload and backend watch mode
+- **Outbox (sender) — canonical routes**
+  - `/api/outbox/handshakes` (CRUD)
+  - `/api/outbox/handshakes/:handshakeId/requests` (CRUD)
+  - `/api/outbox/handshakes/:handshakeId/inbox-token` (mint read-only inbox token)
+- **Inbox (read-only) — token-gated API**
+  - `GET /api/inbox/handshakes/:handshakeId/submissions`
+  - `GET /api/inbox/submissions/:submissionId`
+  - `GET /api/inbox/health`
+- **Inbox UI (read-only)**
+  - `/inbox/handshakes/:handshakeId?token=…` (list)
+  - `/inbox/submissions/:submissionId?token=…&handshakeId=:id` (detail)
+- **DB migrations**
+  - `receivers` table
+  - `inbox_access_tokens` table
+  - `submissions.receiver_id` (nullable, indexed)
+  - `handshakes.updated_at`
+- **Health checks** for API and inbox
 
 #### Changed
+- **Public submit validation** (select fields): defensive rule  
+  - Required → value must be in options  
+  - Optional → empty allowed; if provided, must be in options
+- **Client utils** now target Outbox canonical routes; legacy routes still work.
 
-- N/A
+#### Deprecated (not removed)
+- Legacy sender routes kept during transition:
+  - `/api/user-handshake`
+  - `/api/handshakes/:handshakeId/requests`
 
-#### Fixed
+#### Security
+- **Inbox token middleware**: validates token, checks `is_revoked` and `expires_at` when present, scopes access to `handshake_id`.
 
-- N/A
+#### Upgrade notes
+1. **Run migrations (in order):**
+
+        psql "<YOUR_POSTGRES_URL>" -f migrations/001_inbox.sql
+        psql "<YOUR_POSTGRES_URL>" -f migrations/002_handshakes_updated_at.sql
+
+2. **Env:** ensure `JWT_SECRET` is set.  
+3. **Server:** restart after deploy. No breaking API changes; old aliases continue to function.
+
+---
+
+### [v0.1.0] - Unreleased
+
+#### Planned
+- Public form UX polish (per-field errors, loading states)
+- Minimal Outbox submissions view in UI
+- Test coverage for public submit, outbox CRUD, inbox reads
+- Prep S3 wiring for prod uploads (dev remains local)
 
 ---
 
 ## 🧭 Future Releases
+Follow Semantic Versioning (`MAJOR.MINOR.PATCH`).
 
-Follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
-
-- Log all **new features**, **bug fixes**, and **breaking changes**
-- Reference related issue numbers or pull requests (e.g., `#42`, `PR #55`)
-- Note **DB schema migrations** or breaking API changes
-- Include required updates to `.env` or configuration
+- Log **features**, **fixes**, **breaking changes**
+- Note **DB migrations** and required **env** changes
+- Reference PRs/issues where useful
+- Cross-link to `/docs/PATH.md` and relevant docs
 
 ---
 
 ## Notes
-
-- Update this file on **every release tag or production deployment**  
-- Keep entries concise but traceable  
-- For high-impact changes, consider linking to `/docs/PATH.md` or internal RFCs
-
-
+Update this file on **every release tag or production deploy**.

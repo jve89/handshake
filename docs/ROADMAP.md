@@ -1,82 +1,122 @@
+```md
 # ROADMAP.md
 
 ## Overview
-
-Handshake’s development follows an iterative, phased approach focused on delivering a stable, polished MVP core before expanding features and scaling. User feedback and priorities will guide the evolution.
-
----
-
-## Phase 1: MVP (v0.1) — Foundation (Completed / In Progress)
-
-- Basic user authentication (email login or hardcoded user)  
-- Admin dashboard for handshake creation and management  
-- Public-facing handshake page with dynamic form rendering  
-- Full sender control with dynamic handshake composition (unlimited fields, types)  
-- Receiver-friendly, no-login, responsive UI  
-- File upload support with local storage (dev)  
-- Submission viewer and response storage  
-- React Router and API proxy setup  
-- Gitpod dev environment with watch and hot reload  
-- Core error handling and baseline validations
+Iterative, non-breaking delivery. Ship small, reversible slices; keep legacy routes alive until full cutover. This roadmap reflects the **current state** and near-term plan.
 
 ---
 
-## Phase 2: Stabilization & Polish (v0.2)
+## Phase 0 — Today (2025-08-10) ✅
 
-- Add error handling and UX improvements (validation, loading states)  
-- Implement admin UI enhancements (archiving, search)  
-- Add notifications for senders (email / in-app)  
-- Implement persistent file storage (e.g. S3) for production  
-- Security audits and performance optimizations  
-- Automated testing (unit & integration)  
-- Mobile-first improvements and responsive refinements
+**Shipped**
+- **Outbox (sender) aliases** live: `/api/outbox/handshakes` (+ `/requests`, `/:id/inbox-token`)  
+  *Legacy routes retained:* `/api/user-handshake`, `/api/handshakes/:id/requests`
+- **Inbox (read-only) via token:**  
+  - `GET /api/inbox/handshakes/:id/submissions`  
+  - `GET /api/inbox/submissions/:submissionId`  
+  - Middleware scopes by `handshake_id`; supports `Bearer <token>` or `?token=…`
+- **Public submit validation** hardened: defensive `select` rule (optional provided values must be in options)
+- **DB migrations:** `receivers`, `inbox_access_tokens`, `submissions.receiver_id`, `handshakes.updated_at`
+- **Frontend:** minimal Inbox UI (list/detail), Outbox wrappers; legacy dashboard kept
+- **Health/smoke:** `/api/health`, `/api/inbox/health`, cURL flow documented in `USER_FLOWS.md`
 
----
-
-## Phase 3: Expansion & Monetization (v1.0)
-
-- Payment integration (Stripe)  
-- E-signature support  
-- Template marketplace and sharing  
-- Team and role management  
-- API access and integrations  
-- Analytics and usage reporting  
-- Localization and multi-language support  
-- Public branding and custom domains  
-- **Inbox support for recipients with accounts**  
-  - Handshakes submitted by logged-in users appear in their personal inbox  
-  - New dashboard route: `/dashboard/inbox`  
-  - Submissions are linked to sender accounts where applicable  
-  - Each public handshake page optionally shows a **“Log in to save to inbox”** button  
-  - Anonymous use still fully supported (login not required to submit)
+Exit criteria met for Phase 0.
 
 ---
 
-## Phase 4: Scale & Integrations (v2.0+)
+## Phase 1 — MVP (v0.1) Completion (Next 1–2 weeks)
 
-- Zapier / Make / API integrations  
-- AI-powered form validation and autofill  
-- Smart contract support  
-- Native mobile app development and Progressive Web App (PWA)  
-- Advanced security & compliance features
+**Goals**
+- Public form UX polish:
+  - Per-field error display (client), disable-on-submit + loading states
+- Sender UI baseline:
+  - Simple list/detail of submissions within Outbox (reuse current components)
+- Storage:
+  - Keep dev on local; prepare S3 wiring (no prod cutover yet)
+- Quality gates:
+  - Unit tests for services + integration tests for key routes (public submit, outbox CRUD, inbox read)
+- Docs:
+  - Keep `PATH.md`, `ARCHITECTURE.md`, `SCOPE.md` aligned per change
+
+**Exit criteria**
+- Public submit UX is clear and validated end-to-end
+- Outbox shows submissions list for a handshake
+- Tests cover critical flows; CI green on PR
+
+---
+
+## Phase 2 — Stabilization & Security (v0.2)
+
+**Security & tokens**
+- Inbox tokens: **default expiry**, **revoke endpoint**, and **hash at rest**
+- Add `Referrer-Policy: no-referrer`; avoid logging query strings
+
+**Rate limiting & hardening**
+- Rate limit `/api/inbox/*`, `/api/auth/*`, and public submit
+- Enforce body size limits; MIME/size checks for uploads (dev)
+
+**Observability**
+- Structured request/error logging (no PII/tokens)
+- Basic uptime + error alerts
+
+**Indexes & perf**
+- Ensure `requests(handshake_id)` index; review slow queries
+
+**Exit criteria**
+- Token lifecycle enforced; abuse mitigations in place
+- Baseline observability and rate limits live
+
+---
+
+## Phase 3 — Expansion & Monetization (v1.0)
+
+**Receiver attribution & accounts**
+- Carry token on public link; set `submissions.receiver_id`
+- (Optional) Receiver accounts with personal Inbox (later)
+
+**Sender experience**
+- Archive/duplicate/resend
+- Search, filter, sort in Outbox
+
+**Commerce & signatures**
+- Stripe (one-off + subscriptions)
+- E-signatures with audit trail
+
+**Branding & API**
+- Custom branding/domains
+- Webhooks + public API; initial integrations (Zapier/Make)
+
+**Analytics**
+- Basic reporting (submission counts, completion times)
+
+**Exit criteria**
+- Paid tier(s) available; core workflows stable and measurable
+
+---
+
+## Phase 4 — Scale & Integrations (v2.0+)
+
+- Prod uploads on **S3** with signed URLs; background malware scan
+- Deep integrations (Slack/Email notifications, CRM hooks)
+- Localization & multi-language flows
+- PWA; evaluate native mobile
+- AI assists: auto-validate uploads, pre-fill/detect missing info
+- Compliance: retention policy, DSR endpoints, audit logging
 
 ---
 
 ## Timeline (Tentative)
 
-| Quarter | Goals                      |
-|---------|----------------------------|
-| Q3 2025 | MVP launch, user testing   |
-| Q4 2025 | Stabilization and polish   |
-| Q1 2026 | Monetization features      |
-| Q2 2026 | Growth and scaling         |
+| Quarter | Goals                                                     |
+|--------:|-----------------------------------------------------------|
+| Q3 2025 | Phase 0 shipped (tokened Inbox); MVP polish (Phase 1)     |
+| Q4 2025 | Stabilization & Security (Phase 2)                        |
+| Q1 2026 | Expansion & Monetization (Phase 3)                        |
+| Q2 2026 | Scale & deeper integrations (Phase 4)                     |
 
 ---
 
 ## Notes
-
-- Timeline is flexible and subject to change based on feedback and priorities.  
-- Scope can be adjusted with reference to `/docs/SCOPE.md` and `/docs/NOTNOW.md`.
-
-
-
+- Roadmap adapts to user feedback; keep `SCOPE.md`, `PATH.md`, and `RISKS.md` synchronized.
+- Non-destructive policy: keep legacy routes until full UI cutover and tests pass.
+```

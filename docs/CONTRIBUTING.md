@@ -1,78 +1,171 @@
 # CONTRIBUTING.md
 
-Thank you for your interest in contributing to **Handshake**! This document outlines the contribution process, coding standards, and architectural expectations that keep the project clean, scalable, and sustainable.
+Thanks for your interest in contributing to **Handshake**. This guide defines how we work so the codebase stays clean, modular, and easy to ship. Read this before opening a PR.
 
 ---
 
-## 🧭 Code of Conduct
+## 🧭 Principles (non-negotiable)
 
-- Be respectful and constructive in all interactions.  
-- Follow the project’s architecture principles and scope boundaries.  
-- Keep all contributions modular, testable, and deterministic.
-
----
-
-## ⚙️ Development Setup
-
-- Use **Gitpod** as the primary dev environment.  
-- Run `scripts/bootstrap.sh` to initialize the database, seed data, and start dev servers.  
-- Follow **TypeScript strict mode** — no `any`, no implicit `any`.  
-- Run linting (`npm run lint`) and formatting (`npm run format`) before commits.
+- **One purpose per file.** No grab-bags, no side effects.
+- **Additive, non-breaking changes.** Keep legacy routes until the new path is fully wired + tested.
+- **No blind edits.** Never patch a file you haven’t opened. Align on structure first.
+- **Strict contracts.** Backend response shapes are explicit; frontend expects **exactly** those shapes.
+- **Minimal deps.** Justify any new dependency.
 
 ---
 
-## 🌿 Branching & Workflow
+## ⚙️ Dev Setup
 
-- Create feature branches off `main`:
-  - Use clear, descriptive names: `feature/file-upload`, `fix/validation-error`, etc.
-- Open Pull Requests (PRs) with:
-  - A clear summary of changes  
-  - Linked issues (if applicable)  
-  - Screenshots or test output for UI or API changes
-- Keep commits:
-  - Atomic (one purpose per commit)  
-  - Clean (no commented-out code, debug logs, or console output)
+- **Environment:** Gitpod (preferred) or local.
+- **Node:** Use the version from `.nvmrc` if present (or latest LTS).
+- **Install:** `npm ci` (or `npm install` on first run).
+- **Env vars:** Copy `.env.example` → `.env` and fill required values (e.g., `JWT_SECRET`, Postgres URL if running locally).
+
+### Run apps
+
+    # Frontend (Vite @ 5173)
+    npm run dev
+
+    # Backend (Express @ 3000; watch)
+    npm run dev:server
+
+    # One-off server (no watch)
+    npm run server
+
+### Bootstrap helpers
+
+There’s a helper script you can run in Gitpod/local if needed:
+
+    bash scripts/bootstrap.sh
+
+*(It should install deps, ensure DB connectivity, and start dev servers. If anything fails, follow the manual steps above.)*
 
 ---
 
-## ✅ Testing
+## 🗃️ Database & Migrations
 
-- Write **unit and integration tests** for all new logic and flows.  
-- Ensure **file uploads** and **API endpoints** are tested thoroughly.  
-- Validate frontend and backend behavior in both:
-  - Authenticated dashboard flows  
-  - Public submission flows  
-- No PR will be accepted unless **all existing tests pass**.
+Migrations live in `migrations/` and are **SQL-first** and **additive**.
+
+- **Never** remove/rename columns or tables in a PR that also ships code. Deprecate first, remove later.
+- Keep migrations idempotent where possible (`IF NOT EXISTS`, `DO $$ … $$` checks).
+
+### Apply migrations
+
+    # Use your managed Postgres URL (Gitpod secrets or local env)
+    psql "<YOUR_POSTGRES_URL>" -f migrations/001_inbox.sql
+    psql "<YOUR_POSTGRES_URL>" -f migrations/002_handshakes_updated_at.sql
+
+If you’re already *inside* `psql`, don’t paste `psql …` again — just:
+
+    \i migrations/001_inbox.sql
+    \i migrations/002_handshakes_updated_at.sql
+
+### Sanity checks
+
+    -- basic tables
+    \d+ public.users
+    \d+ public.handshakes
+    \d+ public.requests
+    \d+ public.submissions
+    \d+ public.responses
+    \d+ public.inbox_access_tokens
+    \d+ public.receivers
+
+---
+
+## 🔌 Routes & Aliases (do not break)
+
+- **Public:** `/api/handshake/:slug`, `/api/handshake/:slug/submit`
+- **Outbox (canonical):** `/api/outbox/handshakes`, `/api/outbox/handshakes/:id/requests`, `/api/outbox/handshakes/:id/inbox-token`
+- **Legacy (kept):** `/api/user-handshake`, `/api/handshakes/:id/requests`
+- **Inbox (token):** `/api/inbox/handshakes/:id/submissions`, `/api/inbox/submissions/:submissionId`, `/api/inbox/health`
+- **Auth:** `/api/auth/*`
+- **Uploads:** `/api/upload` (dev: local disk; prod: S3 planned)
+
+When you add/adjust server endpoints:
+1. Mount **new** aliases (don’t remove the old).
+2. Update `docs/ARCHITECTURE.md`, `docs/PATH.md`, and `docs/RELEASES.md`.
+3. Provide a smoke script (see below) or tests.
+
+---
+
+## 🔐 Security & Privacy (baseline)
+
+- **Inbox tokens:** treat as secrets. Don’t log tokens or query strings containing `?token=`.
+- Prefer `Authorization: Bearer <token>` over `?token=…` where possible.
+- Keep request bodies small; consider `express.json({ limit: '1mb' })` when relevant.
+- No PII in logs. Redact emails, tokens, and file names if needed.
+
+**Planned** (do not implement ad-hoc without alignment):
+- Hash inbox tokens at rest; default expiries; revoke/rotate endpoints.
+- Rate limit `/api/inbox/*`, `/api/auth/*`, and public submit.
+- S3 uploads with signed URLs + malware scanning.
+
+---
+
+## ✅ Testing & Smoke
+
+### Minimum before merge
+
+- For backend services & routes: unit/integration tests **or** a reproducible smoke script that exercises the change.
+- For frontend: show how to manually verify (steps + screenshots).
+
+### Smoke (example)
+
+Use the **Executable quickstart** in `docs/USER_FLOWS.md`:
+
+- Create handshake → add field → mint inbox token → submit → read via inbox.
+- Include any new endpoints you touched.
+
+---
+
+## 🌿 Branching & Commits
+
+- Branch from `main`:
+  - `feat/inbox-revoke`, `fix/select-validation`, `chore/docs-release`
+- Keep commits atomic, one purpose each. No commented code or stray logs.
+- Conventional style **encouraged**:
+  - `feat(outbox): add inbox-token mint endpoint`
+  - `fix(public): enforce select option membership`
+  - `docs: update PATH and RELEASES`
+
+---
+
+## 🔍 Pull Requests
+
+**Checklist (paste into PR description):**
+- [ ] Changes are **additive** (no breaking removals/renames)
+- [ ] Updated docs where needed (`ARCHITECTURE.md`, `PATH.md`, `RELEASES.md`, etc.)
+- [ ] Added tests or provided a smoke script
+- [ ] Verified locally (`npm run dev` + `npm run dev:server`)
+- [ ] No tokens/PII logged; no secrets committed
+- [ ] DB migration applied and verified (if applicable)
+
+**Include:**
+- What changed & why (1–3 sentences)
+- Routes touched
+- DB migrations (file names)
+- Verification steps (curl commands or UI steps)
 
 ---
 
 ## 🧹 Code Style & Quality
 
-- Use ESLint and Prettier (already configured).  
-- Do not introduce new dependencies without discussion.  
-- Match existing folder structure and naming conventions exactly.  
-- Avoid logic duplication — extract reusable functions where applicable.  
-- Never bypass type checks, validations, or error handling — **no shortcuts**.
+- TypeScript strict. Avoid `any`. Model shared shapes under `src/shared/types.ts` when reused.
+- ESLint + Prettier: run before committing.
+- Keep functions small and deterministic. Extract helpers when duplication appears.
+- Avoid magic strings/ints — define small enums/consts where helpful.
 
 ---
 
-## 🗣️ Communication & Collaboration
+## 🗣️ Communication
 
-- Use the **issue tracker** for bugs and feature discussions.  
-- For architectural changes, open a discussion or edit relevant `docs/*.md` files first.  
-- Respect `ROADMAP.md`, `SCOPE.md`, and `NOTNOW.md` as guardrails.
-
----
-
-## 🔍 Review & Merge Process
-
-- All PRs require **at least one approval** from a maintainer.  
-- Maintainers may request changes for clarity, structure, or alignment.  
-- Use **squash or merge commits only** — never rebase-and-force-push `main`.
+- Use GitHub issues for bugs/ideas. Keep them small and actionable.
+- For architectural shifts, open a brief proposal (issue or PR touching `docs/*.md`) **before** coding.
+- Respect `SCOPE.md`, `NOTNOW.md`, `PATH.md`, and `ROADMAP.md` as guardrails.
 
 ---
 
-## 👏 Thank You
+## 🙌 Thanks
 
-Your contributions help keep Handshake focused, clean, and impactful.  
-Let's build a product that lasts — thoughtfully and together.
+Every thoughtful, modular contribution keeps Handshake resilient and fast to ship. Build small, verify hard, document as you go.

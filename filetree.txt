@@ -21,6 +21,9 @@
 ├── .gitignore
 ├── .gitpod.yml
 ├── LICENSE
+├── migrations
+│   ├── 001_inbox.sql
+│   └── 002_handshakes_updated_at.sql
 ├── package.json
 ├── package-lock.json
 ├── postcss.config.js
@@ -40,12 +43,20 @@
 │   │   │   │   ├── HandshakeList.tsx
 │   │   │   │   └── HandshakeRequests.tsx
 │   │   │   ├── HandshakePage.tsx
+│   │   │   ├── inbox
+│   │   │   │   ├── InboxHome.tsx
+│   │   │   │   ├── InboxSubmissionDetail.tsx
+│   │   │   │   └── InboxSubmissions.tsx
+│   │   │   ├── outbox
+│   │   │   │   ├── OutboxHome.tsx
+│   │   │   │   └── OutboxRequests.tsx
 │   │   │   └── ThankYouPage.tsx
 │   │   ├── styles
 │   │   │   └── tailwind.css
 │   │   ├── utils
 │   │   │   ├── getSubmissions.ts
 │   │   │   ├── handshakeRequests.ts
+│   │   │   ├── inbox.ts
 │   │   │   └── postHandshakeResponses.ts
 │   │   └── vite-env.d.ts
 │   ├── public
@@ -57,16 +68,21 @@
 │   │   │   └── seed.ts
 │   │   ├── index.ts
 │   │   ├── middleware
-│   │   │   └── authMiddleware.ts
+│   │   │   ├── authMiddleware.ts
+│   │   │   └── inboxToken.ts
 │   │   ├── routes
 │   │   │   ├── auth.ts
 │   │   │   ├── handshakeRequest.ts
+│   │   │   ├── inbox.ts
+│   │   │   ├── outboxInboxToken.ts
 │   │   │   ├── publicHandshake.ts
 │   │   │   ├── uploads.ts
 │   │   │   └── userHandshake.ts
 │   │   ├── services
 │   │   │   ├── authService.ts
 │   │   │   ├── handshakeRequestService.ts
+│   │   │   ├── inboxService.ts
+│   │   │   ├── tokenService.ts
 │   │   │   └── userHandshakeService.ts
 │   │   └── types
 │   │       ├── express.d.ts
@@ -78,4 +94,4 @@
 ├── tsconfig.seed.json
 └── vite.config.ts
 
-19 directories, 60 files
+22 directories, 73 files

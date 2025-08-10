@@ -1,65 +1,101 @@
 .
-├── .env.example                   # Example env vars (DB URL, secrets, etc.)
-├── .gitignore                    # Ignore node_modules, build artifacts, etc.
-├── .gitpod.yml                   # Gitpod config for dev container
-├── .gitpod.Dockerfile            # Dockerfile for Gitpod workspace
-├── LICENSE                       # Project license (MIT, etc.)
-├── README.md                     # Project overview, setup, and instructions
+├── .env
+├── .env.example
+├── .gitignore
+├── .gitpod.yml
+├── Dockerfile.dev
+├── docker-compose.yml
+├── LICENSE
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── eslint.config.js
+├── tailwind.config.ts
+├── tsconfig.json
+├── tsconfig.seed.json
+├── vite.config.ts
+├── README.md
 │
-├── docs/                         # Documentation folder
-│   ├── README.md                 # Index of all internal docs
-│   ├── ARCHITECTURE.md           # Design overview and tech stack
-│   ├── NOTNOW.md                 # Deferred features and parked ideas
-│   ├── PATH.md                   # Prioritized task list (1-2 week focus)
-│   ├── ROADMAP.md                # High-level milestones and timeline
-│   ├── RELEASES.md               # Versioned changelog
-│   ├── RISKS.md                  # Known risks and mitigation strategies
-│   ├── SCOPE.md                  # In-scope / out-of-scope for MVP
-│   ├── USER_FLOWS.md             # Detailed user flows for sender and receiver
-│   └── proposed-filetree.txt     # Canonical filetree (this file)
+├── scripts/
+│   └── bootstrap.sh
 │
-├── package.json                  # Root dependency and script config
-├── package-lock.json             # Dependency lockfile
+├── migrations/
+│   ├── 001_inbox.sql
+│   └── 002_handshakes_updated_at.sql
 │
-├── scripts/                      # Setup and tooling scripts
-│   └── bootstrap.sh              # One-liner: DB init, seed, dev server boot
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── CONTRIBUTING.md
+│   ├── NOTNOW.md
+│   ├── PATH.md
+│   ├── README.md
+│   ├── RELEASES.md
+│   ├── RISKS.md
+│   ├── ROADMAP.md
+│   ├── SCOPE.md
+│   ├── USER_FLOWS.md
+│   ├── VISION.md
+│   └── proposed-filetree.txt
 │
-├── src/
-│   ├── client/                   # Frontend (React + Vite + Tailwind)
-│   │   ├── index.html            # HTML entry point
-│   │   ├── main.tsx              # App entry, mounts React
-│   │   ├── App.tsx               # App shell with routing and layout
-│   │   ├── styles/               # Tailwind config and global styles
-│   │   ├── assets/               # Static files (logos, icons)
-│   │   ├── pages/                # Page views, split by role
-│   │   │   ├── auth/             # Login, signup, and auth flows
-│   │   │   ├── outbox/           # Sender dashboard (create/view handshakes)
-│   │   │   ├── inbox/            # Receiver inbox (list submitted handshakes)
-│   │   │   └── public/           # Public form page (handshake response)
-│   │   ├── components/           # Reusable UI elements (inputs, buttons, file upload)
-│   │   ├── vite-env.d.ts         # Type declarations for Vite
-│   │   ├── tsconfig.json         # Client TypeScript config
-│   │   └── vite.config.ts        # Vite config (proxy, paths, etc.)
-│
-│   └── server/                   # Backend (Express + TypeScript)
-│       ├── index.ts              # Express app init and route mounting
-│       ├── routes/               # API routes, grouped by domain
-│       │   ├── auth.ts           # Login, signup, auth status endpoints
-│       │   ├── outbox.ts         # Sender: create, fetch, archive handshakes
-│       │   ├── inbox.ts          # Receiver: track/view submitted handshakes
-│       ├── services/             # Business logic, separated by concern
-│       │   ├── authService.ts    # User creation, password hashing, JWT issuing
-│       │   ├── outboxService.ts  # Sender-side logic (create, archive, monitor)
-│       │   ├── inboxService.ts   # Receiver-side logic (link to inbox, view history)
-│       ├── middleware/           # Express middleware
-│       │   └── authMiddleware.ts # Auth verification (JWT decoding)
-│       ├── db/                   # Database connection and schema
-│       │   ├── client.ts         # DB connection pool (pg client)
-│       │   ├── schema.sql        # PostgreSQL schema definition
-│       │   └── seed.ts           # Development seeder script
-│       ├── uploads/              # File upload handlers (Multer config)
-│       ├── types/                # Shared types/interfaces
-│       │   └── index.d.ts
-│       └── tsconfig.server.json  # Backend TypeScript config
-│
-├── tsconfig.json                 # Shared TypeScript base config (extends both sides)
+└── src/
+    ├── shared/
+    │   └── types.ts
+    │
+    ├── client/
+    │   ├── index.html
+    │   ├── main.tsx
+    │   ├── App.tsx
+    │   ├── vite-env.d.ts
+    │   ├── styles/
+    │   │   └── tailwind.css
+    │   ├── components/
+    │   │   └── HandshakeForm.tsx
+    │   ├── pages/
+    │   │   ├── HandshakePage.tsx
+    │   │   ├── ThankYouPage.tsx
+    │   │   ├── dashboard/
+    │   │   │   ├── HandshakeForm.tsx
+    │   │   │   ├── HandshakeList.tsx
+    │   │   │   └── HandshakeRequests.tsx
+    │   │   ├── outbox/
+    │   │   │   ├── OutboxHome.tsx
+    │   │   │   └── OutboxRequests.tsx
+    │   │   └── inbox/
+    │   │       ├── InboxHome.tsx
+    │   │       ├── InboxSubmissions.tsx
+    │   │       └── InboxSubmissionDetail.tsx
+    │   └── utils/
+    │       ├── getSubmissions.ts
+    │       ├── handshakeRequests.ts
+    │       ├── inbox.ts
+    │       └── postHandshakeResponses.ts
+    │
+    ├── public/
+    │   └── uploads/
+    │
+    └── server/
+        ├── index.ts
+        ├── db/
+        │   ├── client.ts
+        │   ├── schema.sql
+        │   └── seed.ts
+        ├── middleware/
+        │   ├── authMiddleware.ts
+        │   └── inboxToken.ts
+        ├── routes/
+        │   ├── auth.ts
+        │   ├── publicHandshake.ts
+        │   ├── userHandshake.ts
+        │   ├── handshakeRequest.ts
+        │   ├── outboxInboxToken.ts
+        │   ├── inbox.ts
+        │   └── uploads.ts
+        ├── services/
+        │   ├── authService.ts
+        │   ├── userHandshakeService.ts
+        │   ├── handshakeRequestService.ts
+        │   ├── inboxService.ts
+        │   └── tokenService.ts
+        └── types/
+            ├── express.d.ts
+            └── index.d.ts
