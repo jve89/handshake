@@ -14,35 +14,59 @@ export default function HandshakeList() {
   const [handshakes, setHandshakes] = useState<Handshake[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('authToken') || '';
+      const res = await fetch('/api/outbox/handshakes', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Error fetching handshakes: ${res.statusText}`);
+      const data = await res.json();
+      setHandshakes(data.handshakes);
+    } catch (e: any) {
+      setError(e?.message || 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function fetchHandshakes() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const token = localStorage.getItem('authToken');
-        const res = await fetch('/api/outbox/handshakes', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error(`Error fetching handshakes: ${res.statusText}`);
-        }
-
-        const data = await res.json();
-        setHandshakes(data.handshakes);
-      } catch (err: any) {
-        setError(err.message || 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchHandshakes();
+    load();
   }, []);
+
+  async function handleDelete(id: number, title: string) {
+    const confirmed = window.confirm(`Delete “${title}”? This cannot be undone.`);
+    if (!confirmed) return;
+
+    setDeletingId(id);
+    setError(null);
+
+    // optimistic update
+    const prev = handshakes;
+    setHandshakes((list) => list.filter((h) => h.id !== id));
+
+    try {
+      const token = localStorage.getItem('authToken') || '';
+      const res = await fetch(`/api/outbox/handshakes/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        // revert on failure
+        setHandshakes(prev);
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || `Failed to delete (status ${res.status})`);
+      }
+    } catch (e: any) {
+      setError(e?.message || 'Failed to delete handshake');
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   if (loading) return <div className="p-4">Loading handshakes...</div>;
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
@@ -87,20 +111,17 @@ export default function HandshakeList() {
                 >
                   Edit
                 </Link>
-                {/* Placeholder buttons disabled */}
                 <button
-                  disabled
-                  title="View (coming soon)"
-                  className="px-3 py-1 bg-blue-400 text-white rounded cursor-not-allowed opacity-50"
+                  onClick={() => handleDelete(id, title)}
+                  disabled={deletingId === id}
+                  className={`px-3 py-1 text-white rounded ${
+                    deletingId === id
+                      ? 'bg-red-400 opacity-70 cursor-not-allowed'
+                      : 'bg-red-600 hover:bg-red-700'
+                  }`}
+                  aria-label={`Delete handshake ${title}`}
                 >
-                  View
-                </button>
-                <button
-                  disabled
-                  title="Delete (coming soon)"
-                  className="px-3 py-1 bg-red-400 text-white rounded cursor-not-allowed opacity-50"
-                >
-                  Delete
+                  {deletingId === id ? 'Deleting…' : 'Delete'}
                 </button>
               </div>
             </li>

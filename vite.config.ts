@@ -7,11 +7,17 @@ const exposedHost = workspaceUrl ? `5173-${workspaceUrl}` : undefined;
 
 export default defineConfig({
   plugins: [react()],
+
+  // Client lives here
   root: 'src/client',
+
+  // 🔑 Load env files from the REPO ROOT (so .env works)
+  envDir: process.cwd(),
+
   build: {
     outDir: '../../../dist/client',
     emptyOutDir: true,
-    sourcemap: false, // ✅ disables .ts source file fetch attempts
+    sourcemap: false,
   },
   server: {
     host: true,
