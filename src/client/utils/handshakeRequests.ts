@@ -10,10 +10,17 @@ export interface HandshakeRequest extends RequestInput {
   handshake_id: number;
 }
 
-const API_BASE = '/api/handshakes';
+const API_BASE = '/api/outbox/handshakes';
+
+function authHeader() {
+  const token = localStorage.getItem('authToken') || '';
+  return { Authorization: `Bearer ${token}` };
+}
 
 export async function fetchRequests(handshakeId: number): Promise<HandshakeRequest[]> {
-  const res = await fetch(`${API_BASE}/${handshakeId}/requests`);
+  const res = await fetch(`${API_BASE}/${handshakeId}/requests`, {
+    headers: authHeader(),
+  });
   if (!res.ok) throw new Error('Failed to fetch requests');
   const data = await res.json();
   return data.requests;
@@ -25,7 +32,7 @@ export async function createRequest(
 ): Promise<HandshakeRequest> {
   const res = await fetch(`${API_BASE}/${handshakeId}/requests`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
     body: JSON.stringify(request),
   });
   if (!res.ok) throw new Error('Failed to create request');
@@ -40,7 +47,7 @@ export async function updateRequest(
 ): Promise<HandshakeRequest> {
   const res = await fetch(`${API_BASE}/${handshakeId}/requests/${requestId}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
     body: JSON.stringify(updates),
   });
   if (!res.ok) throw new Error('Failed to update request');
@@ -51,6 +58,7 @@ export async function updateRequest(
 export async function deleteRequest(handshakeId: number, requestId: number): Promise<void> {
   const res = await fetch(`${API_BASE}/${handshakeId}/requests/${requestId}`, {
     method: 'DELETE',
+    headers: authHeader(),
   });
   if (!res.ok) throw new Error('Failed to delete request');
 }

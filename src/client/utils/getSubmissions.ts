@@ -11,8 +11,12 @@ export interface Submission {
 }
 
 export async function getSubmissions(handshakeId: number): Promise<Submission[]> {
+  const token = localStorage.getItem('authToken') || '';
   try {
-    const res = await axios.get(`/api/user/handshake/${handshakeId}/submissions`);
+    const res = await axios.get(
+      `/api/outbox/handshakes/${handshakeId}/submissions`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     return res.data.submissions;
   } catch (err: any) {
     const message = err.response?.data?.error || 'Failed to load submissions';

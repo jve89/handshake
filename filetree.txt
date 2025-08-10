@@ -29,10 +29,6 @@
 │   └── bootstrap.sh
 ├── src
 │   ├── client
-│   │   ├── api
-│   │   │   ├── getSubmissions.ts
-│   │   │   ├── handshakeRequests.ts
-│   │   │   └── submitResponses.ts
 │   │   ├── App.tsx
 │   │   ├── components
 │   │   │   └── HandshakeForm.tsx
@@ -47,6 +43,10 @@
 │   │   │   └── ThankYouPage.tsx
 │   │   ├── styles
 │   │   │   └── tailwind.css
+│   │   ├── utils
+│   │   │   ├── getSubmissions.ts
+│   │   │   ├── handshakeRequests.ts
+│   │   │   └── postHandshakeResponses.ts
 │   │   └── vite-env.d.ts
 │   ├── public
 │   │   └── uploads

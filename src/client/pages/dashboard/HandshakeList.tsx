@@ -22,7 +22,7 @@ export default function HandshakeList() {
 
       try {
         const token = localStorage.getItem('authToken');
-        const res = await fetch('/api/handshakes', {
+        const res = await fetch('/api/outbox/handshakes', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
