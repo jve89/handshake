@@ -9,7 +9,8 @@ import uploadRoutes from './routes/uploads';
 import authRoutes from './routes/auth';
 import handshakeRequestRoutes from './routes/handshakeRequest';
 import inboxRoutes from './routes/inbox';
-import outboxInboxTokenRoutes from './routes/outboxInboxToken'; // 🔹 NEW
+import outboxInboxTokenRoutes from './routes/outboxInboxToken';
+import billingRoutes, { billingWebhook } from './routes/billing';
 
 dotenv.config();
 
@@ -22,6 +23,14 @@ function getDirname(importMetaUrl: string): string {
 const __dirname = getDirname(import.meta.url);
 
 const app = express();
+
+/**
+ * Stripe webhook MUST receive raw body.
+ * Mount BEFORE json parser.
+ */
+app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), billingWebhook);
+
+// JSON parser for the rest of the API
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => res.send({ status: 'ok' }));
@@ -39,11 +48,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/outbox/handshakes', userHandshakeRoutes);
 app.use('/api/outbox/handshakes/:handshakeId/requests', handshakeRequestRoutes);
 
-// 🔹 New route for issuing inbox tokens
+// New route for issuing inbox tokens
 app.use('/api/outbox/handshakes', outboxInboxTokenRoutes);
 
-// Inbox routes
-app.use('/api/inbox', inboxRoutes);
+// Billing (Checkout session)
+app.use('/api/billing', billingRoutes);
 
 // Public file access
 app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
