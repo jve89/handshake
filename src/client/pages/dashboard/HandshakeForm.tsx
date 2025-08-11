@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 interface HandshakeFormData {
@@ -24,32 +24,30 @@ export default function HandshakeForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isEditMode) {
-      setLoading(true);
-      const token = localStorage.getItem('authToken');
+    if (!isEditMode) return;
 
-      fetch(`/api/handshakes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch handshake data');
-          return res.json();
-        })
-        .then(data => {
-          const { slug, title, description, expires_at } = data.handshake;
-          setFormData({
-            slug,
-            title,
-            description: description || '',
-            expires_at: expires_at ? expires_at.slice(0, 10) : '',
-          });
-          setLoading(false);
-        })
-        .catch(err => {
-          setError(err.message);
-          setLoading(false);
+    (async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('authToken') || '';
+        const res = await fetch(`/api/outbox/handshakes/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-    }
+        if (!res.ok) throw new Error('Failed to fetch handshake data');
+        const data = await res.json();
+        const { slug, title, description, expires_at } = data.handshake;
+        setFormData({
+          slug,
+          title,
+          description: description || '',
+          expires_at: expires_at ? String(expires_at).slice(0, 10) : '',
+        });
+      } catch (e: any) {
+        setError(e?.message || 'Failed to load');
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id, isEditMode]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -62,31 +60,52 @@ export default function HandshakeForm() {
     setError(null);
 
     if (!formData.slug || !formData.title) {
-      setError('Slug and Title are required');
+      setError('Link ID and Title are required');
       return;
     }
 
     setLoading(true);
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken') || '';
 
     try {
-      const res = await fetch(isEditMode ? `/api/handshakes/${id}` : '/api/handshakes', {
+      const url = isEditMode
+        ? `/api/outbox/handshakes/${id}`
+        : `/api/outbox/handshakes`;
+
+      const payload = isEditMode
+        ? {
+            // Link ID (slug) is immutable; do not send it on update
+            title: formData.title,
+            description: formData.description,
+            expires_at: formData.expires_at || null,
+          }
+        : {
+            slug: formData.slug, // Link ID
+            title: formData.title,
+            description: formData.description,
+            expires_at: formData.expires_at || null,
+          };
+
+      const res = await fetch(url, {
         method: isEditMode ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({}));
+        if (res.status === 400 && errData?.error === 'slug_immutable') {
+          throw new Error('Link ID cannot be changed after creation.');
+        }
         throw new Error(errData.error || 'Failed to save handshake');
       }
 
       navigate('/dashboard/handshakes');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Failed to save handshake');
       setLoading(false);
     }
   }
@@ -102,7 +121,7 @@ export default function HandshakeForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="slug" className="block font-medium mb-1">
-            Slug <span className="text-red-600">*</span>
+            Link ID <span className="text-red-600">*</span>
           </label>
           <input
             type="text"
@@ -114,7 +133,11 @@ export default function HandshakeForm() {
             className="w-full border border-gray-300 rounded px-3 py-2"
             required
           />
-          {isEditMode && <p className="text-xs text-gray-500 mt-1">Slug cannot be changed after creation.</p>}
+          {isEditMode && (
+            <p className="text-xs text-gray-500 mt-1">
+              Link ID cannot be changed after creation.
+            </p>
+          )}
         </div>
 
         <div>
