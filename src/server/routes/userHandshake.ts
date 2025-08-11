@@ -60,6 +60,11 @@ router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
 
 router.put('/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
+    // Slug is immutable after creation
+    if ('slug' in req.body) {
+      return res.status(400).json({ error: 'slug_immutable' });
+    }
+
     const handshakeId = Number(req.params.id);
     const { title, description, expires_at } = req.body;
     const handshake = await updateHandshake(req.user!.id, handshakeId, { title, description, expires_at });
@@ -86,7 +91,6 @@ router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 router.get('/:id/submissions', async (req: AuthenticatedRequest, res: Response) => {
   try {
