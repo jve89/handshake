@@ -11,7 +11,8 @@ export interface Handshake extends HandshakeInput {
   id: number;
   user_id: number;
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;  
+  archived: boolean;           
 }
 
 export interface Submission {
@@ -20,11 +21,18 @@ export interface Submission {
   responses: { request_id: number; label: string; value: string }[];
 }
 
-export async function listHandshakes(userId: number): Promise<Handshake[]> {
-  const result = await db.query<Handshake>(
-    'SELECT id, slug, title, description, created_at, expires_at FROM handshakes WHERE user_id = $1 ORDER BY created_at DESC',
-    [userId]
-  );
+export async function listHandshakes(
+  userId: number,
+  archivedFilter: 'false' | 'true' | 'all' = 'false'
+): Promise<Handshake[]> {
+  const sql = `
+    SELECT id, slug, title, description, created_at, expires_at, user_id, updated_at, archived
+    FROM handshakes
+    WHERE user_id = $1
+      AND ($2 = 'all' OR archived = ($2::boolean))
+    ORDER BY created_at DESC
+  `;
+  const result = await db.query<Handshake>(sql, [userId, archivedFilter]);
   return result.rows;
 }
 
@@ -68,6 +76,22 @@ export async function deleteHandshake(userId: number, handshakeId: number): Prom
 
 return result.rowCount > 0;
 
+}
+
+export async function setHandshakeArchived(
+  userId: number,
+  handshakeId: number,
+  state: boolean
+): Promise<Handshake | null> {
+  const sql = `
+    UPDATE handshakes
+    SET archived = $3,
+        updated_at = NOW()
+    WHERE id = $1 AND user_id = $2
+    RETURNING id, slug, title, description, created_at, expires_at, user_id, updated_at, archived
+  `;
+  const result = await db.query<Handshake>(sql, [handshakeId, userId, state]);
+  return result.rows[0] || null;
 }
 
 export async function getSubmissionsForHandshake(userId: number, handshakeId: number) {

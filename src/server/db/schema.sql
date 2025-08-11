@@ -1,12 +1,19 @@
 -- Handshake metadata
+DROP TABLE IF EXISTS handshakes CASCADE;
 CREATE TABLE handshakes (
   id SERIAL PRIMARY KEY,
   slug VARCHAR(32) UNIQUE NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
-  expires_at TIMESTAMP
+  expires_at TIMESTAMP,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  updated_at TIMESTAMP,
+  archived BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+-- Indexes (match production)
+CREATE INDEX IF NOT EXISTS idx_handshakes_archived ON handshakes (archived);
 
 -- Structured requests inside a handshake (e.g. "What's your name?")
 CREATE TABLE requests (

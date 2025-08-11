@@ -9,9 +9,12 @@ export interface User {
 export interface Handshake {
   id: number;
   user_id: number;
+  slug: string;
   title: string;
-  description?: string;
+  description?: string | null;
   created_at: string;
-  updated_at: string;
-  // add other handshake-specific fields here
+  expires_at?: string | null;
+  updated_at: string | null;
+  archived: boolean;
 }
+

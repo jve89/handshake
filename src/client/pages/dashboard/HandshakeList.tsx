@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import ArchiveFilter from '../../components/ArchiveFilter';
 
 interface Handshake {
   id: number;
@@ -8,6 +9,7 @@ interface Handshake {
   description?: string;
   created_at: string;
   expires_at?: string | null;
+  archived: boolean;
 }
 
 export default function HandshakeList() {
@@ -16,13 +18,14 @@ export default function HandshakeList() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [filter, setFilter] = useState<'false' | 'true' | 'all'>('false'); // Active by default
 
   async function load() {
     setLoading(true);
     setError(null);
     try {
       const token = localStorage.getItem('authToken') || '';
-      const res = await fetch('/api/outbox/handshakes', {
+      const res = await fetch(`/api/outbox/handshakes?archived=${filter}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(`Error fetching handshakes: ${res.statusText}`);
@@ -37,7 +40,8 @@ export default function HandshakeList() {
 
   useEffect(() => {
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
 
   function publicUrl(slug: string) {
     return `${window.location.origin}/handshake/${encodeURIComponent(slug)}`;
@@ -50,7 +54,6 @@ export default function HandshakeList() {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
       } else {
-        // Fallback for older browsers
         const ta = document.createElement('textarea');
         ta.value = url;
         ta.setAttribute('readonly', '');
@@ -75,8 +78,7 @@ export default function HandshakeList() {
     setDeletingId(id);
     setError(null);
 
-    // optimistic update
-    const prev = handshakes;
+    const prev = handshakes; // optimistic
     setHandshakes((list) => list.filter((h) => h.id !== id));
 
     try {
@@ -86,8 +88,7 @@ export default function HandshakeList() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
-        // revert on failure
-        setHandshakes(prev);
+        setHandshakes(prev); // revert
         const body = await res.json().catch(() => ({}));
         throw new Error(body?.error || `Failed to delete (status ${res.status})`);
       }
@@ -95,6 +96,23 @@ export default function HandshakeList() {
       setError(e?.message || 'Failed to delete handshake');
     } finally {
       setDeletingId(null);
+    }
+  }
+
+  async function toggleArchive(id: number, next: boolean) {
+    try {
+      const token = localStorage.getItem('authToken') || '';
+      const url = next
+        ? `/api/outbox/handshakes/${id}/archive`
+        : `/api/outbox/handshakes/${id}/unarchive`;
+      const res = await fetch(url, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || `Failed (status ${res.status})`);
+      }
+      await load(); // refetch to honor current filter
+    } catch (e: any) {
+      setError(e?.message || 'Failed to toggle archive');
     }
   }
 
@@ -113,11 +131,13 @@ export default function HandshakeList() {
         </Link>
       </div>
 
+      <ArchiveFilter value={filter} onChange={setFilter} />
+
       {handshakes.length === 0 ? (
         <p>No handshakes found. Create one to get started!</p>
       ) : (
         <ul className="space-y-4">
-          {handshakes.map(({ id, slug, title, created_at, expires_at }) => (
+          {handshakes.map(({ id, slug, title, created_at, expires_at, archived }) => (
             <li
               key={id}
               className="border rounded p-4 flex flex-wrap gap-3 justify-between items-center"
@@ -131,6 +151,11 @@ export default function HandshakeList() {
                 {expires_at && (
                   <p className="text-sm text-gray-500">
                     Expires: {new Date(expires_at).toLocaleDateString()}
+                  </p>
+                )}
+                {archived && (
+                  <p className="text-xs mt-1 inline-block px-2 py-0.5 rounded bg-gray-100 border">
+                    Archived
                   </p>
                 )}
               </div>
@@ -153,6 +178,24 @@ export default function HandshakeList() {
                 >
                   {copiedId === id ? 'Copied!' : 'Copy link'}
                 </button>
+
+                {archived ? (
+                  <button
+                    onClick={() => toggleArchive(id, false)}
+                    className="px-3 py-1 border rounded"
+                    title="Unarchive"
+                  >
+                    Unarchive
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => toggleArchive(id, true)}
+                    className="px-3 py-1 border rounded"
+                    title="Archive"
+                  >
+                    Archive
+                  </button>
+                )}
 
                 <Link
                   to={`/dashboard/handshakes/${id}/edit`}

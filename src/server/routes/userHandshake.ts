@@ -8,6 +8,7 @@ import {
   getHandshakeById,
   updateHandshake,
   deleteHandshake,
+  setHandshakeArchived,
 } from '../services/userHandshakeService';
 
 const router = Router();
@@ -16,7 +17,11 @@ router.use(authMiddleware);
 
 router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const handshakes = await listHandshakes(req.user!.id);
+    const raw = (req.query.archived as string) || 'false';
+    const archivedFilter: 'false' | 'true' | 'all' =
+      (['false', 'true', 'all'].includes(raw) ? raw : 'false') as any;
+
+    const handshakes = await listHandshakes(req.user!.id, archivedFilter);
     res.json({ handshakes });
   } catch (err) {
     console.error('Error fetching handshakes:', err);
@@ -92,6 +97,36 @@ router.get('/:id/submissions', async (req: AuthenticatedRequest, res: Response) 
     res.json({ submissions });
   } catch (err) {
     console.error('Error loading submissions:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.put('/:id/archive', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const handshakeId = Number(req.params.id);
+    if (!Number.isInteger(handshakeId)) {
+      return res.status(400).json({ error: 'bad_id' });
+    }
+    const handshake = await setHandshakeArchived(req.user!.id, handshakeId, true);
+    if (!handshake) return res.status(404).json({ error: 'Handshake not found or no permission' });
+    res.json({ handshake });
+  } catch (err) {
+    console.error('Error archiving handshake:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.put('/:id/unarchive', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const handshakeId = Number(req.params.id);
+    if (!Number.isInteger(handshakeId)) {
+      return res.status(400).json({ error: 'bad_id' });
+    }
+    const handshake = await setHandshakeArchived(req.user!.id, handshakeId, false);
+    if (!handshake) return res.status(404).json({ error: 'Handshake not found or no permission' });
+    res.json({ handshake });
+  } catch (err) {
+    console.error('Error unarchiving handshake:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
