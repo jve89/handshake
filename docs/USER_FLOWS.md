@@ -172,3 +172,11 @@ Delete only the temp field:
 curl -s -o /dev/null -w "%{http_code}\n" \
   -X DELETE http://localhost:3000/api/outbox/handshakes/$HANDSHAKE_ID/requests/$REQUEST_ID \
   -H "Authorization: Bearer $SENDER_TOKEN"
+
+
+## Outbox management — Archive
+
+- Default view shows **Active** (archived=false).
+- User can switch to **Archived** or **All**; selection persists in URL.
+- Per row: Archive/Unarchive toggles state. Delete remains separate.
+- Public `/handshake/:slug` not affected by archive.

@@ -1,4 +1,3 @@
-```md
 # ARCHITECTURE.md
 
 ## Overview
@@ -156,4 +155,24 @@ See `docs/proposed-filetree.txt` for full layout.
 - Optional: add `requests(handshake_id)` index.
 
 ---
-```
+
+## Archive flag (Option A)
+
+**Purpose:** Sender-side list hygiene. Does not affect public visibility.
+
+### Schema
+- `handshakes.archived BOOLEAN NOT NULL DEFAULT FALSE`
+- Index: `idx_handshakes_archived (archived)`
+
+### API (authenticated)
+- `GET /api/outbox/handshakes?archived=false|true|all` (default `false`)
+- `PUT /api/outbox/handshakes/:id/archive` → sets `archived=true` (idempotent)
+- `PUT /api/outbox/handshakes/:id/unarchive` → sets `archived=false` (idempotent)
+
+### Public
+- `/handshake/:slug` **unchanged**. Archived items remain publicly accessible.
+
+### UI
+- Dashboard `/dashboard/handshakes`
+  - Filter: **Active / Archived / All** (persisted in `?archived=`).
+  - Row action: **Archive / Unarchive**.

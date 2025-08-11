@@ -73,3 +73,18 @@ Follow Semantic Versioning (`MAJOR.MINOR.PATCH`).
 
 ## Notes
 Update this file on **every release tag or production deploy**.
+
+## 2025-08-11 — PR-B: Archive flow
+
+- Migration `003_handshakes_add_archived.sql`:
+  - Add `handshakes.archived BOOLEAN NOT NULL DEFAULT FALSE`
+  - Add index `idx_handshakes_archived (archived)`
+- API:
+  - `GET /api/outbox/handshakes?archived=false|true|all` (default `false`)
+  - `PUT /api/outbox/handshakes/:id/archive`
+  - `PUT /api/outbox/handshakes/:id/unarchive`
+- UI:
+  - Dashboard list filter (Active/Archived/All) with `?archived=` sync
+  - Row-level Archive/Unarchive
+- Behavior:
+  - Option A: archive does **not** change public visibility.
