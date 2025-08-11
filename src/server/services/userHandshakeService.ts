@@ -71,6 +71,16 @@ export async function deleteHandshake(userId: number, handshakeId: number): Prom
   return result.rowCount > 0;
 }
 
+export async function countActiveHandshakes(userId: number): Promise<number> {
+  const result = await db.query<{ count: string }>(
+    `SELECT COUNT(*)::text AS count
+     FROM handshakes
+     WHERE user_id = $1 AND archived = FALSE`,
+    [userId]
+  );
+  return parseInt(result.rows[0]?.count ?? '0', 10);
+}
+
 export async function setHandshakeArchived(
   userId: number,
   handshakeId: number,

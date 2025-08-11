@@ -123,6 +123,9 @@ export default function HandshakeList() {
       const res = await fetch(url, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
+        if (res.status === 403 && body?.error === 'plan_limit_reached') {
+          throw new Error('Free plan allows 1 active handshake. Archive one or upgrade to unarchive this.');
+        }
         throw new Error(body?.error || `Failed (status ${res.status})`);
       }
       await load(); // refetch to honor current filter

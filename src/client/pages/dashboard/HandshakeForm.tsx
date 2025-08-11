@@ -97,12 +97,19 @@ export default function HandshakeForm() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
+
         if (res.status === 409 && errData?.error === 'slug_taken') {
           throw new Error('Link ID is already taken. Choose another.');
         }
+
         if (res.status === 400 && errData?.error === 'slug_immutable') {
           throw new Error('Link ID cannot be changed after creation.');
         }
+
+        if (res.status === 403 && errData?.error === 'plan_limit_reached') {
+          throw new Error('Free plan allows 1 active handshake. Archive one or upgrade to add more.');
+        }
+
         throw new Error(errData.error || 'Failed to save handshake');
       }
 
