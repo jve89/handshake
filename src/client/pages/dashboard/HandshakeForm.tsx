@@ -97,6 +97,9 @@ export default function HandshakeForm() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
+        if (res.status === 409 && errData?.error === 'slug_taken') {
+          throw new Error('Link ID is already taken. Choose another.');
+        }
         if (res.status === 400 && errData?.error === 'slug_immutable') {
           throw new Error('Link ID cannot be changed after creation.');
         }

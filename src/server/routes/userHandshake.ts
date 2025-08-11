@@ -38,7 +38,11 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
 
     const handshake = await createHandshake(req.user!.id, { slug, title, description, expires_at });
     res.status(201).json({ handshake });
-  } catch (err) {
+  } catch (err: any) {
+    // Unique constraint on slug
+    if (err?.code === '23505' && err?.constraint === 'handshakes_slug_key') {
+      return res.status(409).json({ error: 'slug_taken' });
+    }
     console.error('Error creating handshake:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
