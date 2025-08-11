@@ -1,16 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import ArchiveFilter from '../../components/ArchiveFilter';
+import type { Handshake } from '../../../shared/types';
 
-interface Handshake {
-  id: number;
-  slug: string;
-  title: string;
-  description?: string;
-  created_at: string;
-  expires_at?: string | null;
-  archived: boolean;
-}
+type FilterValue = 'false' | 'true' | 'all';
 
 export default function HandshakeList() {
   const [handshakes, setHandshakes] = useState<Handshake[]>([]);
@@ -18,7 +11,30 @@ export default function HandshakeList() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [filter, setFilter] = useState<'false' | 'true' | 'all'>('false'); // Active by default
+  const [filter, setFilter] = useState<FilterValue>('false'); // Active by default
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize filter from URL on first render; default to 'false'
+  useEffect(() => {
+    const raw = searchParams.get('archived');
+    if (raw === 'true' || raw === 'false' || raw === 'all') {
+      setFilter(raw);
+    } else {
+      const next = new URLSearchParams(searchParams);
+      next.set('archived', 'false');
+      setSearchParams(next, { replace: true });
+      setFilter('false');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Keep URL in sync when filter changes
+  function setFilterAndURL(nextVal: FilterValue) {
+    setFilter(nextVal);
+    const next = new URLSearchParams(searchParams);
+    next.set('archived', nextVal);
+    setSearchParams(next, { replace: true });
+  }
 
   async function load() {
     setLoading(true);
@@ -49,7 +65,6 @@ export default function HandshakeList() {
 
   async function copyLink(id: number, slug: string) {
     const url = publicUrl(slug);
-
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
@@ -131,7 +146,7 @@ export default function HandshakeList() {
         </Link>
       </div>
 
-      <ArchiveFilter value={filter} onChange={setFilter} />
+      <ArchiveFilter value={filter} onChange={setFilterAndURL} />
 
       {handshakes.length === 0 ? (
         <p>No handshakes found. Create one to get started!</p>

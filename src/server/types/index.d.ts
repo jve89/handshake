@@ -6,15 +6,5 @@ export interface User {
   updated_at: string; // ISO string
 }
 
-export interface Handshake {
-  id: number;
-  user_id: number;
-  slug: string;
-  title: string;
-  description?: string | null;
-  created_at: string;
-  expires_at?: string | null;
-  updated_at: string | null;
-  archived: boolean;
-}
-
+// Re-export canonical Handshake type from shared to prevent drift.
+export type { Handshake } from '../../shared/types';

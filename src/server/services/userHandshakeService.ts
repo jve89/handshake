@@ -1,4 +1,5 @@
 import { db } from '../db/client';
+import type { Handshake } from '../../shared/types';
 
 export interface HandshakeInput {
   slug: string;
@@ -7,13 +8,7 @@ export interface HandshakeInput {
   expires_at?: string | null;
 }
 
-export interface Handshake extends HandshakeInput {
-  id: number;
-  user_id: number;
-  created_at: string;
-  updated_at: string | null;  
-  archived: boolean;           
-}
+
 
 export interface Submission {
   submission_id: number;
@@ -70,12 +65,10 @@ export async function updateHandshake(
 
 export async function deleteHandshake(userId: number, handshakeId: number): Promise<boolean> {
   const result = await db.query(
-  'DELETE FROM handshakes WHERE id = $1 AND user_id = $2',
-  [handshakeId, userId]
-) as any;
-
-return result.rowCount > 0;
-
+    'DELETE FROM handshakes WHERE id = $1 AND user_id = $2',
+    [handshakeId, userId]
+  ) as any;
+  return result.rowCount > 0;
 }
 
 export async function setHandshakeArchived(
@@ -146,4 +139,5 @@ export async function getSubmissionsForHandshake(userId: number, handshakeId: nu
 
   return Object.values(grouped);
 }
+
 
