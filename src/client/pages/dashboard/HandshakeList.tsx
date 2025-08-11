@@ -15,6 +15,7 @@ export default function HandshakeList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   async function load() {
     setLoading(true);
@@ -37,6 +38,35 @@ export default function HandshakeList() {
   useEffect(() => {
     load();
   }, []);
+
+  function publicUrl(slug: string) {
+    return `${window.location.origin}/handshake/${encodeURIComponent(slug)}`;
+  }
+
+  async function copyLink(id: number, slug: string) {
+    const url = publicUrl(slug);
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        // Fallback for older browsers
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      setCopiedId(id);
+      setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 1500);
+    } catch {
+      alert(`Copy failed. Here’s the link:\n\n${url}`);
+    }
+  }
 
   async function handleDelete(id: number, title: string) {
     const confirmed = window.confirm(`Delete “${title}”? This cannot be undone.`);
@@ -90,7 +120,7 @@ export default function HandshakeList() {
           {handshakes.map(({ id, slug, title, created_at, expires_at }) => (
             <li
               key={id}
-              className="border rounded p-4 flex justify-between items-center"
+              className="border rounded p-4 flex flex-wrap gap-3 justify-between items-center"
             >
               <div>
                 <h2 className="text-lg font-medium">{title}</h2>
@@ -104,13 +134,33 @@ export default function HandshakeList() {
                   </p>
                 )}
               </div>
-              <div className="space-x-2">
+
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href={`/handshake/${encodeURIComponent(slug)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 bg-slate-600 text-white rounded hover:bg-slate-700"
+                  title="Open public page in a new tab"
+                >
+                  View public
+                </a>
+
+                <button
+                  onClick={() => copyLink(id, slug)}
+                  className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                  title="Copy public link"
+                >
+                  {copiedId === id ? 'Copied!' : 'Copy link'}
+                </button>
+
                 <Link
                   to={`/dashboard/handshakes/${id}/edit`}
                   className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
                 >
                   Edit
                 </Link>
+
                 <button
                   onClick={() => handleDelete(id, title)}
                   disabled={deletingId === id}
