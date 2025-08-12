@@ -1,8 +1,7 @@
-import React from 'react';
-// Reuse existing sender requests view (legacy dashboard)
+// src/client/pages/outbox/OutboxRequests.tsx
+// @deprecated Legacy wrapper — replace with DashboardV2 (outgoing handshake detail) after migration.
 import HandshakeRequests from '../dashboard/HandshakeRequests';
 
-// Wrapper to keep URL shape stable while we migrate later
 export default function OutboxRequests() {
   return <HandshakeRequests />;
 }

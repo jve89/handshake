@@ -1,3 +1,4 @@
+# README.md
 # Handshake
 
 **The easiest way to request or deliver structured information between two parties.**
@@ -18,21 +19,27 @@ Handshake lets a sender request files, form fields, or actions from a receiver v
 
 ## 🚀 MVP Scope (v0.1)
 
-- Auth: email+password with JWT (sender-side dashboard).
-- **Outbox (sender)**
+- **Auth:** email+password with JWT (sender-side dashboard).
+- **Outbox (sender):**
   - Create/list/update/delete handshakes.
   - Define dynamic fields: `text`, `email`, `select`, `file`.
   - Mint **Inbox tokens** scoped to a handshake (read-only receiver view).
+  - **Archive filter:** `handshakes.archived` with dashboard filter **Active / Archived / All**. **Archived remains public.**
 - **Public submission**
-  - Unique slug URL for each handshake.
+  - Unique **Link ID** URL for each handshake (API parameter name: `:slug`).
   - Validations:
     - Required fields enforced.
-    - For `select`: required → must be allowed option; optional → empty allowed, otherwise must be allowed.
+    - For `select`: required → must be an allowed option; optional → empty allowed, otherwise must be an allowed option.
   - File uploads (dev: local disk; prod: S3 planned).
 - **Inbox (receiver)**
-  - **Token-gated read-only** submissions list & detail (no login required).
-  - (Future) Receiver account linking by email is out of scope for MVP.
-- Clean, responsive UI (React + Tailwind).
+  - **Token-gated, read-only** submissions list & detail (no login required).
+  - *(Out of scope for MVP)* Receiver account linking by email.
+- **UI:** clean, responsive (React + Tailwind).
+
+### Product Rules (enforced)
+- **Link ID immutability:** Link ID (`slug`) cannot change after creation → server returns `400 slug_immutable` on update attempts.
+- **Free plan limit:** max **1 active** handshake → `403 plan_limit_reached { maxActive: 1 }`.
+- **Legacy routes:** remain mounted during transition (see Architecture).
 
 ---
 
@@ -40,7 +47,7 @@ Handshake lets a sender request files, form fields, or actions from a receiver v
 
 - **Outbox (sender):** where handshakes are composed and managed; submissions are visible per handshake.
 - **Inbox (receiver):** a **token-gated** view the sender can share (list + detail of submissions for that handshake).
-- **Future (post-MVP):** optional receiver login that auto-collects their submissions into a personal inbox based on email—tracked in `docs/NOTNOW.md` and roadmap.
+- **Post-MVP (tracked in `docs/NOTNOW.md`):** optional receiver login that auto-collects their submissions into a personal inbox based on email.
 
 ---
 
@@ -55,73 +62,122 @@ Handshake lets a sender request files, form fields, or actions from a receiver v
 
 ## 🧪 Quickstart (Dev)
 
-1. Install deps
+> Prereqs: Postgres running and reachable via `DATABASE_URL`; apply SQL migrations from `/migrations` in order.
 
-       npm ci
+1. **Install deps**
 
-2. Configure environment
+    npm ci
 
-       cp .env.example .env
-       # Fill values (at minimum):
-       # JWT_SECRET=...
-       # DATABASE_URL=postgres://...
+2. **Configure environment**
 
-3. Run servers (in separate terminals)
+    cp .env.example .env
+    # Fill at minimum:
+    # JWT_SECRET=...
+    # DATABASE_URL=postgres://...
 
-       npm run dev        # Frontend (Vite @5173)
-       npm run dev:server # Backend (Express @3000)
+3. **Run servers (separate terminals)**
 
-4. Smoke checks
+    npm run dev        # Frontend (Vite @5173)
+    npm run dev:server # Backend (Express @3000)
 
-       # API health (should be 200)
-       curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/api/health
+4. **Smoke checks**
 
-       # Inbox health (should be JSON)
-       curl -s http://localhost:3000/api/inbox/health
+    # API health (expect 200)
+    curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/api/health
 
-5. Minimal flow (sender token required)
-   - Sign up or log in via `/api/auth/signup` or `/api/auth/login` (returns JWT).
-   - Create a handshake via `/api/outbox/handshakes`.
-   - Add a request field via `/api/outbox/handshakes/:id/requests`.
-   - Load public page at `/handshake/:slug` and submit.
-   - Mint an inbox token via `/api/outbox/handshakes/:id/inbox-token`.
-   - View receiver list: `/inbox/handshakes/:id?token=...`
-   - View receiver detail: `/inbox/submissions/:submissionId?token=...&handshakeId=:id`
+    # Inbox health (expect JSON)
+    curl -s http://localhost:3000/api/inbox/health
+
+5. **Minimal flow (sender token required)**
+
+    # 5.1 Sign up or log in (returns JWT)
+    curl -s -X POST http://localhost:3000/api/auth/login \
+      -H "Content-Type: application/json" \
+      -d '{"email":"you@example.com","password":"changeme123"}'
+
+    - Create a handshake via POST /api/outbox/handshakes.
+    - Add a request field via POST /api/outbox/handshakes/:handshakeId/requests.
+    - Load public page at /handshake/:slug (Link ID) and submit.
+    - Mint an inbox token via POST /api/outbox/handshakes/:handshakeId/inbox-token.
+    - View receiver list: /inbox/handshakes/:handshakeId?token=...
+    - View receiver detail: /inbox/submissions/:submissionId?token=...&handshakeId=:handshakeId
+
+---
+
+## 💳 Stripe (Billing MVP) — Dev Setup
+
+**Environment variables (dev):**
+
+- `STRIPE_SECRET_KEY` — your test mode secret key (`sk_test_…`)
+- `STRIPE_PRICE_ID` — a test Price ID (`price_…`)
+- `STRIPE_WEBHOOK_SECRET` — webhook signing secret (`whsec_…`)
+
+**Notes:**
+- The webhook endpoint **expects raw request body**. Ensure body parsing excludes `/api/billing/webhook` or uses raw middleware there.
+- On Gitpod or tunnels, expose **port 3000** publicly so Stripe can reach the webhook.
+
+**Endpoints (dev):**
+- `POST /api/billing/create-checkout-session` → returns Checkout URL
+- `POST /api/billing/webhook` → processes events (e.g., `checkout.session.completed`)
+
+**Happy-path test:**
+
+    # 1) Set env (example)
+    export STRIPE_SECRET_KEY=sk_test_xxx
+    export STRIPE_PRICE_ID=price_xxx
+    export STRIPE_WEBHOOK_SECRET=whsec_xxx
+
+    # 2) Create a Checkout session (returns a URL)
+    curl -s -X POST http://localhost:3000/api/billing/create-checkout-session | jq
+
+    # 3) Complete test Checkout, then verify limits lift for subscriber (3 active handshakes)
 
 ---
 
 ## 🔌 API Overview (MVP)
 
-- **Public**
-  - `GET /api/handshake/:slug`
-  - `POST /api/handshake/:slug/submit`
+- **Public (legacy-mounted during transition)**
+  - GET /api/handshake/:slug
+  - POST /api/handshake/:slug/submit
 
 - **Outbox (sender, JWT)**
-  - `GET/POST /api/outbox/handshakes`
-  - `GET/PUT/DELETE /api/outbox/handshakes/:handshakeId`
-  - `GET/POST /api/outbox/handshakes/:handshakeId/requests`
-  - `PUT/DELETE /api/outbox/handshakes/:handshakeId/requests/:requestId`
-  - `POST /api/outbox/handshakes/:handshakeId/inbox-token`
+  - GET /api/outbox/handshakes
+  - POST /api/outbox/handshakes
+  - GET /api/outbox/handshakes/:handshakeId
+  - PUT /api/outbox/handshakes/:handshakeId  *(Link ID/slug is immutable; changing it yields 400 slug_immutable)*
+  - DELETE /api/outbox/handshakes/:handshakeId
+  - GET /api/outbox/handshakes/:handshakeId/requests
+  - POST /api/outbox/handshakes/:handshakeId/requests
+  - PUT /api/outbox/handshakes/:handshakeId/requests/:requestId
+  - DELETE /api/outbox/handshakes/:handshakeId/requests/:requestId
+  - POST /api/outbox/handshakes/:handshakeId/inbox-token
 
 - **Inbox (token)**
-  - `GET /api/inbox/handshakes/:handshakeId/submissions`
-  - `GET /api/inbox/submissions/:submissionId`
-  - `GET /api/inbox/health`
+  - GET /api/inbox/handshakes/:handshakeId/submissions
+  - GET /api/inbox/submissions/:submissionId
+  - GET /api/inbox/health
+
+- **Billing (dev)**
+  - POST /api/billing/create-checkout-session
+  - POST /api/billing/webhook
 
 - **Auth**
-  - `POST /api/auth/signup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
+  - POST /api/auth/signup
+  - POST /api/auth/login
+  - POST /api/auth/logout
+  - GET /api/auth/me
 
-> Legacy routes remain mounted for safety during transition (see `docs/ARCHITECTURE.md`).
+> Free plan: enforcing **1 active** handshake; creating another active handshake or unarchiving beyond the limit returns `403 plan_limit_reached { maxActive: 1 }`.
 
 ---
 
 ## 📁 Project Structure
 
-- `src/client` — React app (pages for public, outbox, and inbox)
+- `src/client` — React app (public, outbox, inbox pages)
 - `src/server` — Express API (routes, services, middleware)
-- `src/server/db` — Postgres client, schema, seed
-- `migrations` — SQL-first, additive migrations
-- `docs` — Architecture, scope, roadmap, and more
+- `src/server/db` — Postgres client and helpers
+- `migrations/` — repo root; SQL-first, additive migrations
+- `docs/` — Architecture, scope, roadmap, and more
 
 See canonical layout: `docs/proposed-filetree.txt`.
 
@@ -160,7 +216,7 @@ Frictionless, branded, and structured intake—stronger than generic form builde
 
 ## 📚 Documentation
 
-All docs live under [`/docs`](./docs):
+All docs live under `/docs`:
 
 - Architecture • Scope • Path • Roadmap • Risks
 - Contributing • Releases • User Flows • Not Now

@@ -1,3 +1,4 @@
+# docs/RELEASES.md
 # RELEASES.md
 
 ## Changelog
@@ -5,7 +6,24 @@ All notable changes to this project are tracked here. Keep entries concise and t
 
 ---
 
-### [2025-08-10] - 2025-08-10
+### [2025-08-11] PR-B — Archive flow
+
+#### Added
+- **Archive (Option A)** — **does not** change public visibility.
+  - API:
+    - `GET /api/outbox/handshakes?archived=false|true|all` (default `false`)
+    - `PUT /api/outbox/handshakes/:id/archive`
+    - `PUT /api/outbox/handshakes/:id/unarchive`
+  - UI:
+    - Dashboard list filter (**Active/Archived/All**) synced via `?archived=`
+    - Row-level Archive/Unarchive
+  - Migration `003_handshakes_add_archived.sql`:
+    - Add `handshakes.archived BOOLEAN NOT NULL DEFAULT FALSE`
+    - Add index `idx_handshakes_archived (archived)`
+
+---
+
+### [2025-08-10] PR-A — Canonical Outbox & Inbox (token-gated)
 
 #### Added
 - **Outbox (sender) — canonical routes**
@@ -31,6 +49,9 @@ All notable changes to this project are tracked here. Keep entries concise and t
   - Required → value must be in options  
   - Optional → empty allowed; if provided, must be in options
 - **Client utils** now target Outbox canonical routes; legacy routes still work.
+- **Sender update/create error semantics**  
+  - `PUT /api/outbox/handshakes/:id` returns `400 slug_immutable` if `slug` is present  
+  - `POST /api/outbox/handshakes` returns `409 slug_taken` on duplicate
 
 #### Deprecated (not removed)
 - Legacy sender routes kept during transition:
@@ -45,13 +66,14 @@ All notable changes to this project are tracked here. Keep entries concise and t
 
         psql "<YOUR_POSTGRES_URL>" -f migrations/001_inbox.sql
         psql "<YOUR_POSTGRES_URL>" -f migrations/002_handshakes_updated_at.sql
+        psql "<YOUR_POSTGRES_URL>" -f migrations/003_handshakes_add_archived.sql
 
 2. **Env:** ensure `JWT_SECRET` is set.  
 3. **Server:** restart after deploy. No breaking API changes; old aliases continue to function.
 
 ---
 
-### [v0.1.0] - Unreleased
+### [v0.1.0] — Unreleased
 
 #### Planned
 - Public form UX polish (per-field errors, loading states)
@@ -73,18 +95,3 @@ Follow Semantic Versioning (`MAJOR.MINOR.PATCH`).
 
 ## Notes
 Update this file on **every release tag or production deploy**.
-
-## 2025-08-11 — PR-B: Archive flow
-
-- Migration `003_handshakes_add_archived.sql`:
-  - Add `handshakes.archived BOOLEAN NOT NULL DEFAULT FALSE`
-  - Add index `idx_handshakes_archived (archived)`
-- API:
-  - `GET /api/outbox/handshakes?archived=false|true|all` (default `false`)
-  - `PUT /api/outbox/handshakes/:id/archive`
-  - `PUT /api/outbox/handshakes/:id/unarchive`
-- UI:
-  - Dashboard list filter (Active/Archived/All) with `?archived=` sync
-  - Row-level Archive/Unarchive
-- Behavior:
-  - Option A: archive does **not** change public visibility.

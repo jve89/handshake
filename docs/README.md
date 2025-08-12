@@ -1,4 +1,4 @@
-```md
+# docs/README.md
 # Project Documentation Index
 
 Welcome to the Handshake documentation folder. This directory contains all material needed to understand, contribute to, and maintain the project.
@@ -11,6 +11,7 @@ Welcome to the Handshake documentation folder. This directory contains all mater
   - [ARCHITECTURE.md](./ARCHITECTURE.md) — System design and key decisions
   - [SCOPE.md](./SCOPE.md) — What’s in/out for the current release
   - [RISKS.md](./RISKS.md) — Known risks and mitigations
+  - [VISION.md](./VISION.md) — Product vision, model, and principles
 - **Planning**
   - [ROADMAP.md](./ROADMAP.md) — Phases, milestones, timelines
   - [PATH.md](./PATH.md) — Prioritized task list (near-term, actionable)
@@ -43,7 +44,9 @@ For the high-level project summary and setup instructions, see the root [README.
 - **Terminology:**
   - “**Outbox**” = sender-side dashboards & APIs
   - “**Inbox**” = token-gated receiver views/APIs
-  - Keep route names and HTTP methods exact.
+  - **Use “Link ID” in UI; keep `slug` only in API paths/payloads (immutable after creation).**
+  - **3-layer navigation:** Inbox/Outbox → **Folders** *(UI-only in MVP; can be bypassed via “See all handshakes”)* → Handshakes
+  - **Archive (Option A):** *Archived remains public*; dashboard filter **Active / Archived / All**
 
 ---
 
@@ -65,4 +68,3 @@ For the high-level project summary and setup instructions, see the root [README.
 - **Smoke flow:** see “Executable quickstart” in [USER_FLOWS.md](./USER_FLOWS.md)
 
 ---
-```

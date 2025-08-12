@@ -1,3 +1,4 @@
+// src/client/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HandshakePage from './pages/HandshakePage';
 import HandshakeList from './pages/dashboard/HandshakeList';
@@ -13,6 +14,9 @@ import InboxHome from './pages/inbox/InboxHome';
 import InboxSubmissions from './pages/inbox/InboxSubmissions';
 import InboxSubmissionDetail from './pages/inbox/InboxSubmissionDetail';
 
+// NEW: v2 dashboard shell (Incoming/Outgoing → Folders → Handshakes)
+import DashboardV2 from './pages/dashboard/DashboardV2';
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -26,6 +30,10 @@ export default function App() {
         <Route path="/dashboard/handshakes" element={<HandshakeList />} />
         <Route path="/dashboard/handshakes/new" element={<HandshakeForm />} />
         <Route path="/dashboard/handshakes/:id/edit" element={<HandshakeForm />} />
+        <Route path="/dashboard" element={<Navigate to="/dashboard/v2?box=outgoing&folder=all&archived=false" replace />} />
+
+        {/* NEW additive route: 3-layer shell */}
+        <Route path="/dashboard/v2" element={<DashboardV2 />} />
 
         {/* Outbox aliases (wrappers) */}
         <Route path="/outbox" element={<OutboxHome />} />

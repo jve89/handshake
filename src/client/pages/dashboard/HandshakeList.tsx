@@ -1,47 +1,32 @@
+// src/client/pages/dashboard/HandshakeList.tsx
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ArchiveFilter from '../../components/ArchiveFilter';
 import type { Handshake } from '../../../shared/types';
+import { useUrlState } from '../../hooks/useUrlState';
 
 type FilterValue = 'false' | 'true' | 'all';
 
 export default function HandshakeList() {
+  const { archived, update, ensureDefaults } = useUrlState();
   const [handshakes, setHandshakes] = useState<Handshake[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  const [filter, setFilter] = useState<FilterValue>('false'); // Active by default
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Initialize filter from URL on first render; default to 'false'
+  // Ensure URL defaults exist (supports both /dashboard/v2 and legacy routes)
   useEffect(() => {
-    const raw = searchParams.get('archived');
-    if (raw === 'true' || raw === 'false' || raw === 'all') {
-      setFilter(raw);
-    } else {
-      const next = new URLSearchParams(searchParams);
-      next.set('archived', 'false');
-      setSearchParams(next, { replace: true });
-      setFilter('false');
-    }
+    ensureDefaults();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Keep URL in sync when filter changes
-  function setFilterAndURL(nextVal: FilterValue) {
-    setFilter(nextVal);
-    const next = new URLSearchParams(searchParams);
-    next.set('archived', nextVal);
-    setSearchParams(next, { replace: true });
-  }
-
-  async function load() {
+  async function load(currentArchived: FilterValue) {
     setLoading(true);
     setError(null);
     try {
       const token = localStorage.getItem('authToken') || '';
-      const res = await fetch(`/api/outbox/handshakes?archived=${filter}`, {
+      const res = await fetch(`/api/outbox/handshakes?archived=${currentArchived}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(`Error fetching handshakes: ${res.statusText}`);
@@ -54,10 +39,11 @@ export default function HandshakeList() {
     }
   }
 
+  // Refetch whenever archived filter in URL changes
   useEffect(() => {
-    load();
+    load(archived);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+  }, [archived]);
 
   function publicUrl(slug: string) {
     return `${window.location.origin}/handshake/${encodeURIComponent(slug)}`;
@@ -124,11 +110,13 @@ export default function HandshakeList() {
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         if (res.status === 403 && body?.error === 'plan_limit_reached') {
-          throw new Error('Free plan allows 1 active handshake. Archive one or upgrade to unarchive this.');
+          throw new Error(
+            'Free plan allows 1 active handshake. Archive one or upgrade to unarchive this.',
+          );
         }
         throw new Error(body?.error || `Failed (status ${res.status})`);
       }
-      await load(); // refetch to honor current filter
+      await load(archived); // refetch to honor current filter
     } catch (e: any) {
       setError(e?.message || 'Failed to toggle archive');
     }
@@ -149,20 +137,24 @@ export default function HandshakeList() {
         </Link>
       </div>
 
-      <ArchiveFilter value={filter} onChange={setFilterAndURL} />
+      {/* Keep legacy ArchiveFilter but bind it to URL-backed state */}
+      <ArchiveFilter
+        value={archived}
+        onChange={(nextVal) => update({ archived: nextVal as FilterValue })}
+      />
 
       {handshakes.length === 0 ? (
         <p>No handshakes found. Create one to get started!</p>
       ) : (
         <ul className="space-y-4">
-          {handshakes.map(({ id, slug, title, created_at, expires_at, archived }) => (
+          {handshakes.map(({ id, slug, title, created_at, expires_at, archived: isArchived }) => (
             <li
               key={id}
               className="border rounded p-4 flex flex-wrap gap-3 justify-between items-center"
             >
               <div>
                 <h2 className="text-lg font-medium">{title}</h2>
-                <p className="text-sm text-gray-500">Slug: {slug}</p>
+                <p className="text-sm text-gray-500">Link ID: {slug}</p>
                 <p className="text-sm text-gray-500">
                   Created: {new Date(created_at).toLocaleDateString()}
                 </p>
@@ -171,7 +163,7 @@ export default function HandshakeList() {
                     Expires: {new Date(expires_at).toLocaleDateString()}
                   </p>
                 )}
-                {archived && (
+                {isArchived && (
                   <p className="text-xs mt-1 inline-block px-2 py-0.5 rounded bg-gray-100 border">
                     Archived
                   </p>
@@ -197,7 +189,7 @@ export default function HandshakeList() {
                   {copiedId === id ? 'Copied!' : 'Copy link'}
                 </button>
 
-                {archived ? (
+                {isArchived ? (
                   <button
                     onClick={() => toggleArchive(id, false)}
                     className="px-3 py-1 border rounded"

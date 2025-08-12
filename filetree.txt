@@ -23,7 +23,8 @@
 ├── LICENSE
 ├── migrations
 │   ├── 001_inbox.sql
-│   └── 002_handshakes_updated_at.sql
+│   ├── 002_handshakes_updated_at.sql
+│   └── 003_handshakes_add_archived.sql
 ├── package.json
 ├── package-lock.json
 ├── postcss.config.js
@@ -34,11 +35,19 @@
 │   ├── client
 │   │   ├── App.tsx
 │   │   ├── components
-│   │   │   └── HandshakeForm.tsx
+│   │   │   ├── ArchiveFilter.tsx
+│   │   │   ├── folders
+│   │   │   │   └── FolderRail.tsx
+│   │   │   ├── HandshakeForm.tsx
+│   │   │   └── nav
+│   │   │       └── LayerTabs.tsx
+│   │   ├── hooks
+│   │   │   └── useUrlState.ts
 │   │   ├── index.html
 │   │   ├── main.tsx
 │   │   ├── pages
 │   │   │   ├── dashboard
+│   │   │   │   ├── DashboardV2.tsx
 │   │   │   │   ├── HandshakeForm.tsx
 │   │   │   │   ├── HandshakeList.tsx
 │   │   │   │   └── HandshakeRequests.tsx
@@ -74,6 +83,7 @@
 │   │   │   └── inboxToken.ts
 │   │   ├── routes
 │   │   │   ├── auth.ts
+│   │   │   ├── billing.ts
 │   │   │   ├── handshakeRequest.ts
 │   │   │   ├── inbox.ts
 │   │   │   ├── outboxInboxToken.ts
@@ -84,6 +94,7 @@
 │   │   │   ├── authService.ts
 │   │   │   ├── handshakeRequestService.ts
 │   │   │   ├── inboxService.ts
+│   │   │   ├── planLimits.ts
 │   │   │   ├── tokenService.ts
 │   │   │   └── userHandshakeService.ts
 │   │   └── types
@@ -96,4 +107,4 @@
 ├── tsconfig.seed.json
 └── vite.config.ts
 
-22 directories, 75 files
+25 directories, 83 files

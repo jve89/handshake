@@ -1,4 +1,4 @@
-```md
+# docs/RISKS.md
 # RISKS.md
 
 ## Overview
@@ -18,9 +18,9 @@ Known risks for Handshake and how we plan to mitigate them. Kept concise; update
 
 - **Schema drift vs. code (migrations)**
   - *Risk:* 500s when code expects columns not deployed (e.g., `updated_at`).
-  - *Mitigation:* Always ship additive migrations first; gate code paths; keep `migrations/` as the source of truth.
+  - *Mitigation:* Always ship additive migrations first; gate code paths; keep **`/migrations` at repo root** as the source of truth.
 
-- **ESM/Node/vite env mismatches**
+- **ESM/Node/Vite env mismatches**
   - *Risk:* Subtle import/URL issues between Gitpod and prod.
   - *Mitigation:* Standardize Node version; keep `tsx` in dev; include `.env.example`; document ports (5173/3000).
 
@@ -77,8 +77,16 @@ Known risks for Handshake and how we plan to mitigate them. Kept concise; update
   - *Mitigation:* Simple defaults; templates later; measure drop-offs.
 
 - **Receiver friction**
-  - *Risk:* Confusion between public form vs. tokened inbox links.
+  - *Risk:* Confusion between public form vs. **token-gated** inbox links.
   - *Mitigation:* Clear labels; single primary CTA; docs show example links.
+
+- **Archive semantics misunderstood (Option A)**
+  - *Risk:* Senders expect Archive to hide public link.
+  - *Mitigation:* Explicit UI copy: “Archived remains public”; docs + tooltip; keep dashboard filter (Active / Archived / All).
+
+- **Folders are UI-only in MVP**
+  - *Risk:* Expectations of cross-device persistence; perceived desync.
+  - *Mitigation:* Always provide **All** (no folder) default; label folders as “View-only groups” in MVP; evaluate persistence post-Billing.
 
 ---
 
@@ -103,7 +111,7 @@ Known risks for Handshake and how we plan to mitigate them. Kept concise; update
 - Defensive validation for `select` fields (required → in-options; optional provided → in-options).
 - Ownership enforcement on sender CRUD (requests belong to user’s handshake).
 - Non-destructive routing: legacy and new aliases both mounted.
-- Additive DB migrations: `receivers`, `inbox_access_tokens`, `submissions.receiver_id`, `handshakes.updated_at`.
+- Additive DB migrations: `receivers`, `inbox_access_tokens`, `submissions.receiver_id`, `handshakes.updated_at`. Source: **`/migrations`**.
 - Inbox middleware checks scope, revocation flag, and expiry when set.
 
 ---
@@ -124,4 +132,3 @@ Known risks for Handshake and how we plan to mitigate them. Kept concise; update
 ## Notes
 - Keep this file aligned with `PATH.md` and `ARCHITECTURE.md`.
 - Update before each release cut (see `RELEASES.md`) and after any auth/DB change.
-```

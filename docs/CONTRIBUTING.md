@@ -1,3 +1,4 @@
+# docs/CONTRIBUTING.md
 # CONTRIBUTING.md
 
 Thanks for your interest in contributing to **Handshake**. This guide defines how we work so the codebase stays clean, modular, and easy to ship. Read this before opening a PR.
@@ -11,6 +12,15 @@ Thanks for your interest in contributing to **Handshake**. This guide defines ho
 - **No blind edits.** Never patch a file you haven’t opened. Align on structure first.
 - **Strict contracts.** Backend response shapes are explicit; frontend expects **exactly** those shapes.
 - **Minimal deps.** Justify any new dependency.
+
+### Terminology & IA guardrails
+- **UI wording:** say **“Link ID”**; keep `slug` only in API paths/payloads.
+- **Navigation (3 layers):** **Inbox/Outbox** → **Folders** *(UI-only in MVP; can be bypassed via “See all handshakes”)* → **Handshakes**.
+
+### Product rules (do not violate)
+- **Link ID immutability:** attempts to change `slug` on update must return `400 slug_immutable`.
+- **Plan limit (Free):** allow **1 active** handshake; over limit → `403 plan_limit_reached { maxActive: 1 }`.
+- **Archive (Option A):** `handshakes.archived` is a hygiene flag; **Archived remains public**.
 
 ---
 
@@ -44,7 +54,7 @@ There’s a helper script you can run in Gitpod/local if needed:
 
 ## 🗃️ Database & Migrations
 
-Migrations live in `migrations/` and are **SQL-first** and **additive**.
+Migrations live at the **repo root** in `migrations/`. They are **SQL-first** and **additive**.
 
 - **Never** remove/rename columns or tables in a PR that also ships code. Deprecate first, remove later.
 - Keep migrations idempotent where possible (`IF NOT EXISTS`, `DO $$ … $$` checks).
@@ -54,11 +64,13 @@ Migrations live in `migrations/` and are **SQL-first** and **additive**.
     # Use your managed Postgres URL (Gitpod secrets or local env)
     psql "<YOUR_POSTGRES_URL>" -f migrations/001_inbox.sql
     psql "<YOUR_POSTGRES_URL>" -f migrations/002_handshakes_updated_at.sql
+    psql "<YOUR_POSTGRES_URL>" -f migrations/003_handshakes_add_archived.sql
 
 If you’re already *inside* `psql`, don’t paste `psql …` again — just:
 
     \i migrations/001_inbox.sql
     \i migrations/002_handshakes_updated_at.sql
+    \i migrations/003_handshakes_add_archived.sql
 
 ### Sanity checks
 
@@ -78,7 +90,7 @@ If you’re already *inside* `psql`, don’t paste `psql …` again — just:
 - **Public:** `/api/handshake/:slug`, `/api/handshake/:slug/submit`
 - **Outbox (canonical):** `/api/outbox/handshakes`, `/api/outbox/handshakes/:id/requests`, `/api/outbox/handshakes/:id/inbox-token`
 - **Legacy (kept):** `/api/user-handshake`, `/api/handshakes/:id/requests`
-- **Inbox (token):** `/api/inbox/handshakes/:id/submissions`, `/api/inbox/submissions/:submissionId`, `/api/inbox/health`
+- **Inbox (token-gated):** `/api/inbox/handshakes/:id/submissions`, `/api/inbox/submissions/:submissionId`, `/api/inbox/health`
 - **Auth:** `/api/auth/*`
 - **Uploads:** `/api/upload` (dev: local disk; prod: S3 planned)
 
@@ -100,6 +112,7 @@ When you add/adjust server endpoints:
 - Hash inbox tokens at rest; default expiries; revoke/rotate endpoints.
 - Rate limit `/api/inbox/*`, `/api/auth/*`, and public submit.
 - S3 uploads with signed URLs + malware scanning.
+- Add `Referrer-Policy: no-referrer`.
 
 ---
 
@@ -116,6 +129,12 @@ Use the **Executable quickstart** in `docs/USER_FLOWS.md`:
 
 - Create handshake → add field → mint inbox token → submit → read via inbox.
 - Include any new endpoints you touched.
+
+**Assertions to include when relevant:**
+
+- Updating `slug` returns `400 slug_immutable`.
+- Over free-plan limit returns `403 plan_limit_reached { maxActive: 1 }`.
+- Archiving does **not** change public visibility; dashboard filter shows **Active / Archived / All**.
 
 ---
 
@@ -162,7 +181,7 @@ Use the **Executable quickstart** in `docs/USER_FLOWS.md`:
 
 - Use GitHub issues for bugs/ideas. Keep them small and actionable.
 - For architectural shifts, open a brief proposal (issue or PR touching `docs/*.md`) **before** coding.
-- Respect `SCOPE.md`, `NOTNOW.md`, `PATH.md`, and `ROADMAP.md` as guardrails.
+- Respect `SCOPE.md`, `NOTNOW.md`, `PATH.md`, `ROADMAP.md`, and `ARCHITECTURE.md` as guardrails.
 
 ---
 

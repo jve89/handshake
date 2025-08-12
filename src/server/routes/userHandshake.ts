@@ -1,3 +1,4 @@
+// src/server/routes/userHandshake.ts
 import { Router } from 'express';
 import authMiddleware, { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { getSubmissionsForHandshake } from '../services/userHandshakeService';
@@ -11,12 +12,10 @@ import {
   setHandshakeArchived,
   countActiveHandshakes,
 } from '../services/userHandshakeService';
+import { getMaxActiveForUser } from '../services/planLimits';
 
 const router = Router();
 router.use(authMiddleware);
-
-// Free plan cap for MVP
-const MAX_ACTIVE_FREE = 1;
 
 router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -39,13 +38,21 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
       return res.status(400).json({ error: 'Slug and title are required' });
     }
 
-    // Enforce active-limit on create (new rows are archived=false by default)
-    const active = await countActiveHandshakes(req.user!.id);
-    if (active >= MAX_ACTIVE_FREE) {
-      return res.status(403).json({ error: 'plan_limit_reached', maxActive: MAX_ACTIVE_FREE });
+    // Enforce plan-aware active limit on create (new rows are archived=false by default)
+    const [activeCount, maxActive] = await Promise.all([
+      countActiveHandshakes(req.user!.id),
+      getMaxActiveForUser(req.user!.id),
+    ]);
+    if (activeCount >= maxActive) {
+      return res.status(403).json({ error: 'plan_limit_reached', maxActive });
     }
 
-    const handshake = await createHandshake(req.user!.id, { slug, title, description, expires_at });
+    const handshake = await createHandshake(req.user!.id, {
+      slug,
+      title,
+      description,
+      expires_at,
+    });
     res.status(201).json({ handshake });
   } catch (err: any) {
     // Unique constraint on slug
@@ -80,7 +87,11 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response) => {
 
     const handshakeId = Number(req.params.id);
     const { title, description, expires_at } = req.body;
-    const handshake = await updateHandshake(req.user!.id, handshakeId, { title, description, expires_at });
+    const handshake = await updateHandshake(req.user!.id, handshakeId, {
+      title,
+      description,
+      expires_at,
+    });
     if (!handshake) {
       return res.status(404).json({ error: 'Handshake not found or no permission' });
     }
@@ -125,7 +136,8 @@ router.put('/:id/archive', async (req: AuthenticatedRequest, res: Response) => {
       return res.status(400).json({ error: 'bad_id' });
     }
     const handshake = await setHandshakeArchived(req.user!.id, handshakeId, true);
-    if (!handshake) return res.status(404).json({ error: 'Handshake not found or no permission' });
+    if (!handshake)
+      return res.status(404).json({ error: 'Handshake not found or no permission' });
     res.json({ handshake });
   } catch (err) {
     console.error('Error archiving handshake:', err);
@@ -149,14 +161,18 @@ router.put('/:id/unarchive', async (req: AuthenticatedRequest, res: Response) =>
       return res.json({ handshake: existing });
     }
 
-    // Enforce limit before unarchiving
-    const active = await countActiveHandshakes(req.user!.id);
-    if (active >= MAX_ACTIVE_FREE) {
-      return res.status(403).json({ error: 'plan_limit_reached', maxActive: MAX_ACTIVE_FREE });
+    // Enforce plan-aware limit before unarchiving
+    const [activeCount, maxActive] = await Promise.all([
+      countActiveHandshakes(req.user!.id),
+      getMaxActiveForUser(req.user!.id),
+    ]);
+    if (activeCount >= maxActive) {
+      return res.status(403).json({ error: 'plan_limit_reached', maxActive });
     }
 
     const handshake = await setHandshakeArchived(req.user!.id, handshakeId, false);
-    if (!handshake) return res.status(404).json({ error: 'Handshake not found or no permission' });
+    if (!handshake)
+      return res.status(404).json({ error: 'Handshake not found or no permission' });
     res.json({ handshake });
   } catch (err) {
     console.error('Error unarchiving handshake:', err);

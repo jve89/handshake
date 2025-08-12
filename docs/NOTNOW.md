@@ -1,3 +1,4 @@
+# docs/NOTNOW.md
 # NOTNOW.md
 
 This document captures ideas, features, and edge cases we are **intentionally deferring** from v0.1 to keep the system stable and focused. Items here may move into `PATH.md` or `ROADMAP.md` as priorities change.
@@ -39,7 +40,7 @@ This document captures ideas, features, and edge cases we are **intentionally de
 - **Multi-language / localization**
 - **Mobile apps (PWA/native)**
 - **Public API / webhooks / Zapier/Make**
-- **Receiver login Inbox**
+- **Receiver accounts & personal Inbox**
   - Personal receiver accounts and their dashboards
 - **Security hardening beyond baseline**
   - Full rate limiting, CSP hardening, DSR/erasure flows, etc.
@@ -58,6 +59,9 @@ This document captures ideas, features, and edge cases we are **intentionally de
   - One-click PDF of submission or full handshake package.
 - **Advanced form logic**
   - Conditionals, branching, computed fields, multi-step wizards.
+- **Folders (persisted, DB+API)**
+  - Store folders and assign/move handshakes; shareable filters.  
+  - *Note:* MVP uses **UI-only** grouping; persistence is tracked in `ROADMAP.md` (FLD-1).
 
 ---
 
@@ -93,4 +97,4 @@ This document captures ideas, features, and edge cases we are **intentionally de
 
 - Deferrals here are **intentional** to avoid scope creep and fragile logic.  
 - When moving an item out of `NOTNOW.md`, add a concrete acceptance test to `PATH.md`.  
-- Keep this aligned with `SCOPE.md`, `RISKS.md`, and `ROADMAP.md`.
+- Keep this aligned with `SCOPE.md`, `RISKS.md`, `ROADMAP.md`, and `PATH.md`.

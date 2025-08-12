@@ -1,4 +1,4 @@
-```md
+# docs/SCOPE.md
 # SCOPE.md
 
 ## Overview
@@ -32,10 +32,18 @@ What’s in and out for the current MVP (v0.1) and what comes next. This reflect
   - Minimal UI pages under `/inbox/*`
 - **Additive migrations applied**
   - `receivers`, `inbox_access_tokens`, `submissions.receiver_id`, `handshakes.updated_at`
+  - Migrations live at repo root: `/migrations`
 - **Frontend** 
   - React Router pages for public form, outbox placeholders, and inbox viewer
 - **Health checks**
   - `/api/health`, `/api/inbox/health`
+- **Archive (Option A)**
+  - `handshakes.archived` flag + dashboard filter **Active / Archived / All**
+  - **Archived remains public** at `/handshake/:slug`
+
+### Product Rules (enforced)
+- **Link ID immutability:** attempting to change `slug` on update → `400 slug_immutable`
+- **Plan limit (Free):** **1 active** handshake max → `403 plan_limit_reached { maxActive: 1 }`
 
 ---
 
@@ -80,7 +88,28 @@ What’s in and out for the current MVP (v0.1) and what comes next. This reflect
 
 ---
 
-## Notes
-- Scope is additive and **non-breaking** by design; legacy routes remain until full cutover.
-- Keep this aligned with `ARCHITECTURE.md`, `PATH.md`, and `RISKS.md`.
-```
+## UI/UX Navigation Model (Planned — post Billing MVP)
+
+### Layers
+1. **Layer 1 — Box:** **Inbox / Outbox** (tabs or toggle).
+2. **Layer 2 — Folders:** optional grouping. Always provide **All** (no folder). Users can **skip this layer** via **“See all handshakes.”**
+3. **Layer 3 — Handshakes:** list with actions (View, Copy, Archive/Unarchive, Edit, Delete).
+
+### Routing (shareable, persistent)
+- **Canonical:**  
+  - Outbox: `/outbox?folder=all|<id>&archived=false|true|all`  
+  - Inbox: `/inbox?folder=all|<id>&archived=false|true|all&token=…`
+- **Alias (during transition):**  
+  - `/dashboard?box=outbox|inbox&folder=all|<id>&archived=false|true|all`
+
+**Default:** Outbox, All folder, Active only →  
+`/outbox?folder=all&archived=false` (alias: `/dashboard?box=outbox&folder=all&archived=false`)
+
+### Responsive behavior
+- **Desktop:** Two-pane layout — folders (left) | handshakes (center).
+- **Mobile/Tablet:** Top tabs + hamburger to open folder drawer; same URL params/state.
+
+### Out of scope for MVP
+- Drag & drop between folders.
+- Advanced folder rules/automation.
+- Cross-user shared folders.
