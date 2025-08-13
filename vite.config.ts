@@ -15,11 +15,11 @@ export default defineConfig({
   envDir: process.cwd(),
 
   build: {
-    // Fix: output to repo-root/dist/client (two levels up from src/client)
-    outDir: '../../dist/client',
-    emptyOutDir: true,
-    sourcemap: false,
+  outDir: '../../dist/client',   // <-- was '../../../dist/client'
+  emptyOutDir: true,
+  sourcemap: false,
   },
+  
   server: {
     host: true,
     strictPort: true,
