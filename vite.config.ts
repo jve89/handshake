@@ -15,7 +15,8 @@ export default defineConfig({
   envDir: process.cwd(),
 
   build: {
-    outDir: '../../../dist/client',
+    // Fix: output to repo-root/dist/client (two levels up from src/client)
+    outDir: '../../dist/client',
     emptyOutDir: true,
     sourcemap: false,
   },
