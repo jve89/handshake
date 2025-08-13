@@ -1,4 +1,4 @@
-// src/client/pages/dashboard/DashboardV2.tsx
+// src/client/pages/dashboard/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
 import LayerTabs from '../../components/nav/LayerTabs';
 import FolderRail from '../../components/folders/FolderRail';
@@ -6,7 +6,7 @@ import MobileFolderDrawer from '../../components/folders/MobileFolderDrawer';
 import { useUrlState } from '../../hooks/useUrlState';
 import HandshakeList from './HandshakeList'; // reuse existing sender list
 
-export default function DashboardV2() {
+export default function Dashboard() {
   const { box, ensureDefaults } = useUrlState();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -27,7 +27,6 @@ export default function DashboardV2() {
               aria-label="Open folders"
               title="Open folders"
             >
-              {/* simple hamburger */}
               <span className="block w-4 h-px bg-current mb-1" />
               <span className="block w-4 h-px bg-current mb-1" />
               <span className="block w-4 h-px bg-current" />
@@ -52,10 +51,8 @@ export default function DashboardV2() {
           aria-live="polite"
         >
           {box === 'outgoing' ? (
-            // Outgoing (sender): reuse existing list, which already honors ?archived via API
             <HandshakeList />
           ) : (
-            // Incoming (viewer): UI shell only for MVP; point users to token inbox routes
             <div className="p-6 border border-dashed rounded-lg text-sm text-gray-700">
               <div className="font-medium mb-2">Incoming (tokened Inbox)</div>
               <p>

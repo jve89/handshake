@@ -10,32 +10,32 @@ import OutboxHome from './pages/outbox/OutboxHome';
 import OutboxRequests from './pages/outbox/OutboxRequests';
 import InboxHome from './pages/inbox/InboxHome';
 
-// NEW inbox pages
+// Inbox pages
 import InboxSubmissions from './pages/inbox/InboxSubmissions';
 import InboxSubmissionDetail from './pages/inbox/InboxSubmissionDetail';
 
-// NEW: v2 dashboard shell (Incoming/Outgoing → Folders → Handshakes)
-import DashboardV2 from './pages/dashboard/DashboardV2';
+// Single, canonical dashboard
+import Dashboard from './pages/dashboard/Dashboard';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/handshake/demo123" replace />} />
+        {/* Home → Dashboard */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         {/* Public handshake form */}
         <Route path="/handshake/:slug" element={<HandshakePage />} />
 
-        {/* Existing sender dashboard routes */}
+        {/* Sender dashboard (legacy routes kept for now) */}
         <Route path="/dashboard/handshakes" element={<HandshakeList />} />
         <Route path="/dashboard/handshakes/new" element={<HandshakeForm />} />
         <Route path="/dashboard/handshakes/:id/edit" element={<HandshakeForm />} />
-        <Route path="/dashboard" element={<Navigate to="/dashboard/v2?box=outgoing&folder=all&archived=false" replace />} />
 
-        {/* NEW additive route: 3-layer shell */}
-        <Route path="/dashboard/v2" element={<DashboardV2 />} />
+        {/* Canonical dashboard shell (no /v2) */}
+        <Route path="/dashboard" element={<Dashboard />} />
 
-        {/* Outbox aliases (wrappers) */}
+        {/* Outbox aliases (legacy wrappers) */}
         <Route path="/outbox" element={<OutboxHome />} />
         <Route path="/outbox/:handshakeId/requests" element={<OutboxRequests />} />
 
@@ -46,6 +46,9 @@ export default function App() {
 
         {/* Other routes */}
         <Route path="/thank-you" element={<ThankYouPage />} />
+
+        {/* Catch-all → dashboard */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );
