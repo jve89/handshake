@@ -1,3 +1,6 @@
+// src/client/utils/handshakeRequests.ts
+import { apiDelete, apiGet, apiPost, apiPut } from './api';
+
 export interface RequestInput {
   label: string;
   type: 'text' | 'email' | 'select' | 'file';
@@ -12,17 +15,8 @@ export interface HandshakeRequest extends RequestInput {
 
 const API_BASE = '/api/outbox/handshakes';
 
-function authHeader() {
-  const token = localStorage.getItem('authToken') || '';
-  return { Authorization: `Bearer ${token}` };
-}
-
 export async function fetchRequests(handshakeId: number): Promise<HandshakeRequest[]> {
-  const res = await fetch(`${API_BASE}/${handshakeId}/requests`, {
-    headers: authHeader(),
-  });
-  if (!res.ok) throw new Error('Failed to fetch requests');
-  const data = await res.json();
+  const data = await apiGet<{ requests: HandshakeRequest[] }>(`${API_BASE}/${handshakeId}/requests`);
   return data.requests;
 }
 
@@ -30,13 +24,10 @@ export async function createRequest(
   handshakeId: number,
   request: RequestInput
 ): Promise<HandshakeRequest> {
-  const res = await fetch(`${API_BASE}/${handshakeId}/requests`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeader() },
-    body: JSON.stringify(request),
-  });
-  if (!res.ok) throw new Error('Failed to create request');
-  const data = await res.json();
+  const data = await apiPost<{ request: HandshakeRequest }>(
+    `${API_BASE}/${handshakeId}/requests`,
+    request
+  );
   return data.request;
 }
 
@@ -45,20 +36,13 @@ export async function updateRequest(
   requestId: number,
   updates: Partial<RequestInput>
 ): Promise<HandshakeRequest> {
-  const res = await fetch(`${API_BASE}/${handshakeId}/requests/${requestId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...authHeader() },
-    body: JSON.stringify(updates),
-  });
-  if (!res.ok) throw new Error('Failed to update request');
-  const data = await res.json();
+  const data = await apiPut<{ request: HandshakeRequest }>(
+    `${API_BASE}/${handshakeId}/requests/${requestId}`,
+    updates
+  );
   return data.request;
 }
 
 export async function deleteRequest(handshakeId: number, requestId: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/${handshakeId}/requests/${requestId}`, {
-    method: 'DELETE',
-    headers: authHeader(),
-  });
-  if (!res.ok) throw new Error('Failed to delete request');
+  await apiDelete(`${API_BASE}/${handshakeId}/requests/${requestId}`);
 }
