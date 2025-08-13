@@ -8,7 +8,9 @@
     "preview": "vite preview",
     "server": "tsx src/server/index.ts",
     "dev:server": "tsx watch src/server/index.ts",
-    "seed": "ts-node --project tsconfig.seed.json src/server/db/seed.ts"
+    "seed": "ts-node --project tsconfig.seed.json src/server/db/seed.ts",
+    "start": "node --loader tsx src/server/index.ts",
+    "heroku-postbuild": "npm run build"
   },
   "dependencies": {
     "axios": "^1.11.0",
