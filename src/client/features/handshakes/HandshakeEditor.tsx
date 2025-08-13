@@ -1,5 +1,7 @@
+// src/client/features/handshakes/HandshakeEditor.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { apiGet, apiPost, apiPut } from '../../utils/api';
 
 interface HandshakeFormData {
   slug: string;
@@ -29,12 +31,7 @@ export default function HandshakeForm() {
     (async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('authToken') || '';
-        const res = await fetch(`/api/outbox/handshakes/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error('Failed to fetch handshake data');
-        const data = await res.json();
+        const data = await apiGet<{ handshake: any }>(`/api/outbox/handshakes/${id}`);
         const { slug, title, description, expires_at } = data.handshake;
         setFormData({
           slug,
@@ -58,20 +55,13 @@ export default function HandshakeForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-
     if (!formData.slug || !formData.title) {
       setError('Link ID and Title are required');
       return;
     }
-
     setLoading(true);
-    const token = localStorage.getItem('authToken') || '';
-
     try {
-      const url = isEditMode
-        ? `/api/outbox/handshakes/${id}`
-        : `/api/outbox/handshakes`;
-
+      const url = isEditMode ? `/api/outbox/handshakes/${id}` : `/api/outbox/handshakes`;
       const payload = isEditMode
         ? {
             // Link ID (slug) is immutable; do not send it on update
@@ -80,42 +70,28 @@ export default function HandshakeForm() {
             expires_at: formData.expires_at || null,
           }
         : {
-            slug: formData.slug, // Link ID
+            slug: formData.slug,
             title: formData.title,
             description: formData.description,
             expires_at: formData.expires_at || null,
           };
-
-      const res = await fetch(url, {
-        method: isEditMode ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-
-        if (res.status === 409 && errData?.error === 'slug_taken') {
-          throw new Error('Link ID is already taken. Choose another.');
-        }
-
-        if (res.status === 400 && errData?.error === 'slug_immutable') {
-          throw new Error('Link ID cannot be changed after creation.');
-        }
-
-        if (res.status === 403 && errData?.error === 'plan_limit_reached') {
-          throw new Error('Free plan allows 1 active handshake. Archive one or upgrade to add more.');
-        }
-
-        throw new Error(errData.error || 'Failed to save handshake');
+      if (isEditMode) {
+        await apiPut(url, payload);
+      } else {
+        await apiPost(url, payload);
       }
-
       navigate('/dashboard/handshakes');
     } catch (err: any) {
-      setError(err.message || 'Failed to save handshake');
+      const msg = String(err?.message || '');
+      if (/slug_taken/i.test(msg)) {
+        setError('Link ID is already taken. Choose another.');
+      } else if (/slug_immutable/i.test(msg)) {
+        setError('Link ID cannot be changed after creation.');
+      } else if (/plan_limit_reached/i.test(msg)) {
+        setError('Free plan allows 1 active handshake. Archive one or upgrade to add more.');
+      } else {
+        setError(msg || 'Failed to save handshake');
+      }
       setLoading(false);
     }
   }
