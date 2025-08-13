@@ -1,5 +1,6 @@
 // src/client/pages/outbox/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom'; // ⬅️ add
 import LayerTabs from '../../components/nav/LayerTabs';
 import FolderRail from '../../components/folders/FolderRail';
 import MobileFolderDrawer from '../../components/folders/MobileFolderDrawer';
@@ -34,7 +35,16 @@ export default function Dashboard() {
             <div className="text-lg font-semibold">Handshake</div>
           </div>
 
-          <LayerTabs />
+          <div className="flex items-center gap-3">
+            <LayerTabs />
+            {/* New Handshake */}
+            <Link
+              to="/outbox/handshakes/new"
+              className="px-3 py-2 rounded bg-black text-white text-sm hover:opacity-90"
+            >
+              New Handshake
+            </Link>
+          </div>
         </div>
       </header>
 

@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+// src/client/pages/outbox/HandshakeRequests.tsx
+import React, { useEffect, useMemo, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { getSubmissions, Submission } from '../../utils/getSubmissions';
 import {
   fetchRequests,
@@ -12,9 +13,12 @@ import {
 
 export default function HandshakeRequests() {
   const { handshakeId } = useParams<{ handshakeId: string }>();
+  const hid = useMemo(() => (handshakeId ? Number(handshakeId) : NaN), [handshakeId]);
+
   const [requests, setRequests] = useState<HandshakeRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [subLoading, setSubLoading] = useState(true);
   const [subError, setSubError] = useState<string | null>(null);
@@ -27,27 +31,28 @@ export default function HandshakeRequests() {
   });
 
   useEffect(() => {
-    if (!handshakeId) return;
+    if (!Number.isFinite(hid)) return;
 
     setLoading(true);
     setSubLoading(true);
     setError(null);
     setSubError(null);
 
-    fetchRequests(Number(handshakeId))
+    fetchRequests(hid)
       .then(setRequests)
       .catch(() => setError('Failed to load requests'))
       .finally(() => setLoading(false));
 
-    getSubmissions(Number(handshakeId))
+    getSubmissions(hid)
       .then(setSubmissions)
       .catch(() => setSubError('Failed to load submissions'))
       .finally(() => setSubLoading(false));
-  }, [handshakeId]);
+  }, [hid]);
 
   const handleCreate = async () => {
+    if (!Number.isFinite(hid)) return;
     try {
-      const req = await createRequest(Number(handshakeId), newRequest);
+      const req = await createRequest(hid, newRequest);
       setRequests((prev) => [...prev, req]);
       setNewRequest({ label: '', type: 'text', required: false, options: [] });
       setError(null);
@@ -57,8 +62,9 @@ export default function HandshakeRequests() {
   };
 
   const handleDelete = async (id: number) => {
+    if (!Number.isFinite(hid)) return;
     try {
-      await deleteRequest(Number(handshakeId), id);
+      await deleteRequest(hid, id);
       setRequests((prev) => prev.filter((r) => r.id !== id));
       setError(null);
     } catch {
@@ -67,11 +73,10 @@ export default function HandshakeRequests() {
   };
 
   const handleUpdate = async (id: number, updates: Partial<RequestInput>) => {
+    if (!Number.isFinite(hid)) return;
     try {
-      const updated = await updateRequest(Number(handshakeId), id, updates);
-      setRequests((prev) =>
-        prev.map((r) => (r.id === id ? updated : r))
-      );
+      const updated = await updateRequest(hid, id, updates);
+      setRequests((prev) => prev.map((r) => (r.id === id ? updated : r)));
       setError(null);
     } catch {
       setError('Failed to update request');
@@ -83,15 +88,32 @@ export default function HandshakeRequests() {
   }
 
   function stringToOptions(str: string): string[] {
-    return str.split(',').map((opt) => opt.trim()).filter((opt) => opt.length > 0);
+    return str
+      .split(',')
+      .map((opt) => opt.trim())
+      .filter((opt) => opt.length > 0);
   }
 
-  if (loading) return <div>Loading requests...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  if (!Number.isFinite(hid)) {
+    return <div className="p-4 text-red-600">Invalid handshake id.</div>;
+  }
+
+  if (loading) return <div className="p-4">Loading requests...</div>;
+  if (error) return <div className="p-4 text-red-600">{error}</div>;
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <h2 className="text-2xl font-semibold mb-4">Handshake Requests</h2>
+      {/* Toolbar */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-semibold">Handshake Requests</h2>
+        <Link
+          to={`/outbox/handshakes/${hid}/edit`}
+          className="px-3 py-1.5 rounded bg-black text-white text-sm hover:opacity-90"
+        >
+          Edit Handshake
+        </Link>
+      </div>
+
       <ul className="space-y-4">
         {requests.map((r) => (
           <li key={r.id} className="flex flex-wrap items-center gap-2 border p-3 rounded">
@@ -184,6 +206,7 @@ export default function HandshakeRequests() {
           Add Request
         </button>
       </div>
+
       <h3 className="mt-8 text-xl font-semibold mb-2">Submitted Responses</h3>
 
       {subLoading ? (
