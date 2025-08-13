@@ -57,6 +57,17 @@ app.use('/api/billing', billingRoutes);
 // Public file access
 app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
 
+// =========================
+// Serve Vite frontend build
+// =========================
+const distPath = path.join(__dirname, '../../dist/client');
+app.use(express.static(distPath));
+
+// SPA fallback — must come last (after all API routes)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
 // Boot server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
