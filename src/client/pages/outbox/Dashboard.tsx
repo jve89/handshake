@@ -1,4 +1,4 @@
-// src/client/pages/dashboard/Dashboard.tsx
+// src/client/pages/outbox/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
 import LayerTabs from '../../components/nav/LayerTabs';
 import FolderRail from '../../components/folders/FolderRail';

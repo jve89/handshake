@@ -1,112 +1,113 @@
-.
-├── docker-compose.yml
-├── Dockerfile.dev
-├── docs
-│   ├── ARCHITECTURE.md
-│   ├── CONTRIBUTING.md
-│   ├── NOTNOW.md
-│   ├── PATH.md
-│   ├── proposed-filetree.txt
-│   ├── README.md
-│   ├── RELEASES.md
-│   ├── RISKS.md
-│   ├── ROADMAP.md
-│   ├── SCOPE.md
-│   ├── USER_FLOWS.md
-│   └── VISION.md
-├── .env
-├── .env.example
-├── eslint.config.js
-├── filetree.txt
-├── .gitignore
-├── .gitpod.yml
-├── LICENSE
-├── migrations
-│   ├── 001_inbox.sql
-│   ├── 002_handshakes_updated_at.sql
-│   └── 003_handshakes_add_archived.sql
-├── package.json
-├── package-lock.json
-├── postcss.config.js
-├── Procfile
-├── README.md
-├── scripts
-│   └── bootstrap.sh
-├── src
-│   ├── client
-│   │   ├── App.tsx
-│   │   ├── components
-│   │   │   ├── ArchiveFilter.tsx
-│   │   │   ├── folders
-│   │   │   │   ├── FolderRail.tsx
-│   │   │   │   └── MobileFolderDrawer.tsx
-│   │   │   ├── HandshakeForm.tsx
-│   │   │   └── nav
-│   │   │       └── LayerTabs.tsx
-│   │   ├── features
-│   │   │   └── handshakes
-│   │   │       ├── HandshakeForm.tsx
-│   │   │       └── HandshakeList.tsx
-│   │   ├── hooks
-│   │   │   └── useUrlState.ts
-│   │   ├── index.html
-│   │   ├── main.tsx
-│   │   ├── pages
-│   │   │   ├── dashboard
-│   │   │   │   ├── Dashboard.tsx
-│   │   │   │   └── HandshakeRequests.tsx
-│   │   │   ├── HandshakePage.tsx
-│   │   │   ├── inbox
-│   │   │   │   ├── InboxHome.tsx
-│   │   │   │   ├── InboxSubmissionDetail.tsx
-│   │   │   │   └── InboxSubmissions.tsx
-│   │   │   └── ThankYouPage.tsx
-│   │   ├── setupAuth.ts
-│   │   ├── styles
-│   │   │   └── tailwind.css
-│   │   ├── utils
-│   │   │   ├── devAuth.ts
-│   │   │   ├── getSubmissions.ts
-│   │   │   ├── handshakeRequests.ts
-│   │   │   ├── inbox.ts
-│   │   │   └── postHandshakeResponses.ts
-│   │   └── vite-env.d.ts
-│   ├── public
-│   │   └── uploads
-│   │       └── file-1754847456651-62769654.png
-│   ├── server
-│   │   ├── db
-│   │   │   ├── client.ts
-│   │   │   ├── schema.sql
-│   │   │   └── seed.ts
-│   │   ├── index.ts
-│   │   ├── middleware
-│   │   │   ├── authMiddleware.ts
-│   │   │   └── inboxToken.ts
-│   │   ├── routes
-│   │   │   ├── auth.ts
-│   │   │   ├── billing.ts
-│   │   │   ├── handshakeRequest.ts
-│   │   │   ├── inbox.ts
-│   │   │   ├── outboxInboxToken.ts
-│   │   │   ├── publicHandshake.ts
-│   │   │   ├── uploads.ts
-│   │   │   └── userHandshake.ts
-│   │   ├── services
-│   │   │   ├── authService.ts
-│   │   │   ├── handshakeRequestService.ts
-│   │   │   ├── inboxService.ts
-│   │   │   ├── planLimits.ts
-│   │   │   ├── tokenService.ts
-│   │   │   └── userHandshakeService.ts
-│   │   └── types
-│   │       ├── express.d.ts
-│   │       └── index.d.ts
-│   └── shared
-│       └── types.ts
-├── tailwind.config.ts
-├── tsconfig.json
-├── tsconfig.seed.json
-└── vite.config.ts
+]633;E;printf "# Snapshot @ %s on %s — DO NOT EDIT\\n\\n" "$(git rev-parse --short HEAD)" "$(date -u '+%F %T UTC')";41491708-87d7-4426-a96c-b29c3b50e72b]633;C# Snapshot @ cff7c31 on 2025-08-13 10:24:50 UTC — DO NOT EDIT
 
-26 directories, 84 files
+.
+|-- docs
+|   |-- ARCHITECTURE.md
+|   |-- CONTRIBUTING.md
+|   |-- NOTNOW.md
+|   |-- PATH.md
+|   |-- README.md
+|   |-- RELEASES.md
+|   |-- RISKS.md
+|   |-- ROADMAP.md
+|   |-- SCOPE.md
+|   |-- USER_FLOWS.md
+|   |-- VISION.md
+|   `-- proposed-filetree.txt
+|-- migrations
+|   |-- 001_inbox.sql
+|   |-- 002_handshakes_updated_at.sql
+|   `-- 003_handshakes_add_archived.sql
+|-- scripts
+|   `-- bootstrap.sh
+|-- src
+|   |-- client
+|   |   |-- components
+|   |   |   |-- folders
+|   |   |   |   |-- FolderRail.tsx
+|   |   |   |   `-- MobileFolderDrawer.tsx
+|   |   |   |-- nav
+|   |   |   |   `-- LayerTabs.tsx
+|   |   |   |-- ArchiveFilter.tsx
+|   |   |   `-- HandshakeForm.tsx
+|   |   |-- features
+|   |   |   `-- handshakes
+|   |   |       |-- HandshakeForm.tsx
+|   |   |       `-- HandshakeList.tsx
+|   |   |-- hooks
+|   |   |   `-- useUrlState.ts
+|   |   |-- pages
+|   |   |   |-- dashboard
+|   |   |   |   |-- Dashboard.tsx
+|   |   |   |   `-- HandshakeRequests.tsx
+|   |   |   |-- inbox
+|   |   |   |   |-- InboxHome.tsx
+|   |   |   |   |-- InboxSubmissionDetail.tsx
+|   |   |   |   `-- InboxSubmissions.tsx
+|   |   |   |-- AuthPage.tsx
+|   |   |   |-- HandshakePage.tsx
+|   |   |   |-- Home.tsx
+|   |   |   `-- ThankYouPage.tsx
+|   |   |-- styles
+|   |   |   `-- tailwind.css
+|   |   |-- utils
+|   |   |   |-- devAuth.ts
+|   |   |   |-- getSubmissions.ts
+|   |   |   |-- handshakeRequests.ts
+|   |   |   |-- inbox.ts
+|   |   |   `-- postHandshakeResponses.ts
+|   |   |-- App.tsx
+|   |   |-- index.html
+|   |   |-- main.tsx
+|   |   |-- setupAuth.ts
+|   |   `-- vite-env.d.ts
+|   |-- public
+|   |   `-- uploads
+|   |       `-- file-1754847456651-62769654.png
+|   |-- server
+|   |   |-- db
+|   |   |   |-- client.ts
+|   |   |   |-- schema.sql
+|   |   |   `-- seed.ts
+|   |   |-- middleware
+|   |   |   |-- authMiddleware.ts
+|   |   |   `-- inboxToken.ts
+|   |   |-- routes
+|   |   |   |-- auth.ts
+|   |   |   |-- billing.ts
+|   |   |   |-- handshakeRequest.ts
+|   |   |   |-- inbox.ts
+|   |   |   |-- outboxInboxToken.ts
+|   |   |   |-- publicHandshake.ts
+|   |   |   |-- uploads.ts
+|   |   |   `-- userHandshake.ts
+|   |   |-- services
+|   |   |   |-- authService.ts
+|   |   |   |-- handshakeRequestService.ts
+|   |   |   |-- inboxService.ts
+|   |   |   |-- planLimits.ts
+|   |   |   |-- tokenService.ts
+|   |   |   `-- userHandshakeService.ts
+|   |   |-- types
+|   |   |   |-- express.d.ts
+|   |   |   `-- index.d.ts
+|   |   `-- index.ts
+|   `-- shared
+|       `-- types.ts
+|-- .env.example
+|-- .gitignore
+|-- .gitpod.yml
+|-- Dockerfile.dev
+|-- LICENSE
+|-- Procfile
+|-- README.md
+|-- docker-compose.yml
+|-- eslint.config.js
+|-- filetree.txt
+|-- package-lock.json
+|-- package.json
+|-- postcss.config.js
+|-- tailwind.config.ts
+|-- tsconfig.json
+|-- tsconfig.seed.json
+`-- vite.config.ts

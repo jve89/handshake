@@ -1,43 +1,45 @@
 // src/client/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// Public
+import Home from './pages/Home';
 import HandshakePage from './pages/HandshakePage';
 import ThankYouPage from './pages/ThankYouPage';
+import AuthPage from './pages/AuthPage';
 
-// Inbox pages
+// Inbox
 import InboxHome from './pages/inbox/InboxHome';
 import InboxSubmissions from './pages/inbox/InboxSubmissions';
 import InboxSubmissionDetail from './pages/inbox/InboxSubmissionDetail';
 
-// Dashboard
-import Dashboard from './pages/dashboard/Dashboard';
+// Outbox (formerly Dashboard)
+import OutboxHome from './pages/outbox/Dashboard';
 
-// NEW
-import Home from './pages/Home';
-import AuthPage from './pages/AuthPage';
+// Editors / Features
+import HandshakeEditor from './features/handshakes/HandshakeEditor';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public home */}
+        {/* Public */}
         <Route path="/" element={<Home />} />
-
-        {/* Public handshake form */}
         <Route path="/handshake/:slug" element={<HandshakePage />} />
-
-        {/* Auth */}
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/thank-you" element={<ThankYouPage />} />
 
-        {/* Dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Outbox (sender side) */}
+        <Route path="/outbox" element={<OutboxHome />} />
+        <Route path="/outbox/handshakes/new" element={<HandshakeEditor />} />
+        <Route path="/outbox/handshakes/:id/edit" element={<HandshakeEditor />} />
 
-        {/* Inbox */}
+        {/* Legacy redirect */}
+        <Route path="/dashboard/*" element={<Navigate to="/outbox" replace />} />
+
+        {/* Inbox (receiver side) */}
         <Route path="/inbox" element={<InboxHome />} />
         <Route path="/inbox/handshakes/:handshakeId" element={<InboxSubmissions />} />
         <Route path="/inbox/submissions/:submissionId" element={<InboxSubmissionDetail />} />
-
-        {/* Other */}
-        <Route path="/thank-you" element={<ThankYouPage />} />
 
         {/* Catch-all → home */}
         <Route path="*" element={<Navigate to="/" replace />} />
