@@ -1,3 +1,4 @@
+// src/server/services/authService.ts
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
@@ -23,7 +24,7 @@ function generateToken(user: User): string {
 }
 
 export async function signup(req: Request, res: Response): Promise<void> {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
   if (!email || !password) {
     res.status(400).json({ error: 'Email and password required' });
     return;
@@ -38,14 +39,18 @@ export async function signup(req: Request, res: Response): Promise<void> {
 
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
+    // Insert with optional name
     const result = await db.query<User>(
-      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING *',
-      [email, password_hash]
+      'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING *',
+      [email, password_hash, name || null]
     );
 
     const user = result.rows[0];
     const token = generateToken(user);
-    res.status(201).json({ token, user: { id: user.id, email: user.email } });
+    res.status(201).json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name ?? null },
+    });
   } catch (err) {
     console.error('Signup error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -74,7 +79,10 @@ export async function login(req: Request, res: Response): Promise<void> {
     }
 
     const token = generateToken(user);
-    res.json({ token, user: { id: user.id, email: user.email } });
+    res.json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name ?? null },
+    });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Internal server error' });

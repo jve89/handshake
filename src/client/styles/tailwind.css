@@ -1,3 +1,35 @@
+/* src/client/styles/tailwind.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* --- Brand base styles --- */
+@layer base {
+  html, body {
+    @apply text-brand-navy bg-white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-brand-navy;
+  }
+
+  a {
+    @apply text-brand-blush hover:text-brand-yellow transition-colors;
+  }
+}
+
+/* --- Brand component polish --- */
+@layer components {
+  .card {
+    @apply rounded-lg border border-gray-200 bg-white shadow-sm p-4;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-white font-medium hover:opacity-90 transition;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md bg-brand-yellow text-brand-navy font-medium px-4 py-2 hover:opacity-90 transition;
+  }
+}

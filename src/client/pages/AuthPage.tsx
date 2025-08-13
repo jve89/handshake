@@ -1,16 +1,22 @@
 // src/client/pages/AuthPage.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { setAuthToken } from '../utils/getAuthToken';
 
 export default function AuthPage() {
   const navigate = useNavigate();
 
-  // 🔁 If a token already exists, bounce straight to the dashboard
+  // Redirect if a token is present (normalize legacy 'token' to 'authToken')
   useEffect(() => {
-    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-    if (token) {
-      navigate('/dashboard', { replace: true });
+    const legacy = localStorage.getItem('token');
+    const current = localStorage.getItem('authToken');
+    if (legacy && !current) {
+      // one-time migration
+      localStorage.setItem('authToken', legacy);
+      localStorage.removeItem('token');
     }
+    const token = localStorage.getItem('authToken');
+    if (token) navigate('/dashboard', { replace: true });
   }, [navigate]);
 
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -20,8 +26,22 @@ export default function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  function validate(): string | null {
+    if (!email.trim()) return 'Email is required';
+    // Very light email check (keeps deps out)
+    if (!/^\S+@\S+\.\S+$/.test(email)) return 'Enter a valid email address';
+    if (!password || password.length < 8) return 'Password must be at least 8 characters';
+    return null;
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const v = validate();
+    if (v) {
+      setErr(v);
+      return;
+    }
+
     setBusy(true);
     setErr(null);
 
@@ -38,19 +58,25 @@ export default function AuthPage() {
         body: JSON.stringify(body),
       });
 
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || `HTTP ${res.status}`);
+        const message =
+          data?.error ||
+          data?.message ||
+          (res.status === 409 ? 'User already exists' : `HTTP ${res.status}`);
+        throw new Error(message);
       }
 
-      const data = await res.json();
       const token: string | undefined =
         data?.token || data?.accessToken || data?.jwt;
 
       if (!token) throw new Error('No token in response');
 
-      // Store token and go to dashboard
-      localStorage.setItem('token', token);
+      // Store token consistently and go to dashboard
+      setAuthToken(token);
+      // Clean up any legacy key
+      localStorage.removeItem('token');
+
       navigate('/dashboard', { replace: true });
     } catch (e: any) {
       setErr(e?.message || 'Something went wrong');
@@ -61,10 +87,25 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md border rounded-lg p-6 space-y-4">
-        <h1 className="text-2xl font-semibold">
-          {mode === 'login' ? 'Log in' : 'Sign up'}
-        </h1>
+      <div className="w-full max-w-md card space-y-5">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={`px-3 py-2 rounded ${mode === 'login' ? 'bg-brand-yellow text-brand-navy' : 'border'}`}
+            onClick={() => setMode('login')}
+            disabled={busy}
+          >
+            Log in
+          </button>
+          <button
+            type="button"
+            className={`px-3 py-2 rounded ${mode === 'signup' ? 'bg-brand-yellow text-brand-navy' : 'border'}`}
+            onClick={() => setMode('signup')}
+            disabled={busy}
+          >
+            Sign up
+          </button>
+        </div>
 
         {err && (
           <div className="text-sm text-red-600 border border-red-200 rounded p-2">
@@ -82,6 +123,7 @@ export default function AuthPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
                 autoComplete="name"
+                disabled={busy}
               />
             </div>
           )}
@@ -96,6 +138,7 @@ export default function AuthPage() {
               autoComplete="email"
               type="email"
               required
+              disabled={busy}
             />
           </div>
 
@@ -109,29 +152,19 @@ export default function AuthPage() {
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               type="password"
               required
+              disabled={busy}
             />
+            <p className="text-xs text-gray-500 mt-1">Minimum 8 characters.</p>
           </div>
 
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded px-3 py-2 border bg-black text-white disabled:opacity-60"
+            className="w-full btn-primary disabled:opacity-60"
           >
             {busy ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Create account'}
           </button>
         </form>
-
-        <div className="text-sm">
-          {mode === 'login' ? (
-            <button className="underline" onClick={() => setMode('signup')}>
-              Need an account? Sign up
-            </button>
-          ) : (
-            <button className="underline" onClick={() => setMode('login')}>
-              Already have an account? Log in
-            </button>
-          )}
-        </div>
       </div>
     </div>
   );
