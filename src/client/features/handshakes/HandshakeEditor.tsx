@@ -1,6 +1,6 @@
 // src/client/features/handshakes/HandshakeEditor.tsx
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { apiGet, apiPost, apiPut } from '../../utils/api';
 
 interface HandshakeFormData {
@@ -75,14 +75,14 @@ export default function HandshakeEditor() {
             description: formData.description,
             expires_at: formData.expires_at || null,
           };
-    if (isEditMode) {
-      await apiPut(url, payload);
-      navigate('/outbox'); // edited: back to the list
-    } else {
-      const data = await apiPost<{ handshake: { id: number } }>(url, payload);
-      // newly created → go manage its fields/lines
-      navigate(`/outbox/handshakes/${data.handshake.id}/requests`);
-    }
+      if (isEditMode) {
+        await apiPut(url, payload);
+        navigate('/outbox'); // existing behavior
+      } else {
+        const data = await apiPost<{ handshake: { id: number } }>(url, payload);
+        // newly created → go manage its fields/lines
+        navigate(`/outbox/handshakes/${data.handshake.id}/requests`);
+      }
     } catch (err: any) {
       const msg = String(err?.message || '');
       if (/slug_taken/i.test(msg)) {
@@ -102,7 +102,19 @@ export default function HandshakeEditor() {
 
   return (
     <div className="max-w-lg mx-auto p-4">
-      <h1 className="text-2xl font-semibold mb-4">{isEditMode ? 'Edit' : 'Create'} Handshake</h1>
+      {/* Top toolbar with Back to Dashboard */}
+      <div className="mb-4 flex items-center justify-between">
+        <Link
+          to="/dashboard"
+          className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50"
+        >
+          ← Back to Dashboard
+        </Link>
+      </div>
+
+      <h1 className="text-2xl font-semibold mb-4">
+        {isEditMode ? 'Edit' : 'Create'} Handshake
+      </h1>
 
       {error && <div className="mb-4 text-red-600">{error}</div>}
 

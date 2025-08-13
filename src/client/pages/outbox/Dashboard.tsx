@@ -1,19 +1,27 @@
 // src/client/pages/outbox/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom'; // ⬅️ add
+import { Link, useNavigate } from 'react-router-dom';
 import LayerTabs from '../../components/nav/LayerTabs';
 import FolderRail from '../../components/folders/FolderRail';
 import MobileFolderDrawer from '../../components/folders/MobileFolderDrawer';
 import { useUrlState } from '../../hooks/useUrlState';
 import HandshakeList from '../../features/handshakes/HandshakeList';
+import { clearAuthToken } from '../../utils/getAuthToken';
 
 export default function Dashboard() {
   const { box, ensureDefaults } = useUrlState();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     ensureDefaults();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once
+
+  function handleLogout() {
+    clearAuthToken();
+    navigate('/', { replace: true });
+  }
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -37,6 +45,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3">
             <LayerTabs />
+
             {/* New Handshake */}
             <Link
               to="/outbox/handshakes/new"
@@ -44,6 +53,15 @@ export default function Dashboard() {
             >
               New Handshake
             </Link>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="px-3 py-2 rounded border text-sm hover:bg-gray-50"
+              aria-label="Log out"
+            >
+              Log out
+            </button>
           </div>
         </div>
       </header>
