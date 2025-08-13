@@ -1,4 +1,5 @@
-import axios from 'axios';
+// src/client/utils/getSubmissions.ts
+import { apiGet } from './api';
 
 export interface Submission {
   submission_id: number;
@@ -11,15 +12,8 @@ export interface Submission {
 }
 
 export async function getSubmissions(handshakeId: number): Promise<Submission[]> {
-  const token = localStorage.getItem('authToken') || '';
-  try {
-    const res = await axios.get(
-      `/api/outbox/handshakes/${handshakeId}/submissions`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    return res.data.submissions;
-  } catch (err: any) {
-    const message = err.response?.data?.error || 'Failed to load submissions';
-    throw new Error(message);
-  }
+  const data = await apiGet<{ submissions: Submission[] }>(
+    `/api/outbox/handshakes/${handshakeId}/submissions`
+  );
+  return data.submissions;
 }
