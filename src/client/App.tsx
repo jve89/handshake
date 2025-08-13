@@ -5,12 +5,8 @@ import HandshakeList from './pages/dashboard/HandshakeList';
 import HandshakeForm from './pages/dashboard/HandshakeForm';
 import ThankYouPage from './pages/ThankYouPage';
 
-// Existing wrappers
-import OutboxHome from './pages/outbox/OutboxHome';
-import OutboxRequests from './pages/outbox/OutboxRequests';
-import InboxHome from './pages/inbox/InboxHome';
-
 // Inbox pages
+import InboxHome from './pages/inbox/InboxHome';
 import InboxSubmissions from './pages/inbox/InboxSubmissions';
 import InboxSubmissionDetail from './pages/inbox/InboxSubmissionDetail';
 
@@ -32,12 +28,8 @@ export default function App() {
         <Route path="/dashboard/handshakes/new" element={<HandshakeForm />} />
         <Route path="/dashboard/handshakes/:id/edit" element={<HandshakeForm />} />
 
-        {/* Canonical dashboard shell (no /v2) */}
+        {/* Canonical dashboard shell */}
         <Route path="/dashboard" element={<Dashboard />} />
-
-        {/* Outbox aliases (legacy wrappers) */}
-        <Route path="/outbox" element={<OutboxHome />} />
-        <Route path="/outbox/:handshakeId/requests" element={<OutboxRequests />} />
 
         {/* Inbox routes */}
         <Route path="/inbox" element={<InboxHome />} />
