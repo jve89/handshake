@@ -99,5 +99,23 @@ export async function getMe(req: Request, res: Response): Promise<void> {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  res.json({ user: req.user });
+
+  try {
+    const result = await db.query<User>(
+      'SELECT id, email, name FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const u = result.rows[0];
+    res.json({ user: { id: u.id, email: u.email, name: u.name ?? null } });
+  } catch (err) {
+    console.error('getMe error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
+
