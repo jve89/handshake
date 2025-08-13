@@ -4,7 +4,7 @@ import LayerTabs from '../../components/nav/LayerTabs';
 import FolderRail from '../../components/folders/FolderRail';
 import MobileFolderDrawer from '../../components/folders/MobileFolderDrawer';
 import { useUrlState } from '../../hooks/useUrlState';
-import HandshakeList from './HandshakeList'; // reuse existing sender list
+import HandshakeList from '../../features/handshakes/HandshakeList';
 
 export default function Dashboard() {
   const { box, ensureDefaults } = useUrlState();
