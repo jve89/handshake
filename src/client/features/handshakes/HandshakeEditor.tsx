@@ -10,7 +10,7 @@ interface HandshakeFormData {
   expires_at?: string;
 }
 
-export default function HandshakeForm() {
+export default function HandshakeEditor() {
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
   const isEditMode = !!id;
