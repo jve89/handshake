@@ -1,10 +1,12 @@
 // src/client/pages/AuthPage.tsx
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { setAuthToken } from '../utils/getAuthToken';
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from || '/outbox';
 
   // Redirect if a token is present (normalize legacy 'token' to 'authToken')
   useEffect(() => {
@@ -15,8 +17,8 @@ export default function AuthPage() {
       localStorage.removeItem('token');
     }
     const token = localStorage.getItem('authToken');
-    if (token) navigate('/outbox', { replace: true }); // ← updated
-  }, [navigate]);
+    if (token) navigate(from, { replace: true }); // ← go back to intended route
+  }, [navigate, from]);
 
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
@@ -73,7 +75,7 @@ export default function AuthPage() {
       setAuthToken(token);
       localStorage.removeItem('token');
 
-      navigate('/outbox', { replace: true }); // ← updated
+      navigate(from, { replace: true }); // ← return to intended route
     } catch (e: any) {
       setErr(e?.message || 'Something went wrong');
     } finally {
@@ -93,7 +95,7 @@ export default function AuthPage() {
           >
             Log in
           </button>
-        <button
+          <button
             type="button"
             className={`px-3 py-2 rounded ${mode === 'signup' ? 'bg-brand-yellow text-brand-navy' : 'border'}`}
             onClick={() => setMode('signup')}
