@@ -103,16 +103,36 @@ export default function HandshakeRequests() {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      {/* Top toolbar: Back to Dashboard (left), Title (center), Edit Handshake (right) */}
-      <div className="flex items-center justify-between mb-4">
-        <Link
-          to="/outbox"
-          className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50"
-        >
+      {/* Composer-like toolbar */}
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <Link to="/outbox" className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50">
           ← Back to Dashboard
         </Link>
 
-        <h2 className="text-2xl font-semibold">Handshake Requests</h2>
+        {/* Tabs mirror the Composer */}
+        <div className="flex items-center gap-1 text-sm">
+          <Link
+            to={`/outbox/handshakes/${hid}/edit`}
+            className="px-3 py-1.5 rounded border hover:bg-gray-50"
+            title="Edit details"
+          >
+            Details
+          </Link>
+          <span className="px-3 py-1.5 rounded bg-gray-900 text-white select-none">Fields</span>
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              // Preview uses slug; we don’t have it here without another fetch.
+              // Open the composer (edit) in a new tab; user can hit Preview there.
+              window.open(`/outbox/handshakes/${hid}/edit`, '_blank', 'noopener');
+            }}
+            className="px-3 py-1.5 rounded border hover:bg-gray-50"
+            title="Open preview"
+          >
+            Preview
+          </a>
+        </div>
 
         <Link
           to={`/outbox/handshakes/${hid}/edit`}
@@ -122,55 +142,65 @@ export default function HandshakeRequests() {
         </Link>
       </div>
 
-      <ul className="space-y-4">
-        {requests.map((r) => (
-          <li key={r.id} className="flex flex-wrap items-center gap-2 border p-3 rounded">
-            <input
-              type="text"
-              value={r.label}
-              onChange={(e) => handleUpdate(r.id, { label: e.target.value })}
-              className="border rounded px-2 py-1 flex-grow min-w-[150px]"
-              placeholder="Label"
-            />
-            <select
-              value={r.type}
-              onChange={(e) => handleUpdate(r.id, { type: e.target.value as RequestInput['type'] })}
-              className="border rounded px-2 py-1"
-            >
-              <option value="text">Text</option>
-              <option value="email">Email</option>
-              <option value="select">Select</option>
-              <option value="file">File</option>
-            </select>
-            {r.type === 'select' && (
+      <h2 className="text-2xl font-semibold mb-2">Handshake Requests</h2>
+
+      {/* Empty state when no fields yet */}
+      {requests.length === 0 ? (
+        <div className="border rounded p-4 bg-gray-50 text-sm text-gray-700 mb-4">
+          <p className="mb-2 font-medium">No fields yet.</p>
+          <p>Add your first field below. You can choose type, set it as required, and add options for selects.</p>
+        </div>
+      ) : (
+        <ul className="space-y-4 mb-4">
+          {requests.map((r) => (
+            <li key={r.id} className="flex flex-wrap items-center gap-2 border p-3 rounded">
               <input
                 type="text"
-                value={optionsToString(r.options)}
-                onChange={(e) => handleUpdate(r.id, { options: stringToOptions(e.target.value) })}
-                placeholder="Options (comma separated)"
+                value={r.label}
+                onChange={(e) => handleUpdate(r.id, { label: e.target.value })}
                 className="border rounded px-2 py-1 flex-grow min-w-[150px]"
+                placeholder="Label"
               />
-            )}
-            <label className="flex items-center gap-1 select-none">
-              <input
-                type="checkbox"
-                checked={r.required}
-                onChange={(e) => handleUpdate(r.id, { required: e.target.checked })}
-              />
-              Required
-            </label>
-            <button
-              onClick={() => handleDelete(r.id)}
-              className="ml-auto bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
-              aria-label={`Delete request ${r.label}`}
-            >
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
+              <select
+                value={r.type}
+                onChange={(e) => handleUpdate(r.id, { type: e.target.value as RequestInput['type'] })}
+                className="border rounded px-2 py-1"
+              >
+                <option value="text">Text</option>
+                <option value="email">Email</option>
+                <option value="select">Select</option>
+                <option value="file">File</option>
+              </select>
+              {r.type === 'select' && (
+                <input
+                  type="text"
+                  value={optionsToString(r.options)}
+                  onChange={(e) => handleUpdate(r.id, { options: stringToOptions(e.target.value) })}
+                  placeholder="Options (comma separated)"
+                  className="border rounded px-2 py-1 flex-grow min-w-[150px]"
+                />
+              )}
+              <label className="flex items-center gap-1 select-none">
+                <input
+                  type="checkbox"
+                  checked={r.required}
+                  onChange={(e) => handleUpdate(r.id, { required: e.target.checked })}
+                />
+                Required
+              </label>
+              <button
+                onClick={() => handleDelete(r.id)}
+                className="ml-auto bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+                aria-label={`Delete request ${r.label}`}
+              >
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      <h3 className="mt-8 text-xl font-semibold mb-2">Add New Request</h3>
+      <h3 className="text-xl font-semibold mb-2">Add New Request</h3>
       <div className="flex flex-wrap items-center gap-2 border p-3 rounded">
         <input
           type="text"

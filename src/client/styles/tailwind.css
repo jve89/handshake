@@ -17,19 +17,91 @@
   a {
     @apply text-brand-blush hover:text-brand-yellow transition-colors;
   }
+
+  /* Modern focus treatment across interactive elements */
+  :is(a, button, [type='button'], [type='submit'], [role='button'], input, select, textarea) {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-brand-blush focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+  }
 }
 
-/* --- Brand component polish --- */
+/* --- Brand component primitives (2025 look, low-noise) --- */
 @layer components {
+  /* Cards & containers */
   .card {
-    @apply rounded-lg border border-gray-200 bg-white shadow-sm p-4;
+    @apply rounded-xl border border-gray-200 bg-white shadow-sm p-4;
+  }
+  .card-lg { @apply p-6; }
+  .toolbar {
+    @apply flex items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white/80 backdrop-blur p-2;
   }
 
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition
+           disabled:opacity-60 disabled:pointer-events-none;
+  }
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-white font-medium hover:opacity-90 transition;
+    @apply btn bg-brand-blush text-white hover:opacity-90;
+  }
+  .btn-secondary {
+    @apply btn bg-brand-yellow text-brand-navy hover:opacity-90;
+  }
+  .btn-outline {
+    @apply btn border border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white;
+  }
+  .btn-ghost {
+    @apply btn text-brand-navy hover:bg-gray-100;
+  }
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700;
+  }
+  .btn-icon {
+    @apply inline-flex items-center justify-center w-9 h-9 rounded-md border border-gray-300 hover:bg-gray-50;
   }
 
-  .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-md bg-brand-yellow text-brand-navy font-medium px-4 py-2 hover:opacity-90 transition;
+  /* Inputs */
+  .input {
+    @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm
+           placeholder:text-gray-400
+           focus:border-brand-blush;
   }
+  .select {
+    @apply input pr-8;
+  }
+  .textarea {
+    @apply input min-h-[120px];
+  }
+  .label {
+    @apply block text-sm font-medium text-brand-navy mb-1;
+  }
+  .help {
+    @apply text-xs text-gray-500 mt-1;
+  }
+
+  /* Badges / Pills */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-gray-100 text-brand-navy;
+  }
+  .badge-success { @apply bg-green-100 text-green-800; }
+  .badge-warn    { @apply bg-brand-yellow text-brand-navy; }
+  .badge-neutral { @apply bg-gray-100 text-gray-800; }
+
+  /* Subtle section header */
+  .section-title {
+    @apply text-xl font-semibold tracking-tight;
+  }
+
+  /* Brand gradient helpers */
+  .bg-sunset {
+    @apply bg-gradient-to-r from-brand-blush via-brand-yellow to-brand-yellow;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-blush to-brand-yellow;
+  }
+}
+
+/* --- Small utility tweaks --- */
+@layer utilities {
+  .ring-brand { @apply ring-brand-blush; }
+  .muted { @apply text-gray-500; }
 }
