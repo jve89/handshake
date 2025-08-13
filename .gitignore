@@ -4,3 +4,10 @@ dist/
 .env.*.local
 *.log
 .DS_Store
+
+# runtime uploads
+src/public/uploads/
+]633;E;echo '';41491708-87d7-4426-a96c-b29c3b50e72b]633;C
+# runtime uploads
+/src/public/uploads/*
+!/src/public/uploads/.gitkeep
