@@ -1,31 +1,25 @@
 // src/client/pages/Home.tsx
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { getAuthToken, clearAuthToken } from '../utils/getAuthToken';
 
 export default function Home() {
   const navigate = useNavigate();
 
   // Initialize from localStorage to avoid UI flash
-  const [hasToken, setHasToken] = useState<boolean>(() => {
-    const t = localStorage.getItem('token') || localStorage.getItem('authToken');
-    return !!t;
-  });
+  const [hasToken, setHasToken] = useState<boolean>(() => !!getAuthToken());
 
   // Keep state in sync across tabs/windows
   useEffect(() => {
     function onStorage(e: StorageEvent) {
-      if (e.key === 'token' || e.key === 'authToken') {
-        const t = localStorage.getItem('token') || localStorage.getItem('authToken');
-        setHasToken(!!t);
-      }
+      if (e.key === 'authToken') setHasToken(!!getAuthToken());
     }
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken');
+    clearAuthToken();
     setHasToken(false);
     navigate(0); // hard refresh to clear state
   };
@@ -42,7 +36,7 @@ export default function Home() {
           {hasToken ? (
             <>
               <Link to="/outbox" className="px-4 py-2 rounded bg-black text-white">
-                 Go to Dashboard
+                Go to Dashboard
               </Link>
               <button onClick={logout} className="px-4 py-2 rounded border">
                 Log out
