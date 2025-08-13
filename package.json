@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "server": "tsx src/server/index.ts",
-  "dev:server": "tsx watch src/server/index.ts",
-  "seed": "ts-node --project tsconfig.seed.json src/server/db/seed.ts",
-  "start": "tsx src/server/index.ts",
-  "heroku-postbuild": "npm run build"
+    "dev": "vite",
+    "build": "vite build --config src/client/vite.config.ts",
+    "preview": "vite preview",
+    "server": "tsx src/server/index.ts",
+    "dev:server": "tsx watch src/server/index.ts",
+    "seed": "ts-node --project tsconfig.seed.json src/server/db/seed.ts",
+    "start": "tsx src/server/index.ts",
+    "heroku-postbuild": "vite build --config src/client/vite.config.ts"
   },
   "dependencies": {
     "axios": "^1.11.0",
