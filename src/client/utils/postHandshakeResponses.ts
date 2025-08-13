@@ -1,18 +1,25 @@
-import axios from 'axios';
-
+// src/client/utils/postHandshakeResponses.ts
 interface HandshakeResponse {
   request_id: number;
   value: string;
 }
 
 export async function submitResponses(slug: string, responses: HandshakeResponse[]) {
-  try {
-    const res = await axios.post(`/api/handshake/${slug}/submit`, { responses });
-    return res.data; // { submission_id }
-  } catch (err: any) {
-    if (err.response?.data?.error) {
-      throw new Error(err.response.data.error);
+  const res = await fetch(`/api/handshake/${encodeURIComponent(slug)}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ responses }),
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    try {
+      const data = await res.json();
+      throw new Error(data?.error || `Submission failed (${res.status})`);
+    } catch {
+      const text = await res.text().catch(() => '');
+      throw new Error(text || 'Submission failed. Please try again.');
     }
-    throw new Error('Submission failed. Please try again.');
   }
+  return res.json(); // { submission_id }
 }
