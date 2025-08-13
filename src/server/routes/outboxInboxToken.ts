@@ -1,3 +1,4 @@
+// src/server/routes/outboxInboxToken.ts
 import { Router, Response } from 'express';
 import { db } from '../db/client';
 import authMiddleware, { AuthenticatedRequest } from '../middleware/authMiddleware';

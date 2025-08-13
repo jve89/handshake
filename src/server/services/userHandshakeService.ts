@@ -1,3 +1,4 @@
+// src/server/services/userHandshakeService.ts
 import { db } from '../db/client';
 import type { Handshake } from '../../shared/types';
 
