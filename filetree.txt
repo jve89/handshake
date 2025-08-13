@@ -1,7 +1,9 @@
-# Snapshot @ 8c5e379 on 2025-08-13 10:41:20 UTC — DO NOT EDIT
+# Snapshot @ f51d743 on 2025-08-13 10:44:59 UTC — DO NOT EDIT
 
 .
 |-- docs
+|   |-- _archive
+|   |   `-- schema.snapshot.sql
 |   |-- ARCHITECTURE.md
 |   |-- CONTRIBUTING.md
 |   |-- NOTNOW.md
@@ -17,7 +19,8 @@
 |-- migrations
 |   |-- 001_inbox.sql
 |   |-- 002_handshakes_updated_at.sql
-|   `-- 003_handshakes_add_archived.sql
+|   |-- 003_handshakes_add_archived.sql
+|   `-- 004_integrity_and_indexes.sql
 |-- scripts
 |   `-- bootstrap.sh
 |-- src
@@ -69,7 +72,6 @@
 |   |-- server
 |   |   |-- db
 |   |   |   |-- client.ts
-|   |   |   |-- schema.sql
 |   |   |   `-- seed.ts
 |   |   |-- middleware
 |   |   |   |-- authMiddleware.ts
