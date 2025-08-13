@@ -47,9 +47,10 @@ app.use('/api/auth', authRoutes);
 // Outbox aliases (additive; old mounts stay)
 app.use('/api/outbox/handshakes', userHandshakeRoutes);
 app.use('/api/outbox/handshakes/:handshakeId/requests', handshakeRequestRoutes);
+app.use('/api/outbox/handshakes', outboxInboxTokenRoutes);
 
 // New route for issuing inbox tokens
-app.use('/api/outbox/handshakes', outboxInboxTokenRoutes);
+app.use('/api/inbox', inboxRoutes);
 
 // Billing (Checkout session)
 app.use('/api/billing', billingRoutes);
