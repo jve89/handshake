@@ -1,4 +1,5 @@
 // src/client/App.tsx
+import './setupAuth';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HandshakePage from './pages/HandshakePage';
 import ThankYouPage from './pages/ThankYouPage';
