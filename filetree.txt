@@ -1,4 +1,4 @@
-]633;E;printf "# Snapshot @ %s on %s — DO NOT EDIT\\n\\n" "$(git rev-parse --short HEAD)" "$(date -u '+%F %T UTC')";41491708-87d7-4426-a96c-b29c3b50e72b]633;C# Snapshot @ cff7c31 on 2025-08-13 10:24:50 UTC — DO NOT EDIT
+# Snapshot @ 8c5e379 on 2025-08-13 10:41:20 UTC — DO NOT EDIT
 
 .
 |-- docs
@@ -28,22 +28,23 @@
 |   |   |   |   `-- MobileFolderDrawer.tsx
 |   |   |   |-- nav
 |   |   |   |   `-- LayerTabs.tsx
-|   |   |   |-- ArchiveFilter.tsx
-|   |   |   `-- HandshakeForm.tsx
+|   |   |   `-- ArchiveFilter.tsx
 |   |   |-- features
-|   |   |   `-- handshakes
-|   |   |       |-- HandshakeForm.tsx
-|   |   |       `-- HandshakeList.tsx
+|   |   |   |-- handshakes
+|   |   |   |   |-- HandshakeEditor.tsx
+|   |   |   |   `-- HandshakeList.tsx
+|   |   |   `-- inbox
+|   |   |       `-- HandshakeResponseForm.tsx
 |   |   |-- hooks
 |   |   |   `-- useUrlState.ts
 |   |   |-- pages
-|   |   |   |-- dashboard
-|   |   |   |   |-- Dashboard.tsx
-|   |   |   |   `-- HandshakeRequests.tsx
 |   |   |   |-- inbox
 |   |   |   |   |-- InboxHome.tsx
 |   |   |   |   |-- InboxSubmissionDetail.tsx
 |   |   |   |   `-- InboxSubmissions.tsx
+|   |   |   |-- outbox
+|   |   |   |   |-- Dashboard.tsx
+|   |   |   |   `-- HandshakeRequests.tsx
 |   |   |   |-- AuthPage.tsx
 |   |   |   |-- HandshakePage.tsx
 |   |   |   |-- Home.tsx
@@ -63,6 +64,7 @@
 |   |   `-- vite-env.d.ts
 |   |-- public
 |   |   `-- uploads
+|   |       |-- .gitkeep
 |   |       `-- file-1754847456651-62769654.png
 |   |-- server
 |   |   |-- db
