@@ -75,12 +75,14 @@ export default function HandshakeForm() {
             description: formData.description,
             expires_at: formData.expires_at || null,
           };
-      if (isEditMode) {
-        await apiPut(url, payload);
-      } else {
-        await apiPost(url, payload);
-      }
-      navigate('/dashboard/handshakes');
+    if (isEditMode) {
+      await apiPut(url, payload);
+      navigate('/outbox'); // edited: back to the list
+    } else {
+      const data = await apiPost<{ handshake: { id: number } }>(url, payload);
+      // newly created → go manage its fields/lines
+      navigate(`/outbox/handshakes/${data.handshake.id}/requests`);
+    }
     } catch (err: any) {
       const msg = String(err?.message || '');
       if (/slug_taken/i.test(msg)) {

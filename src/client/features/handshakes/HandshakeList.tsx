@@ -156,6 +156,9 @@ export default function HandshakeList() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                <Link to={`/outbox/handshakes/${id}/requests`} className="px-3 py-1 border rounded" title="Add or edit the fields this handshake asks for">
+                  Manage fields
+                </Link>
                 <a
                   href={`/handshake/${encodeURIComponent(slug)}`}
                   target="_blank"
