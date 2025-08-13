@@ -4,8 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ArchiveFilter from '../../components/ArchiveFilter';
 import type { Handshake } from '../../../shared/types';
 import { useUrlState } from '../../hooks/useUrlState';
-import { apiGet } from '../../utils/api';
-import { getAuthToken } from '../../utils/getAuthToken';
+import { apiGet, apiDelete, apiPut } from '../../utils/api';
 
 type FilterValue = 'false' | 'true' | 'all';
 
@@ -87,17 +86,9 @@ export default function HandshakeList() {
     setHandshakes((list) => list.filter((h) => h.id !== id));
 
     try {
-      const token = getAuthToken();
-      const res = await fetch(`/api/outbox/handshakes/${id}`, {
-        method: 'DELETE',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (!res.ok) {
-        setHandshakes(prev); // revert
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.error || `Failed to delete (status ${res.status})`);
-      }
+      await apiDelete(`/api/outbox/handshakes/${id}`);
     } catch (e: any) {
+      setHandshakes(prev); // revert
       setError(e?.message || 'Failed to delete handshake');
     } finally {
       setDeletingId(null);
@@ -106,23 +97,10 @@ export default function HandshakeList() {
 
   async function toggleArchive(id: number, next: boolean) {
     try {
-      const token = getAuthToken();
       const url = next
         ? `/api/outbox/handshakes/${id}/archive`
         : `/api/outbox/handshakes/${id}/unarchive`;
-      const res = await fetch(url, {
-        method: 'PUT',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        if (res.status === 403 && body?.error === 'plan_limit_reached') {
-          throw new Error(
-            'Free plan allows 1 active handshake. Archive one or upgrade to unarchive this.'
-          );
-        }
-        throw new Error(body?.error || `Failed (status ${res.status})`);
-      }
+      await apiPut(url);
       await load(archived); // refetch to honor current filter
     } catch (e: any) {
       setError(e?.message || 'Failed to toggle archive');
