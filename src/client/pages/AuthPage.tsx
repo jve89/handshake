@@ -11,12 +11,11 @@ export default function AuthPage() {
     const legacy = localStorage.getItem('token');
     const current = localStorage.getItem('authToken');
     if (legacy && !current) {
-      // one-time migration
       localStorage.setItem('authToken', legacy);
       localStorage.removeItem('token');
     }
     const token = localStorage.getItem('authToken');
-    if (token) navigate('/dashboard', { replace: true });
+    if (token) navigate('/outbox', { replace: true }); // ← updated
   }, [navigate]);
 
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -28,7 +27,6 @@ export default function AuthPage() {
 
   function validate(): string | null {
     if (!email.trim()) return 'Email is required';
-    // Very light email check (keeps deps out)
     if (!/^\S+@\S+\.\S+$/.test(email)) return 'Enter a valid email address';
     if (!password || password.length < 8) return 'Password must be at least 8 characters';
     return null;
@@ -72,12 +70,10 @@ export default function AuthPage() {
 
       if (!token) throw new Error('No token in response');
 
-      // Store token consistently and go to dashboard
       setAuthToken(token);
-      // Clean up any legacy key
       localStorage.removeItem('token');
 
-      navigate('/dashboard', { replace: true });
+      navigate('/outbox', { replace: true }); // ← updated
     } catch (e: any) {
       setErr(e?.message || 'Something went wrong');
     } finally {
@@ -97,7 +93,7 @@ export default function AuthPage() {
           >
             Log in
           </button>
-          <button
+        <button
             type="button"
             className={`px-3 py-2 rounded ${mode === 'signup' ? 'bg-brand-yellow text-brand-navy' : 'border'}`}
             onClick={() => setMode('signup')}
