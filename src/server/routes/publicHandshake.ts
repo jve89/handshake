@@ -1,7 +1,7 @@
 // src/server/routes/publicHandshake.ts
 import { Router } from 'express';
 import { db } from '../db/client';
-import * as validator from 'validator';
+import validator from 'validator';
 
 const router = Router();
 
