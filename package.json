@@ -4,13 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --config src/client/vite.config.ts",
+    "build": "vite build",
     "preview": "vite preview",
     "server": "tsx src/server/index.ts",
     "dev:server": "tsx watch src/server/index.ts",
     "seed": "ts-node --project tsconfig.seed.json src/server/db/seed.ts",
     "start": "tsx src/server/index.ts",
-    "heroku-postbuild": "vite build --config src/client/vite.config.ts"
+    "heroku-postbuild": "vite build"
   },
   "dependencies": {
     "axios": "^1.11.0",
@@ -48,5 +48,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "vite": "^5.0.10"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
