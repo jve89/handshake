@@ -12,7 +12,7 @@ import InboxHome from './pages/inbox/InboxHome';
 import InboxSubmissions from './pages/inbox/InboxSubmissions';
 import InboxSubmissionDetail from './pages/inbox/InboxSubmissionDetail';
 
-// Outbox (formerly Dashboard)
+// Outbox
 import OutboxHome from './pages/outbox/Dashboard';
 import HandshakeRequests from './pages/outbox/HandshakeRequests';
 
@@ -34,12 +34,6 @@ export default function App() {
         <Route path="/outbox/handshakes/new" element={<HandshakeEditor />} />
         <Route path="/outbox/handshakes/:id/edit" element={<HandshakeEditor />} />
         <Route path="/outbox/handshakes/:handshakeId/requests" element={<HandshakeRequests />} />
-
-        {/* Legacy dashboard aliases (back-compat) */}
-        <Route path="/dashboard" element={<OutboxHome />} />
-        <Route path="/dashboard/handshakes/new" element={<HandshakeEditor />} />
-        <Route path="/dashboard/handshakes/:id/edit" element={<HandshakeEditor />} />
-        <Route path="/dashboard/handshakes/:handshakeId/requests" element={<HandshakeRequests />} />
 
         {/* Inbox (receiver side) */}
         <Route path="/inbox" element={<InboxHome />} />

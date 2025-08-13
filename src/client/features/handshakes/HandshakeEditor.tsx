@@ -77,10 +77,10 @@ export default function HandshakeEditor() {
           };
       if (isEditMode) {
         await apiPut(url, payload);
-        navigate('/outbox'); // existing behavior
+        navigate('/outbox'); // back to list
       } else {
         const data = await apiPost<{ handshake: { id: number } }>(url, payload);
-        // newly created → go manage its fields/lines
+        // newly created → manage its fields/lines
         navigate(`/outbox/handshakes/${data.handshake.id}/requests`);
       }
     } catch (err: any) {
@@ -105,7 +105,7 @@ export default function HandshakeEditor() {
       {/* Top toolbar with Back to Dashboard */}
       <div className="mb-4 flex items-center justify-between">
         <Link
-          to="/dashboard"
+          to="/outbox"
           className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50"
         >
           ← Back to Dashboard

@@ -106,7 +106,7 @@ export default function HandshakeRequests() {
       {/* Top toolbar: Back to Dashboard (left), Title (center), Edit Handshake (right) */}
       <div className="flex items-center justify-between mb-4">
         <Link
-          to="/dashboard"
+          to="/outbox"
           className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50"
         >
           ← Back to Dashboard
