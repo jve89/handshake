@@ -1,9 +1,11 @@
-// src/client/pages/outbox/HandshakeList.tsx
+// src/client/features/handshakes/HandshakeList.tsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ArchiveFilter from '../../components/ArchiveFilter';
 import type { Handshake } from '../../../shared/types';
 import { useUrlState } from '../../hooks/useUrlState';
+import { apiGet } from '../../utils/api';
+import { getAuthToken } from '../../utils/getAuthToken';
 
 type FilterValue = 'false' | 'true' | 'all';
 
@@ -14,6 +16,7 @@ export default function HandshakeList() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   // Ensure URL defaults exist (supports both /dashboard/v2 and legacy routes)
   useEffect(() => {
@@ -25,14 +28,15 @@ export default function HandshakeList() {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('authToken') || '';
-      const res = await fetch(`/api/outbox/handshakes?archived=${currentArchived}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error(`Error fetching handshakes: ${res.statusText}`);
-      const data = await res.json();
+      const data = await apiGet<{ handshakes: Handshake[] }>(
+        `/api/outbox/handshakes?archived=${currentArchived}`
+      );
       setHandshakes(data.handshakes);
     } catch (e: any) {
+      if (e?.message === 'Unauthorized') {
+        navigate('/auth', { replace: true });
+        return;
+      }
       setError(e?.message || 'Unknown error');
     } finally {
       setLoading(false);
@@ -83,10 +87,10 @@ export default function HandshakeList() {
     setHandshakes((list) => list.filter((h) => h.id !== id));
 
     try {
-      const token = localStorage.getItem('authToken') || '';
+      const token = getAuthToken();
       const res = await fetch(`/api/outbox/handshakes/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) {
         setHandshakes(prev); // revert
@@ -102,16 +106,19 @@ export default function HandshakeList() {
 
   async function toggleArchive(id: number, next: boolean) {
     try {
-      const token = localStorage.getItem('authToken') || '';
+      const token = getAuthToken();
       const url = next
         ? `/api/outbox/handshakes/${id}/archive`
         : `/api/outbox/handshakes/${id}/unarchive`;
-      const res = await fetch(url, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         if (res.status === 403 && body?.error === 'plan_limit_reached') {
           throw new Error(
-            'Free plan allows 1 active handshake. Archive one or upgrade to unarchive this.',
+            'Free plan allows 1 active handshake. Archive one or upgrade to unarchive this.'
           );
         }
         throw new Error(body?.error || `Failed (status ${res.status})`);
@@ -130,7 +137,7 @@ export default function HandshakeList() {
       <div className="mb-4 flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Your Handshakes</h1>
         <Link
-          to="/dashboard/handshakes/new"
+          to="/outbox/handshakes/new"
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Create New
@@ -208,7 +215,7 @@ export default function HandshakeList() {
                 )}
 
                 <Link
-                  to={`/dashboard/handshakes/${id}/edit`}
+                  to={`/outbox/handshakes/${id}/edit`}
                   className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
                 >
                   Edit
