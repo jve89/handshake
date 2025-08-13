@@ -15,11 +15,11 @@ export default defineConfig({
   envDir: process.cwd(),
 
   build: {
-  outDir: '../../dist/client',   // <-- was '../../../dist/client'
+  outDir: '../../dist/client',   
   emptyOutDir: true,
   sourcemap: false,
   },
-  
+
   server: {
     host: true,
     strictPort: true,
