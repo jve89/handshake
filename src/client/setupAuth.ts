@@ -1,19 +1,40 @@
 // src/client/setupAuth.ts
-import axios from 'axios';
+// Automatically attach Authorization header from localStorage to all /api requests.
 
-export function applyAuthHeader() {
-  const token = localStorage.getItem('token');
-  if (token) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete axios.defaults.headers.common['Authorization'];
-  }
-}
+(() => {
+  const getToken = () =>
+    localStorage.getItem('token') || localStorage.getItem('authToken');
 
-// Run once on load
-applyAuthHeader();
+  const originalFetch = window.fetch;
 
-// Optional helper to re-apply without reload after login
-// (window as any) so it compiles without a global type
-// @ts-ignore
-(window as any).refreshAuthHeader = applyAuthHeader;
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    try {
+      // Figure out the request URL as a string
+      const urlStr =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+          ? input.toString()
+          : input.url;
+
+      // Only touch our API calls
+      const isApi =
+        urlStr.startsWith('/api') ||
+        urlStr.startsWith(`${window.location.origin}/api`);
+
+      const token = getToken();
+      if (isApi && token) {
+        init = init ?? {};
+        const headers = new Headers(init.headers ?? {});
+        if (!headers.has('Authorization')) {
+          headers.set('Authorization', `Bearer ${token}`);
+        }
+        init.headers = headers;
+      }
+    } catch {
+      // never block the request on our helper
+    }
+
+    return originalFetch(input as any, init);
+  };
+})();

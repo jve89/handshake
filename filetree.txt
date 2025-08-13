@@ -28,6 +28,7 @@
 ├── package.json
 ├── package-lock.json
 ├── postcss.config.js
+├── Procfile
 ├── README.md
 ├── scripts
 │   └── bootstrap.sh
@@ -37,29 +38,30 @@
 │   │   ├── components
 │   │   │   ├── ArchiveFilter.tsx
 │   │   │   ├── folders
-│   │   │   │   └── FolderRail.tsx
+│   │   │   │   ├── FolderRail.tsx
+│   │   │   │   └── MobileFolderDrawer.tsx
 │   │   │   ├── HandshakeForm.tsx
 │   │   │   └── nav
 │   │   │       └── LayerTabs.tsx
+│   │   ├── features
+│   │   │   └── handshakes
+│   │   │       ├── HandshakeForm.tsx
+│   │   │       └── HandshakeList.tsx
 │   │   ├── hooks
 │   │   │   └── useUrlState.ts
 │   │   ├── index.html
 │   │   ├── main.tsx
 │   │   ├── pages
 │   │   │   ├── dashboard
-│   │   │   │   ├── DashboardV2.tsx
-│   │   │   │   ├── HandshakeForm.tsx
-│   │   │   │   ├── HandshakeList.tsx
+│   │   │   │   ├── Dashboard.tsx
 │   │   │   │   └── HandshakeRequests.tsx
 │   │   │   ├── HandshakePage.tsx
 │   │   │   ├── inbox
 │   │   │   │   ├── InboxHome.tsx
 │   │   │   │   ├── InboxSubmissionDetail.tsx
 │   │   │   │   └── InboxSubmissions.tsx
-│   │   │   ├── outbox
-│   │   │   │   ├── OutboxHome.tsx
-│   │   │   │   └── OutboxRequests.tsx
 │   │   │   └── ThankYouPage.tsx
+│   │   ├── setupAuth.ts
 │   │   ├── styles
 │   │   │   └── tailwind.css
 │   │   ├── utils
@@ -107,4 +109,4 @@
 ├── tsconfig.seed.json
 └── vite.config.ts
 
-25 directories, 83 files
+26 directories, 84 files
