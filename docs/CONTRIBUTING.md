@@ -1,4 +1,5 @@
 # docs/CONTRIBUTING.md
+
 # CONTRIBUTING.md
 
 Thanks for your interest in contributing to **Handshake**. This guide defines how we work so the codebase stays clean, modular, and easy to ship. Read this before opening a PR.
@@ -14,10 +15,12 @@ Thanks for your interest in contributing to **Handshake**. This guide defines ho
 - **Minimal deps.** Justify any new dependency.
 
 ### Terminology & IA guardrails
+
 - **UI wording:** say **“Link ID”**; keep `slug` only in API paths/payloads.
-- **Navigation (3 layers):** **Inbox/Outbox** → **Folders** *(UI-only in MVP; can be bypassed via “See all handshakes”)* → **Handshakes**.
+- **Navigation (3 layers):** **Inbox/Outbox** → **Folders** _(UI-only in MVP; can be bypassed via “See all handshakes”)_ → **Handshakes**.
 
 ### Product rules (do not violate)
+
 - **Link ID immutability:** attempts to change `slug` on update must return `400 slug_immutable`.
 - **Plan limit (Free):** allow **1 active** handshake; over limit → `403 plan_limit_reached { maxActive: 1 }`.
 - **Archive (Option A):** `handshakes.archived` is a hygiene flag; **Archived remains public**.
@@ -48,7 +51,7 @@ There’s a helper script you can run in Gitpod/local if needed:
 
     bash scripts/bootstrap.sh
 
-*(It should install deps, ensure DB connectivity, and start dev servers. If anything fails, follow the manual steps above.)*
+_(It should install deps, ensure DB connectivity, and start dev servers. If anything fails, follow the manual steps above.)_
 
 ---
 
@@ -66,7 +69,7 @@ Migrations live at the **repo root** in `migrations/`. They are **SQL-first** an
     psql "<YOUR_POSTGRES_URL>" -f migrations/002_handshakes_updated_at.sql
     psql "<YOUR_POSTGRES_URL>" -f migrations/003_handshakes_add_archived.sql
 
-If you’re already *inside* `psql`, don’t paste `psql …` again — just:
+If you’re already _inside_ `psql`, don’t paste `psql …` again — just:
 
     \i migrations/001_inbox.sql
     \i migrations/002_handshakes_updated_at.sql
@@ -95,6 +98,7 @@ If you’re already *inside* `psql`, don’t paste `psql …` again — just:
 - **Uploads:** `/api/upload` (dev: local disk; prod: S3 planned)
 
 When you add/adjust server endpoints:
+
 1. Mount **new** aliases (don’t remove the old).
 2. Update `docs/ARCHITECTURE.md`, `docs/PATH.md`, and `docs/RELEASES.md`.
 3. Provide a smoke script (see below) or tests.
@@ -109,6 +113,7 @@ When you add/adjust server endpoints:
 - No PII in logs. Redact emails, tokens, and file names if needed.
 
 **Planned** (do not implement ad-hoc without alignment):
+
 - Hash inbox tokens at rest; default expiries; revoke/rotate endpoints.
 - Rate limit `/api/inbox/*`, `/api/auth/*`, and public submit.
 - S3 uploads with signed URLs + malware scanning.
@@ -153,6 +158,7 @@ Use the **Executable quickstart** in `docs/USER_FLOWS.md`:
 ## 🔍 Pull Requests
 
 **Checklist (paste into PR description):**
+
 - [ ] Changes are **additive** (no breaking removals/renames)
 - [ ] Updated docs where needed (`ARCHITECTURE.md`, `PATH.md`, `RELEASES.md`, etc.)
 - [ ] Added tests or provided a smoke script
@@ -161,6 +167,7 @@ Use the **Executable quickstart** in `docs/USER_FLOWS.md`:
 - [ ] DB migration applied and verified (if applicable)
 
 **Include:**
+
 - What changed & why (1–3 sentences)
 - Routes touched
 - DB migrations (file names)

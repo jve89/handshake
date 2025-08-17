@@ -1,4 +1,5 @@
 # README.md
+
 # Handshake
 
 **The easiest way to request or deliver structured information between two parties.**
@@ -33,10 +34,11 @@ Handshake lets a sender request files, form fields, or actions from a receiver v
   - File uploads (dev: local disk; prod: S3 planned).
 - **Inbox (receiver)**
   - **Token-gated, read-only** submissions list & detail (no login required).
-  - *(Out of scope for MVP)* Receiver account linking by email.
+  - _(Out of scope for MVP)_ Receiver account linking by email.
 - **UI:** clean, responsive (React + Tailwind).
 
 ### Product Rules (enforced)
+
 - **Link ID immutability:** Link ID (`slug`) cannot change after creation → server returns `400 slug_immutable` on update attempts.
 - **Free plan limit:** max **1 active** handshake → `403 plan_limit_reached { maxActive: 1 }`.
 - **Legacy routes:** remain mounted during transition (see Architecture).
@@ -66,41 +68,46 @@ Handshake lets a sender request files, form fields, or actions from a receiver v
 
 1. **Install deps**
 
-    npm ci
+   npm ci
 
 2. **Configure environment**
 
-    cp .env.example .env
-    # Fill at minimum:
-    # JWT_SECRET=...
-    # DATABASE_URL=postgres://...
+   cp .env.example .env
+
+   # Fill at minimum:
+
+   # JWT_SECRET=...
+
+   # DATABASE_URL=postgres://...
 
 3. **Run servers (separate terminals)**
 
-    npm run dev        # Frontend (Vite @5173)
-    npm run dev:server # Backend (Express @3000)
+   npm run dev # Frontend (Vite @5173)
+   npm run dev:server # Backend (Express @3000)
 
 4. **Smoke checks**
 
-    # API health (expect 200)
-    curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/api/health
+   # API health (expect 200)
 
-    # Inbox health (expect JSON)
-    curl -s http://localhost:3000/api/inbox/health
+   curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/api/health
+
+   # Inbox health (expect JSON)
+
+   curl -s http://localhost:3000/api/inbox/health
 
 5. **Minimal flow (sender token required)**
 
-    # 5.1 Sign up or log in (returns JWT)
-    curl -s -X POST http://localhost:3000/api/auth/login \
-      -H "Content-Type: application/json" \
-      -d '{"email":"you@example.com","password":"changeme123"}'
+   # 5.1 Sign up or log in (returns JWT)
 
-    - Create a handshake via POST /api/outbox/handshakes.
-    - Add a request field via POST /api/outbox/handshakes/:handshakeId/requests.
-    - Load public page at /handshake/:slug (Link ID) and submit.
-    - Mint an inbox token via POST /api/outbox/handshakes/:handshakeId/inbox-token.
-    - View receiver list: /inbox/handshakes/:handshakeId?token=...
-    - View receiver detail: /inbox/submissions/:submissionId?token=...&handshakeId=:handshakeId
+   curl -s -X POST http://localhost:3000/api/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"you@example.com","password":"changeme123"}'
+   - Create a handshake via POST /api/outbox/handshakes.
+   - Add a request field via POST /api/outbox/handshakes/:handshakeId/requests.
+   - Load public page at /handshake/:slug (Link ID) and submit.
+   - Mint an inbox token via POST /api/outbox/handshakes/:handshakeId/inbox-token.
+   - View receiver list: /inbox/handshakes/:handshakeId?token=...
+   - View receiver detail: /inbox/submissions/:submissionId?token=...&handshakeId=:handshakeId
 
 ---
 
@@ -113,10 +120,12 @@ Handshake lets a sender request files, form fields, or actions from a receiver v
 - `STRIPE_WEBHOOK_SECRET` — webhook signing secret (`whsec_…`)
 
 **Notes:**
+
 - The webhook endpoint **expects raw request body**. Ensure body parsing excludes `/api/billing/webhook` or uses raw middleware there.
 - On Gitpod or tunnels, expose **port 3000** publicly so Stripe can reach the webhook.
 
 **Endpoints (dev):**
+
 - `POST /api/billing/create-checkout-session` → returns Checkout URL
 - `POST /api/billing/webhook` → processes events (e.g., `checkout.session.completed`)
 
@@ -144,7 +153,7 @@ Handshake lets a sender request files, form fields, or actions from a receiver v
   - GET /api/outbox/handshakes
   - POST /api/outbox/handshakes
   - GET /api/outbox/handshakes/:handshakeId
-  - PUT /api/outbox/handshakes/:handshakeId  *(Link ID/slug is immutable; changing it yields 400 slug_immutable)*
+  - PUT /api/outbox/handshakes/:handshakeId _(Link ID/slug is immutable; changing it yields 400 slug_immutable)_
   - DELETE /api/outbox/handshakes/:handshakeId
   - GET /api/outbox/handshakes/:handshakeId/requests
   - POST /api/outbox/handshakes/:handshakeId/requests

@@ -1,6 +1,6 @@
 // src/server/services/userHandshakeService.ts
-import { db } from '../db/client';
-import type { Handshake } from '../../shared/types';
+import { db } from "../db/client";
+import type { Handshake } from "../../shared/types";
 
 export interface HandshakeInput {
   slug: string;
@@ -8,8 +8,6 @@ export interface HandshakeInput {
   description?: string;
   expires_at?: string | null;
 }
-
-
 
 export interface Submission {
   submission_id: number;
@@ -19,7 +17,7 @@ export interface Submission {
 
 export async function listHandshakes(
   userId: number,
-  archivedFilter: 'false' | 'true' | 'all' = 'false'
+  archivedFilter: "false" | "true" | "all" = "false",
 ): Promise<Handshake[]> {
   const sql = `
     SELECT id, slug, title, description, created_at, expires_at, user_id, updated_at, archived
@@ -32,19 +30,31 @@ export async function listHandshakes(
   return result.rows;
 }
 
-export async function createHandshake(userId: number, data: HandshakeInput): Promise<Handshake> {
+export async function createHandshake(
+  userId: number,
+  data: HandshakeInput,
+): Promise<Handshake> {
   const result = await db.query<Handshake>(
     `INSERT INTO handshakes (user_id, slug, title, description, created_at, expires_at)
      VALUES ($1, $2, $3, $4, NOW(), $5) RETURNING *`,
-    [userId, data.slug, data.title, data.description || null, data.expires_at || null]
+    [
+      userId,
+      data.slug,
+      data.title,
+      data.description || null,
+      data.expires_at || null,
+    ],
   );
   return result.rows[0];
 }
 
-export async function getHandshakeById(userId: number, handshakeId: number): Promise<Handshake | null> {
+export async function getHandshakeById(
+  userId: number,
+  handshakeId: number,
+): Promise<Handshake | null> {
   const result = await db.query<Handshake>(
-    'SELECT * FROM handshakes WHERE id = $1 AND user_id = $2',
-    [handshakeId, userId]
+    "SELECT * FROM handshakes WHERE id = $1 AND user_id = $2",
+    [handshakeId, userId],
   );
   return result.rows[0] || null;
 }
@@ -52,23 +62,32 @@ export async function getHandshakeById(userId: number, handshakeId: number): Pro
 export async function updateHandshake(
   userId: number,
   handshakeId: number,
-  data: Partial<HandshakeInput>
+  data: Partial<HandshakeInput>,
 ): Promise<Handshake | null> {
   const result = await db.query<Handshake>(
     `UPDATE handshakes
      SET title = $1, description = $2, expires_at = $3, updated_at = NOW()
      WHERE id = $4 AND user_id = $5
      RETURNING *`,
-    [data.title, data.description || null, data.expires_at || null, handshakeId, userId]
+    [
+      data.title,
+      data.description || null,
+      data.expires_at || null,
+      handshakeId,
+      userId,
+    ],
   );
   return result.rows[0] || null;
 }
 
-export async function deleteHandshake(userId: number, handshakeId: number): Promise<boolean> {
-  const result = await db.query(
-    'DELETE FROM handshakes WHERE id = $1 AND user_id = $2',
-    [handshakeId, userId]
-  ) as any;
+export async function deleteHandshake(
+  userId: number,
+  handshakeId: number,
+): Promise<boolean> {
+  const result = (await db.query(
+    "DELETE FROM handshakes WHERE id = $1 AND user_id = $2",
+    [handshakeId, userId],
+  )) as any;
   return result.rowCount > 0;
 }
 
@@ -77,15 +96,15 @@ export async function countActiveHandshakes(userId: number): Promise<number> {
     `SELECT COUNT(*)::text AS count
      FROM handshakes
      WHERE user_id = $1 AND archived = FALSE`,
-    [userId]
+    [userId],
   );
-  return parseInt(result.rows[0]?.count ?? '0', 10);
+  return parseInt(result.rows[0]?.count ?? "0", 10);
 }
 
 export async function setHandshakeArchived(
   userId: number,
   handshakeId: number,
-  state: boolean
+  state: boolean,
 ): Promise<Handshake | null> {
   const sql = `
     UPDATE handshakes
@@ -98,11 +117,14 @@ export async function setHandshakeArchived(
   return result.rows[0] || null;
 }
 
-export async function getSubmissionsForHandshake(userId: number, handshakeId: number) {
+export async function getSubmissionsForHandshake(
+  userId: number,
+  handshakeId: number,
+) {
   // Verify ownership
   const ownerCheck = await db.query(
     `SELECT id FROM handshakes WHERE id = $1 AND user_id = $2`,
-    [handshakeId, userId]
+    [handshakeId, userId],
   );
 
   if (ownerCheck.rowCount === 0) return [];
@@ -122,15 +144,18 @@ export async function getSubmissionsForHandshake(userId: number, handshakeId: nu
     WHERE s.handshake_id = $1
     ORDER BY s.submitted_at DESC, r.request_id ASC
     `,
-    [handshakeId]
+    [handshakeId],
   );
 
   // Group responses under their submission
-  const grouped: Record<number, {
-    submission_id: number;
-    submitted_at: string;
-    responses: { request_id: number; label: string; value: string }[];
-  }> = {};
+  const grouped: Record<
+    number,
+    {
+      submission_id: number;
+      submitted_at: string;
+      responses: { request_id: number; label: string; value: string }[];
+    }
+  > = {};
 
   for (const row of result.rows) {
     const sid = row.submission_id;
@@ -150,5 +175,3 @@ export async function getSubmissionsForHandshake(userId: number, handshakeId: nu
 
   return Object.values(grouped);
 }
-
-

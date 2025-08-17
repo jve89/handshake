@@ -1,4 +1,5 @@
 # docs/NOTNOW.md
+
 # NOTNOW.md
 
 This document captures ideas, features, and edge cases we are **intentionally deferring** from v0.1 to keep the system stable and focused. Items here may move into `PATH.md` or `ROADMAP.md` as priorities change.
@@ -60,8 +61,8 @@ This document captures ideas, features, and edge cases we are **intentionally de
 - **Advanced form logic**
   - Conditionals, branching, computed fields, multi-step wizards.
 - **Folders (persisted, DB+API)**
-  - Store folders and assign/move handshakes; shareable filters.  
-  - *Note:* MVP uses **UI-only** grouping; persistence is tracked in `ROADMAP.md` (FLD-1).
+  - Store folders and assign/move handshakes; shareable filters.
+  - _Note:_ MVP uses **UI-only** grouping; persistence is tracked in `ROADMAP.md` (FLD-1).
 
 ---
 
@@ -95,6 +96,6 @@ This document captures ideas, features, and edge cases we are **intentionally de
 
 ## Notes
 
-- Deferrals here are **intentional** to avoid scope creep and fragile logic.  
-- When moving an item out of `NOTNOW.md`, add a concrete acceptance test to `PATH.md`.  
+- Deferrals here are **intentional** to avoid scope creep and fragile logic.
+- When moving an item out of `NOTNOW.md`, add a concrete acceptance test to `PATH.md`.
 - Keep this aligned with `SCOPE.md`, `RISKS.md`, `ROADMAP.md`, and `PATH.md`.

@@ -3,7 +3,7 @@
 
 (() => {
   const getToken = () =>
-    localStorage.getItem('token') || localStorage.getItem('authToken');
+    localStorage.getItem("token") || localStorage.getItem("authToken");
 
   const originalFetch = window.fetch;
 
@@ -11,23 +11,23 @@
     try {
       // Figure out the request URL as a string
       const urlStr =
-        typeof input === 'string'
+        typeof input === "string"
           ? input
           : input instanceof URL
-          ? input.toString()
-          : input.url;
+            ? input.toString()
+            : input.url;
 
       // Only touch our API calls
       const isApi =
-        urlStr.startsWith('/api') ||
+        urlStr.startsWith("/api") ||
         urlStr.startsWith(`${window.location.origin}/api`);
 
       const token = getToken();
       if (isApi && token) {
         init = init ?? {};
         const headers = new Headers(init.headers ?? {});
-        if (!headers.has('Authorization')) {
-          headers.set('Authorization', `Bearer ${token}`);
+        if (!headers.has("Authorization")) {
+          headers.set("Authorization", `Bearer ${token}`);
         }
         init.headers = headers;
       }

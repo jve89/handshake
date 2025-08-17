@@ -1,4 +1,4 @@
-# Snapshot @ 7fd6914 on 2025-08-13 20:01:38 UTC — DO NOT EDIT
+# Snapshot @ 82a2334 on 2025-08-17 08:45:02 UTC — DO NOT EDIT
 
 .
 |-- docs
@@ -14,13 +14,10 @@
 |   |-- ROADMAP.md
 |   |-- SCOPE.md
 |   |-- USER_FLOWS.md
-|   |-- VISION.md
-|   `-- proposed-filetree.txt
+|   `-- VISION.md
 |-- migrations
 |   |-- 001_inbox.sql
-|   |-- 002_handshakes_updated_at.sql
-|   |-- 003_handshakes_add_archived.sql
-|   `-- 004_integrity_and_indexes.sql
+|   `-- 002_handshakes_updated_at.sql
 |-- scripts
 |   `-- bootstrap.sh
 |-- src
@@ -31,23 +28,25 @@
 |   |   |   |   `-- MobileFolderDrawer.tsx
 |   |   |   |-- nav
 |   |   |   |   `-- LayerTabs.tsx
-|   |   |   `-- ArchiveFilter.tsx
+|   |   |   `-- HandshakeCard.tsx
 |   |   |-- features
 |   |   |   |-- handshakes
 |   |   |   |   |-- HandshakeEditor.tsx
 |   |   |   |   `-- HandshakeList.tsx
 |   |   |   `-- inbox
-|   |   |       `-- HandshakeResponseForm.tsx
 |   |   |-- hooks
 |   |   |   `-- useUrlState.ts
 |   |   |-- pages
+|   |   |   |-- composer
+|   |   |   |   `-- Composer.tsx
 |   |   |   |-- inbox
 |   |   |   |   |-- InboxHome.tsx
 |   |   |   |   |-- InboxSubmissionDetail.tsx
 |   |   |   |   `-- InboxSubmissions.tsx
 |   |   |   |-- outbox
 |   |   |   |   |-- Dashboard.tsx
-|   |   |   |   `-- HandshakeRequests.tsx
+|   |   |   |   |-- HandshakeRequests.tsx
+|   |   |   |   `-- OutboxHome.tsx
 |   |   |   |-- AuthPage.tsx
 |   |   |   |-- HandshakePage.tsx
 |   |   |   |-- Home.tsx

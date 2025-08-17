@@ -1,18 +1,18 @@
 // src/client/hooks/useUrlState.ts
-import { useMemo } from 'react';
-import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { useMemo } from "react";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 
-export type Box = 'incoming' | 'outgoing';
-export type Archived = 'false' | 'true' | 'all';
+export type Box = "incoming" | "outgoing";
+export type Archived = "false" | "true" | "all";
 
 function coerceBox(v: string | null): Box {
-  return v === 'incoming' || v === 'outgoing' ? v : 'outgoing';
+  return v === "incoming" || v === "outgoing" ? v : "outgoing";
 }
 function coerceArchived(v: string | null): Archived {
-  return v === 'true' || v === 'all' ? v : 'false';
+  return v === "true" || v === "all" ? v : "false";
 }
 function coerceFolder(v: string | null): string {
-  return v && v.length > 0 ? v : 'all';
+  return v && v.length > 0 ? v : "all";
 }
 
 /**
@@ -25,13 +25,15 @@ export function useUrlState() {
   const location = useLocation();
 
   const state = useMemo(() => {
-    const box = coerceBox(params.get('box'));
-    const folder = coerceFolder(params.get('folder'));
-    const archived = coerceArchived(params.get('archived'));
+    const box = coerceBox(params.get("box"));
+    const folder = coerceFolder(params.get("folder"));
+    const archived = coerceArchived(params.get("archived"));
     return { box, folder, archived };
   }, [params]);
 
-  function update(next: Partial<{ box: Box; folder: string; archived: Archived }>) {
+  function update(
+    next: Partial<{ box: Box; folder: string; archived: Archived }>,
+  ) {
     const current = Object.fromEntries(params.entries());
     const merged = {
       box: state.box,
@@ -46,12 +48,12 @@ export function useUrlState() {
 
   function ensureDefaults() {
     const needsDefaults =
-      !params.get('box') || !params.get('folder') || !params.get('archived');
+      !params.get("box") || !params.get("folder") || !params.get("archived");
     if (needsDefaults) {
       const sp = new URLSearchParams(params);
-      if (!params.get('box')) sp.set('box', 'outgoing');
-      if (!params.get('folder')) sp.set('folder', 'all');
-      if (!params.get('archived')) sp.set('archived', 'false');
+      if (!params.get("box")) sp.set("box", "outgoing");
+      if (!params.get("folder")) sp.set("folder", "all");
+      if (!params.get("archived")) sp.set("archived", "false");
       navigate(`${location.pathname}?${sp.toString()}`, { replace: true });
     }
   }

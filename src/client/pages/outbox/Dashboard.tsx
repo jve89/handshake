@@ -1,12 +1,12 @@
 // src/client/pages/outbox/Dashboard.tsx
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import LayerTabs from '../../components/nav/LayerTabs';
-import FolderRail from '../../components/folders/FolderRail';
-import MobileFolderDrawer from '../../components/folders/MobileFolderDrawer';
-import { useUrlState } from '../../hooks/useUrlState';
-import HandshakeList from '../../features/handshakes/HandshakeList';
-import { clearAuthToken } from '../../utils/getAuthToken';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import LayerTabs from "../../components/nav/LayerTabs";
+import FolderRail from "../../components/folders/FolderRail";
+import MobileFolderDrawer from "../../components/folders/MobileFolderDrawer";
+import { useUrlState } from "../../hooks/useUrlState";
+import HandshakeList from "../../features/handshakes/HandshakeList";
+import { clearAuthToken } from "../../utils/getAuthToken";
 
 export default function Dashboard() {
   const { box, ensureDefaults } = useUrlState();
@@ -20,7 +20,7 @@ export default function Dashboard() {
 
   function handleLogout() {
     clearAuthToken();
-    navigate('/', { replace: true });
+    navigate("/", { replace: true });
   }
 
   return (
@@ -67,7 +67,10 @@ export default function Dashboard() {
       </header>
 
       {/* Mobile drawer for folders/filters */}
-      <MobileFolderDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <MobileFolderDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      />
 
       <main className="max-w-6xl mx-auto px-4 py-4 flex gap-4">
         {/* Desktop folder rail */}
@@ -75,10 +78,10 @@ export default function Dashboard() {
 
         <section
           className="flex-1"
-          id={box === 'outgoing' ? 'layer-outgoing' : 'layer-incoming'}
+          id={box === "outgoing" ? "layer-outgoing" : "layer-incoming"}
           aria-live="polite"
         >
-          {box === 'outgoing' ? (
+          {box === "outgoing" ? (
             <HandshakeList />
           ) : (
             <div className="p-6 border border-dashed rounded-lg text-sm text-gray-700">
@@ -88,10 +91,13 @@ export default function Dashboard() {
                 <br />
                 <code>/inbox/handshakes/:handshakeId?token=…</code>
                 <br />
-                <code>/inbox/submissions/:submissionId?token=…&amp;handshakeId=:id</code>
+                <code>
+                  /inbox/submissions/:submissionId?token=…&amp;handshakeId=:id
+                </code>
               </p>
               <p className="mt-3 text-gray-500">
-                This panel will list incoming items in a later pass. No server changes required.
+                This panel will list incoming items in a later pass. No server
+                changes required.
               </p>
             </div>
           )}

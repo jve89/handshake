@@ -9,4 +9,4 @@ export interface User {
 }
 
 // Re-export canonical Handshake type from shared to prevent drift.
-export type { Handshake } from '../../shared/types';
+export type { Handshake } from "../../shared/types";

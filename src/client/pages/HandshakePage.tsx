@@ -1,9 +1,12 @@
 // src/client/pages/HandshakePage.tsx
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import HandshakeForm, { HandshakeData, HandshakeResponse } from '../features/inbox/HandshakeResponseForm';
-import { submitResponses } from '../utils/postHandshakeResponses';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import HandshakeForm, {
+  HandshakeData,
+  HandshakeResponse,
+} from "../features/inbox/HandshakeResponseForm";
+import { submitResponses } from "../utils/postHandshakeResponses";
+import { useNavigate } from "react-router-dom";
 
 export default function HandshakePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -23,12 +26,13 @@ export default function HandshakePage() {
 
       try {
         const res = await fetch(`/api/handshake/${slug}`);
-        if (!res.ok) throw new Error(`Failed to load handshake: ${res.statusText}`);
+        if (!res.ok)
+          throw new Error(`Failed to load handshake: ${res.statusText}`);
 
         const data = await res.json();
         setHandshake(data.handshake);
       } catch (err: any) {
-        setError(err.message || 'Unknown error');
+        setError(err.message || "Unknown error");
       } finally {
         setLoading(false);
       }
@@ -44,7 +48,7 @@ export default function HandshakePage() {
 
     try {
       await submitResponses(slug, responses);
-      navigate('/thank-you');
+      navigate("/thank-you");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -61,7 +65,11 @@ export default function HandshakePage() {
     <div className="max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">{handshake.title}</h1>
       <p className="mb-6 text-gray-700">{handshake.description}</p>
-      <HandshakeForm handshake={handshake} onSubmit={handleSubmit} disabled={submitting} />
+      <HandshakeForm
+        handshake={handshake}
+        onSubmit={handleSubmit}
+        disabled={submitting}
+      />
     </div>
   );
 }

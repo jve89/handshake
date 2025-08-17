@@ -1,7 +1,7 @@
 // src/client/pages/outbox/HandshakeRequests.tsx
-import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getSubmissions, Submission } from '../../utils/getSubmissions';
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { getSubmissions, Submission } from "../../utils/getSubmissions";
 import {
   fetchRequests,
   createRequest,
@@ -9,11 +9,14 @@ import {
   deleteRequest,
   RequestInput,
   HandshakeRequest,
-} from '../../utils/handshakeRequests';
+} from "../../utils/handshakeRequests";
 
 export default function HandshakeRequests() {
   const { handshakeId } = useParams<{ handshakeId: string }>();
-  const hid = useMemo(() => (handshakeId ? Number(handshakeId) : NaN), [handshakeId]);
+  const hid = useMemo(
+    () => (handshakeId ? Number(handshakeId) : NaN),
+    [handshakeId],
+  );
 
   const [requests, setRequests] = useState<HandshakeRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +27,8 @@ export default function HandshakeRequests() {
   const [subError, setSubError] = useState<string | null>(null);
 
   const [newRequest, setNewRequest] = useState<RequestInput>({
-    label: '',
-    type: 'text',
+    label: "",
+    type: "text",
     required: false,
     options: [],
   });
@@ -40,12 +43,12 @@ export default function HandshakeRequests() {
 
     fetchRequests(hid)
       .then(setRequests)
-      .catch(() => setError('Failed to load requests'))
+      .catch(() => setError("Failed to load requests"))
       .finally(() => setLoading(false));
 
     getSubmissions(hid)
       .then(setSubmissions)
-      .catch(() => setSubError('Failed to load submissions'))
+      .catch(() => setSubError("Failed to load submissions"))
       .finally(() => setSubLoading(false));
   }, [hid]);
 
@@ -54,10 +57,10 @@ export default function HandshakeRequests() {
     try {
       const req = await createRequest(hid, newRequest);
       setRequests((prev) => [...prev, req]);
-      setNewRequest({ label: '', type: 'text', required: false, options: [] });
+      setNewRequest({ label: "", type: "text", required: false, options: [] });
       setError(null);
     } catch {
-      setError('Failed to create request');
+      setError("Failed to create request");
     }
   };
 
@@ -68,7 +71,7 @@ export default function HandshakeRequests() {
       setRequests((prev) => prev.filter((r) => r.id !== id));
       setError(null);
     } catch {
-      setError('Failed to delete request');
+      setError("Failed to delete request");
     }
   };
 
@@ -79,17 +82,17 @@ export default function HandshakeRequests() {
       setRequests((prev) => prev.map((r) => (r.id === id ? updated : r)));
       setError(null);
     } catch {
-      setError('Failed to update request');
+      setError("Failed to update request");
     }
   };
 
   function optionsToString(options?: string[]) {
-    return options ? options.join(', ') : '';
+    return options ? options.join(", ") : "";
   }
 
   function stringToOptions(str: string): string[] {
     return str
-      .split(',')
+      .split(",")
       .map((opt) => opt.trim())
       .filter((opt) => opt.length > 0);
   }
@@ -105,7 +108,10 @@ export default function HandshakeRequests() {
     <div className="max-w-3xl mx-auto p-4">
       {/* Composer-like toolbar */}
       <div className="mb-4 flex items-center justify-between gap-2">
-        <Link to="/outbox" className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50">
+        <Link
+          to="/outbox"
+          className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50"
+        >
           ← Back to Dashboard
         </Link>
 
@@ -118,14 +124,20 @@ export default function HandshakeRequests() {
           >
             Details
           </Link>
-          <span className="px-3 py-1.5 rounded bg-gray-900 text-white select-none">Fields</span>
+          <span className="px-3 py-1.5 rounded bg-gray-900 text-white select-none">
+            Fields
+          </span>
           <a
             href="#"
             onClick={(e) => {
               e.preventDefault();
               // Preview uses slug; we don’t have it here without another fetch.
               // Open the composer (edit) in a new tab; user can hit Preview there.
-              window.open(`/outbox/handshakes/${hid}/edit`, '_blank', 'noopener');
+              window.open(
+                `/outbox/handshakes/${hid}/edit`,
+                "_blank",
+                "noopener",
+              );
             }}
             className="px-3 py-1.5 rounded border hover:bg-gray-50"
             title="Open preview"
@@ -148,12 +160,18 @@ export default function HandshakeRequests() {
       {requests.length === 0 ? (
         <div className="border rounded p-4 bg-gray-50 text-sm text-gray-700 mb-4">
           <p className="mb-2 font-medium">No fields yet.</p>
-          <p>Add your first field below. You can choose type, set it as required, and add options for selects.</p>
+          <p>
+            Add your first field below. You can choose type, set it as required,
+            and add options for selects.
+          </p>
         </div>
       ) : (
         <ul className="space-y-4 mb-4">
           {requests.map((r) => (
-            <li key={r.id} className="flex flex-wrap items-center gap-2 border p-3 rounded">
+            <li
+              key={r.id}
+              className="flex flex-wrap items-center gap-2 border p-3 rounded"
+            >
               <input
                 type="text"
                 value={r.label}
@@ -163,7 +181,11 @@ export default function HandshakeRequests() {
               />
               <select
                 value={r.type}
-                onChange={(e) => handleUpdate(r.id, { type: e.target.value as RequestInput['type'] })}
+                onChange={(e) =>
+                  handleUpdate(r.id, {
+                    type: e.target.value as RequestInput["type"],
+                  })
+                }
                 className="border rounded px-2 py-1"
               >
                 <option value="text">Text</option>
@@ -171,11 +193,15 @@ export default function HandshakeRequests() {
                 <option value="select">Select</option>
                 <option value="file">File</option>
               </select>
-              {r.type === 'select' && (
+              {r.type === "select" && (
                 <input
                   type="text"
                   value={optionsToString(r.options)}
-                  onChange={(e) => handleUpdate(r.id, { options: stringToOptions(e.target.value) })}
+                  onChange={(e) =>
+                    handleUpdate(r.id, {
+                      options: stringToOptions(e.target.value),
+                    })
+                  }
                   placeholder="Options (comma separated)"
                   className="border rounded px-2 py-1 flex-grow min-w-[150px]"
                 />
@@ -184,7 +210,9 @@ export default function HandshakeRequests() {
                 <input
                   type="checkbox"
                   checked={r.required}
-                  onChange={(e) => handleUpdate(r.id, { required: e.target.checked })}
+                  onChange={(e) =>
+                    handleUpdate(r.id, { required: e.target.checked })
+                  }
                 />
                 Required
               </label>
@@ -206,12 +234,19 @@ export default function HandshakeRequests() {
           type="text"
           placeholder="Label"
           value={newRequest.label}
-          onChange={(e) => setNewRequest({ ...newRequest, label: e.target.value })}
+          onChange={(e) =>
+            setNewRequest({ ...newRequest, label: e.target.value })
+          }
           className="border rounded px-2 py-1 flex-grow min-w-[150px]"
         />
         <select
           value={newRequest.type}
-          onChange={(e) => setNewRequest({ ...newRequest, type: e.target.value as RequestInput['type'] })}
+          onChange={(e) =>
+            setNewRequest({
+              ...newRequest,
+              type: e.target.value as RequestInput["type"],
+            })
+          }
           className="border rounded px-2 py-1"
         >
           <option value="text">Text</option>
@@ -219,12 +254,17 @@ export default function HandshakeRequests() {
           <option value="select">Select</option>
           <option value="file">File</option>
         </select>
-        {newRequest.type === 'select' && (
+        {newRequest.type === "select" && (
           <input
             type="text"
             placeholder="Options (comma separated)"
             value={optionsToString(newRequest.options)}
-            onChange={(e) => setNewRequest({ ...newRequest, options: stringToOptions(e.target.value) })}
+            onChange={(e) =>
+              setNewRequest({
+                ...newRequest,
+                options: stringToOptions(e.target.value),
+              })
+            }
             className="border rounded px-2 py-1 flex-grow min-w-[150px]"
           />
         )}
@@ -232,7 +272,9 @@ export default function HandshakeRequests() {
           <input
             type="checkbox"
             checked={newRequest.required}
-            onChange={(e) => setNewRequest({ ...newRequest, required: e.target.checked })}
+            onChange={(e) =>
+              setNewRequest({ ...newRequest, required: e.target.checked })
+            }
           />
           Required
         </label>
@@ -256,9 +298,12 @@ export default function HandshakeRequests() {
       ) : (
         <div className="space-y-6 mt-2">
           {submissions.map((submission) => (
-            <div key={submission.submission_id} className="border p-4 rounded bg-gray-50">
+            <div
+              key={submission.submission_id}
+              className="border p-4 rounded bg-gray-50"
+            >
               <p className="text-sm text-gray-500 mb-2">
-                Submission ID: {submission.submission_id} –{' '}
+                Submission ID: {submission.submission_id} –{" "}
                 {new Date(submission.submitted_at).toLocaleString()}
               </p>
               <ul className="list-disc ml-4 text-sm">

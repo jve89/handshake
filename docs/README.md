@@ -1,4 +1,5 @@
 # docs/README.md
+
 # Project Documentation Index
 
 Welcome to the Handshake documentation folder. This directory contains all material needed to understand, contribute to, and maintain the project.
@@ -40,13 +41,13 @@ For the high-level project summary and setup instructions, see the root [README.
 
 - **One purpose per file.** Don’t mix roadmap with scope, etc.
 - **Date your changes** when relevant (e.g., release entries, migrations).
-- **Code blocks:** use 4-space *indented* blocks for shell/SQL to avoid nested-fence issues in renderers.
+- **Code blocks:** use 4-space _indented_ blocks for shell/SQL to avoid nested-fence issues in renderers.
 - **Terminology:**
   - “**Outbox**” = sender-side dashboards & APIs
   - “**Inbox**” = token-gated receiver views/APIs
   - **Use “Link ID” in UI; keep `slug` only in API paths/payloads (immutable after creation).**
-  - **3-layer navigation:** Inbox/Outbox → **Folders** *(UI-only in MVP; can be bypassed via “See all handshakes”)* → Handshakes
-  - **Archive (Option A):** *Archived remains public*; dashboard filter **Active / Archived / All**
+  - **3-layer navigation:** Inbox/Outbox → **Folders** _(UI-only in MVP; can be bypassed via “See all handshakes”)_ → Handshakes
+  - **Archive (Option A):** _Archived remains public_; dashboard filter **Active / Archived / All**
 
 ---
 

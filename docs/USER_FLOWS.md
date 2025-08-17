@@ -1,4 +1,5 @@
 # docs/USER_FLOWS.md
+
 # User Flows — Handshake
 
 This file outlines the core interactions for three roles:
@@ -24,24 +25,29 @@ This file outlines the core interactions for three roles:
 > Creating and distributing a handshake link; monitoring responses
 
 ### 1) Access
+
 - [x] Sender signs up/logs in
 - [x] Lands in **Outbox** (legacy alias: `/dashboard/handshakes`), showing Layer 3 list (or Layer 2 folders if selected)
 
 ### 2) Create
+
 - [x] Create new handshake (**Link ID (slug)**, title, description, optional expiry)
 - Fields (requests):
   - [x] API supports `text | email | select | file` with `required` and `options[]`
   - [~] UI management is **legacy/placeholder**; dedicated Outbox UI in progress
 
 ### 3) Share
+
 - [x] **Public form** (no auth): `/handshake/:slug`
 - [x] **Inbox (read-only)**: mint token → `/inbox/handshakes/:id?token=<TOKEN>`
 
 ### 4) Monitor
+
 - [x] Read-only **Inbox** web UI via token lists and shows submissions
 - [~] Outbox submissions view is **partial** (API complete; UI consolidation pending)
 
 ### 5) Manage
+
 - [x] Edit metadata (title/description/expiry)
 - [x] Add/update/delete fields (API)
 - [x] Delete handshake (API)
@@ -58,10 +64,12 @@ This file outlines the core interactions for three roles:
 > Completing the request via the shared public link
 
 ### 1) Open
+
 - [x] Opens `/handshake/:slug`
 - [x] Sees title/description/fields; responsive UI
 
 ### 2) Submit
+
 - [x] Fills fields; uploads files (dev: local disk; prod: S3 planned)
 - [x] Server-side validation:
   - `text/file`: `required` enforced
@@ -69,9 +77,11 @@ This file outlines the core interactions for three roles:
   - `select`: **defensive rule** — if required, value must be in options; if optional and provided, must be in options
 
 ### 3) Success
+
 - [x] Shown confirmation / thank-you screen
 
 ### 4) Changes
+
 - [x] Can modify inputs **before** clicking Submit
 - [x] No edits **after** submission (no drafts/autosave in v0)
 
@@ -81,7 +91,7 @@ This file outlines the core interactions for three roles:
 
 > For senders or designated reviewers to see submissions without an account
 
-1. **Sender** mints a token: `POST /api/outbox/handshakes/:id/inbox-token`  
+1. **Sender** mints a token: `POST /api/outbox/handshakes/:id/inbox-token`
 2. **Viewer** opens:
    - List: `/inbox/handshakes/:id?token=<TOKEN>`
    - Detail: `/inbox/submissions/:submissionId?token=<TOKEN>&handshakeId=:id`
@@ -96,28 +106,28 @@ This file outlines the core interactions for three roles:
 
 ## 🔍 Edge Cases
 
-| Situation                                   | v0 Handling                                                   |
-|---------------------------------------------|---------------------------------------------------------------|
-| Wrong file uploaded                          | ✅ Change before submitting                                   |
-| Edit text after submission                   | ❌ Not supported                                              |
-| Handshake expired                            | ❌ Expiry logic not enforced yet                              |
-| Sender deletes handshake                     | ✅ Public link returns Not Found after delete                 |
-| Duplicate Link ID on create                  | ✅ `409 slug_taken`                                           |
-| Try to change Link ID on edit                | ✅ `400 slug_immutable`                                       |
-| Receiver leaves mid-fill                     | ❌ No autosave/draft                                          |
-| Link brute-force attempt                     | ✅ Slug unguessable; inbox requires token                     |
-| Viewer opens inbox link without token        | ❌ 401/403                                                    |
-| Token expired/revoked                        | ❌ Not implemented yet (planned)                              |
-| Archived handshake public visibility         | ✅ **Still public** at `/handshake/:slug` (Option A)          |
-| Free plan over the active limit              | ✅ `403 plan_limit_reached { maxActive: 1 }`                  |
+| Situation                             | v0 Handling                                          |
+| ------------------------------------- | ---------------------------------------------------- |
+| Wrong file uploaded                   | ✅ Change before submitting                          |
+| Edit text after submission            | ❌ Not supported                                     |
+| Handshake expired                     | ❌ Expiry logic not enforced yet                     |
+| Sender deletes handshake              | ✅ Public link returns Not Found after delete        |
+| Duplicate Link ID on create           | ✅ `409 slug_taken`                                  |
+| Try to change Link ID on edit         | ✅ `400 slug_immutable`                              |
+| Receiver leaves mid-fill              | ❌ No autosave/draft                                 |
+| Link brute-force attempt              | ✅ Slug unguessable; inbox requires token            |
+| Viewer opens inbox link without token | ❌ 401/403                                           |
+| Token expired/revoked                 | ❌ Not implemented yet (planned)                     |
+| Archived handshake public visibility  | ✅ **Still public** at `/handshake/:slug` (Option A) |
+| Free plan over the active limit       | ✅ `403 plan_limit_reached { maxActive: 1 }`         |
 
 ---
 
 ## 🧭 Model Summary (Outbox/Inbox)
 
-- **Outbox (Sender):** create/manage the handshake; canonical API under `/api/outbox/handshakes`  
-- **Public form:** anyone can submit via `/handshake/:slug`  
-- **Inbox (token):** read-only viewing via `/api/inbox/*` and `/inbox/*` with `?token=…`  
+- **Outbox (Sender):** create/manage the handshake; canonical API under `/api/outbox/handshakes`
+- **Public form:** anyone can submit via `/handshake/:slug`
+- **Inbox (token):** read-only viewing via `/api/inbox/*` and `/inbox/*` with `?token=…`
 - **Receiver accounts:** not required; future feature for attribution and personal inbox
 
 ---

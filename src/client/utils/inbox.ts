@@ -12,13 +12,18 @@ export interface Submission {
 
 export function ensureToken(search: string): string {
   const params = new URLSearchParams(search);
-  const token = params.get('token');
-  if (!token) throw new Error('Missing inbox token in URL (?token=...)');
+  const token = params.get("token");
+  if (!token) throw new Error("Missing inbox token in URL (?token=...)");
   return token;
 }
 
-export async function fetchInboxSubmissions(handshakeId: number, token: string): Promise<Submission[]> {
-  const res = await fetch(`/api/inbox/handshakes/${handshakeId}/submissions?token=${encodeURIComponent(token)}`);
+export async function fetchInboxSubmissions(
+  handshakeId: number,
+  token: string,
+): Promise<Submission[]> {
+  const res = await fetch(
+    `/api/inbox/handshakes/${handshakeId}/submissions?token=${encodeURIComponent(token)}`,
+  );
   if (!res.ok) {
     const msg = await safeMessage(res);
     throw new Error(msg || `Failed to load inbox submissions (${res.status})`);
@@ -27,8 +32,13 @@ export async function fetchInboxSubmissions(handshakeId: number, token: string):
   return data.submissions as Submission[];
 }
 
-export async function fetchInboxSubmissionDetail(submissionId: number, token: string): Promise<Submission> {
-  const res = await fetch(`/api/inbox/submissions/${submissionId}?token=${encodeURIComponent(token)}`);
+export async function fetchInboxSubmissionDetail(
+  submissionId: number,
+  token: string,
+): Promise<Submission> {
+  const res = await fetch(
+    `/api/inbox/submissions/${submissionId}?token=${encodeURIComponent(token)}`,
+  );
   if (!res.ok) {
     const msg = await safeMessage(res);
     throw new Error(msg || `Failed to load submission (${res.status})`);

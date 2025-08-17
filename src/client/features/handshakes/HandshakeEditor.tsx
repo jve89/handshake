@@ -1,7 +1,7 @@
 // src/client/features/handshakes/HandshakeEditor.tsx
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { apiGet, apiPost, apiPut } from '../../utils/api';
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { apiGet, apiPost, apiPut } from "../../utils/api";
 import {
   fetchRequests,
   createRequest,
@@ -9,7 +9,7 @@ import {
   deleteRequest,
   type RequestInput,
   type HandshakeRequest,
-} from '../../utils/handshakeRequests';
+} from "../../utils/handshakeRequests";
 
 interface HandshakeFormData {
   slug: string;
@@ -18,15 +18,15 @@ interface HandshakeFormData {
   expires_at?: string | null;
 }
 
-type DraftField = (RequestInput & { id?: number; _tempId?: string });
+type DraftField = RequestInput & { id?: number; _tempId?: string };
 
 function slugify(input: string): string {
   return input
     .toLowerCase()
     .trim()
-    .replace(/['"]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
     .slice(0, 60);
 }
 
@@ -37,10 +37,10 @@ export default function HandshakeEditor() {
   const isEditMode = Number.isFinite(handshakeId);
 
   const [formData, setFormData] = useState<HandshakeFormData>({
-    slug: '',
-    title: '',
-    description: '',
-    expires_at: '',
+    slug: "",
+    title: "",
+    description: "",
+    expires_at: "",
   });
 
   // Fields state (local composer)
@@ -52,8 +52,9 @@ export default function HandshakeEditor() {
   const [showSettings, setShowSettings] = useState(false); // collapsed Details by default
 
   const previewHref = useMemo(
-    () => (formData.slug ? `/handshake/${encodeURIComponent(formData.slug)}` : ''),
-    [formData.slug]
+    () =>
+      formData.slug ? `/handshake/${encodeURIComponent(formData.slug)}` : "",
+    [formData.slug],
   );
 
   // Load handshake + its fields in edit mode
@@ -63,13 +64,15 @@ export default function HandshakeEditor() {
     (async () => {
       try {
         setLoading(true);
-        const data = await apiGet<{ handshake: any }>(`/api/outbox/handshakes/${handshakeId}`);
+        const data = await apiGet<{ handshake: any }>(
+          `/api/outbox/handshakes/${handshakeId}`,
+        );
         const { slug, title, description, expires_at } = data.handshake;
         setFormData({
           slug,
           title,
-          description: description || '',
-          expires_at: expires_at ? String(expires_at).slice(0, 10) : '',
+          description: description || "",
+          expires_at: expires_at ? String(expires_at).slice(0, 10) : "",
         });
 
         const reqs = await fetchRequests(handshakeId!);
@@ -80,10 +83,10 @@ export default function HandshakeEditor() {
             type: r.type,
             required: r.required,
             options: r.options ?? [],
-          }))
+          })),
         );
       } catch (e: any) {
-        setError(e?.message || 'Failed to load');
+        setError(e?.message || "Failed to load");
       } finally {
         setLoading(false);
       }
@@ -91,7 +94,7 @@ export default function HandshakeEditor() {
   }, [isEditMode, handshakeId]);
 
   function handleDetailChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -100,8 +103,8 @@ export default function HandshakeEditor() {
   function addField() {
     const temp: DraftField = {
       _tempId: crypto.randomUUID(),
-      label: '',
-      type: 'text',
+      label: "",
+      type: "text",
       required: false,
       options: [],
     };
@@ -128,11 +131,11 @@ export default function HandshakeEditor() {
 
   // Utilities to convert comma list <-> array for select options
   function optionsToString(options?: string[]) {
-    return options && options.length ? options.join(', ') : '';
+    return options && options.length ? options.join(", ") : "";
   }
   function stringToOptions(str: string): string[] {
     return str
-      .split(',')
+      .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
   }
@@ -144,7 +147,7 @@ export default function HandshakeEditor() {
     // Minimal validation for empty-first flow:
     // - Title is required (for slug generation and basic metadata)
     if (!formData.title.trim()) {
-      setError('Title is required');
+      setError("Title is required");
       setShowSettings(true); // reveal Settings so user sees where to fill it
       return;
     }
@@ -158,7 +161,9 @@ export default function HandshakeEditor() {
       if (!isEditMode && !slug.trim()) {
         slug = slugify(formData.title);
         if (!slug) {
-          throw new Error('Link ID could not be generated from title. Please open Settings and set it.');
+          throw new Error(
+            "Link ID could not be generated from title. Please open Settings and set it.",
+          );
         }
       }
 
@@ -171,19 +176,22 @@ export default function HandshakeEditor() {
         });
       } else {
         // Create handshake first
-        const res = await apiPost<{ handshake: { id: number; slug: string } }>(`/api/outbox/handshakes`, {
-          slug,
-          title: formData.title,
-          description: formData.description,
-          expires_at: formData.expires_at || null,
-        });
+        const res = await apiPost<{ handshake: { id: number; slug: string } }>(
+          `/api/outbox/handshakes`,
+          {
+            slug,
+            title: formData.title,
+            description: formData.description,
+            expires_at: formData.expires_at || null,
+          },
+        );
         newId = res.handshake.id;
         // lock the slug we used
         setFormData((prev) => ({ ...prev, slug }));
       }
 
       // Persist fields
-      if (!newId) throw new Error('Handshake id missing after save');
+      if (!newId) throw new Error("Handshake id missing after save");
 
       // Process deletes first
       for (const rid of deletedIds) {
@@ -201,7 +209,7 @@ export default function HandshakeEditor() {
           label: f.label.trim(),
           type: f.type,
           required: !!f.required,
-          options: f.type === 'select' ? (f.options ?? []) : [],
+          options: f.type === "select" ? (f.options ?? []) : [],
         };
 
         if (!payload.label) continue; // skip empties
@@ -220,16 +228,18 @@ export default function HandshakeEditor() {
         navigate(`/outbox/handshakes/${newId}/edit`, { replace: true });
       }
     } catch (err: any) {
-      const msg = String(err?.message || '');
+      const msg = String(err?.message || "");
       if (/slug_taken/i.test(msg)) {
-        setError('Link ID is already taken. Open Settings to change it.');
+        setError("Link ID is already taken. Open Settings to change it.");
         setShowSettings(true);
       } else if (/slug_immutable/i.test(msg)) {
-        setError('Link ID cannot be changed after creation.');
+        setError("Link ID cannot be changed after creation.");
       } else if (/plan_limit_reached/i.test(msg)) {
-        setError('Free plan allows 1 active handshake. Archive one or upgrade to add more.');
+        setError(
+          "Free plan allows 1 active handshake. Archive one or upgrade to add more.",
+        );
       } else {
-        setError(msg || 'Failed to save handshake');
+        setError(msg || "Failed to save handshake");
       }
     } finally {
       setLoading(false);
@@ -242,7 +252,10 @@ export default function HandshakeEditor() {
     <div className="max-w-3xl mx-auto p-4">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between gap-2">
-        <Link to="/outbox" className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50">
+        <Link
+          to="/outbox"
+          className="px-3 py-1.5 rounded border text-sm hover:bg-gray-50"
+        >
           ← Back to Dashboard
         </Link>
 
@@ -258,7 +271,10 @@ export default function HandshakeEditor() {
               Preview
             </a>
           ) : (
-            <span className="px-3 py-1.5 rounded border text-sm opacity-50" title="Save once to preview">
+            <span
+              className="px-3 py-1.5 rounded border text-sm opacity-50"
+              title="Save once to preview"
+            >
               Preview
             </span>
           )}
@@ -266,7 +282,7 @@ export default function HandshakeEditor() {
       </div>
 
       <h1 className="text-2xl font-semibold mb-4">
-        {isEditMode ? 'Compose Handshake' : 'Compose Handshake (new)'}
+        {isEditMode ? "Compose Handshake" : "Compose Handshake (new)"}
       </h1>
 
       {error && <div className="mb-4 text-red-600">{error}</div>}
@@ -288,16 +304,24 @@ export default function HandshakeEditor() {
           {fields.length === 0 ? (
             <div className="border rounded p-4 bg-gray-50 text-sm text-gray-700">
               <p className="mb-1 font-medium">No fields yet.</p>
-              <p>Click “+ Add field” to create your first field. You can keep adding more before saving.</p>
+              <p>
+                Click “+ Add field” to create your first field. You can keep
+                adding more before saving.
+              </p>
             </div>
           ) : (
             <ul className="space-y-3">
               {fields.map((f, idx) => (
-                <li key={f.id ?? f._tempId ?? idx} className="flex flex-wrap items-center gap-2 border p-3 rounded">
+                <li
+                  key={f.id ?? f._tempId ?? idx}
+                  className="flex flex-wrap items-center gap-2 border p-3 rounded"
+                >
                   <input
                     type="text"
                     value={f.label}
-                    onChange={(e) => updateField(idx, { label: e.target.value })}
+                    onChange={(e) =>
+                      updateField(idx, { label: e.target.value })
+                    }
                     className="border rounded px-2 py-1 flex-grow min-w-[160px]"
                     placeholder="Label"
                   />
@@ -305,8 +329,9 @@ export default function HandshakeEditor() {
                     value={f.type}
                     onChange={(e) =>
                       updateField(idx, {
-                        type: e.target.value as DraftField['type'],
-                        options: e.target.value === 'select' ? (f.options ?? []) : [],
+                        type: e.target.value as DraftField["type"],
+                        options:
+                          e.target.value === "select" ? (f.options ?? []) : [],
                       })
                     }
                     className="border rounded px-2 py-1"
@@ -316,11 +341,15 @@ export default function HandshakeEditor() {
                     <option value="select">Select</option>
                     <option value="file">File</option>
                   </select>
-                  {f.type === 'select' && (
+                  {f.type === "select" && (
                     <input
                       type="text"
                       value={optionsToString(f.options)}
-                      onChange={(e) => updateField(idx, { options: stringToOptions(e.target.value) })}
+                      onChange={(e) =>
+                        updateField(idx, {
+                          options: stringToOptions(e.target.value),
+                        })
+                      }
                       placeholder="Options (comma separated)"
                       className="border rounded px-2 py-1 flex-grow min-w-[160px]"
                     />
@@ -329,7 +358,9 @@ export default function HandshakeEditor() {
                     <input
                       type="checkbox"
                       checked={!!f.required}
-                      onChange={(e) => updateField(idx, { required: e.target.checked })}
+                      onChange={(e) =>
+                        updateField(idx, { required: e.target.checked })
+                      }
                     />
                     Required
                   </label>
@@ -343,7 +374,10 @@ export default function HandshakeEditor() {
                       onClick={() =>
                         setFields((prev) => {
                           const next = [...prev];
-                          [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+                          [next[idx - 1], next[idx]] = [
+                            next[idx],
+                            next[idx - 1],
+                          ];
                           return next;
                         })
                       }
@@ -357,7 +391,10 @@ export default function HandshakeEditor() {
                       onClick={() =>
                         setFields((prev) => {
                           const next = [...prev];
-                          [next[idx + 1], next[idx]] = [next[idx], next[idx + 1]];
+                          [next[idx + 1], next[idx]] = [
+                            next[idx],
+                            next[idx + 1],
+                          ];
                           return next;
                         })
                       }
@@ -389,7 +426,7 @@ export default function HandshakeEditor() {
             aria-expanded={showSettings}
           >
             <span className="font-semibold">Settings</span>
-            <span className="text-sm">{showSettings ? 'Hide' : 'Show'}</span>
+            <span className="text-sm">{showSettings ? "Hide" : "Show"}</span>
           </button>
 
           {showSettings && (
@@ -409,7 +446,8 @@ export default function HandshakeEditor() {
                     placeholder="(optional — auto from Title on first save)"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    If left blank, we’ll auto-generate it from the Title on first save.
+                    If left blank, we’ll auto-generate it from the Title on
+                    first save.
                   </p>
                 </div>
               )}
@@ -453,7 +491,7 @@ export default function HandshakeEditor() {
                   type="date"
                   name="expires_at"
                   id="expires_at"
-                  value={formData.expires_at ?? ''}
+                  value={formData.expires_at ?? ""}
                   onChange={handleDetailChange}
                   className="w-full border border-gray-300 rounded px-3 py-2"
                 />
@@ -468,7 +506,7 @@ export default function HandshakeEditor() {
             disabled={loading}
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60"
           >
-            {isEditMode ? 'Save handshake' : 'Create handshake'}
+            {isEditMode ? "Save handshake" : "Create handshake"}
           </button>
         </div>
       </form>

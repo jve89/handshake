@@ -6,11 +6,17 @@
 
 /* --- Brand base styles --- */
 @layer base {
-  html, body {
+  html,
+  body {
     @apply text-brand-navy bg-white;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold text-brand-navy;
   }
 
@@ -19,7 +25,16 @@
   }
 
   /* Modern focus treatment across interactive elements */
-  :is(a, button, [type='button'], [type='submit'], [role='button'], input, select, textarea) {
+  :is(
+    a,
+    button,
+    [type="button"],
+    [type="submit"],
+    [role="button"],
+    input,
+    select,
+    textarea
+  ) {
     @apply outline-none focus-visible:ring-2 focus-visible:ring-brand-blush focus-visible:ring-offset-2 focus-visible:ring-offset-white;
   }
 }
@@ -30,7 +45,9 @@
   .card {
     @apply rounded-xl border border-gray-200 bg-white shadow-sm p-4;
   }
-  .card-lg { @apply p-6; }
+  .card-lg {
+    @apply p-6;
+  }
   .toolbar {
     @apply flex items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white/80 backdrop-blur p-2;
   }
@@ -82,9 +99,15 @@
   .badge {
     @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-gray-100 text-brand-navy;
   }
-  .badge-success { @apply bg-green-100 text-green-800; }
-  .badge-warn    { @apply bg-brand-yellow text-brand-navy; }
-  .badge-neutral { @apply bg-gray-100 text-gray-800; }
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+  .badge-warn {
+    @apply bg-brand-yellow text-brand-navy;
+  }
+  .badge-neutral {
+    @apply bg-gray-100 text-gray-800;
+  }
 
   /* Subtle section header */
   .section-title {
@@ -98,10 +121,19 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-blush to-brand-yellow;
   }
+
+  /* Handshake card styling */
+  .handshake-card {
+    @apply bg-white p-4 m-2 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all;
+  }
 }
 
 /* --- Small utility tweaks --- */
 @layer utilities {
-  .ring-brand { @apply ring-brand-blush; }
-  .muted { @apply text-gray-500; }
+  .ring-brand {
+    @apply ring-brand-blush;
+  }
+  .muted {
+    @apply text-gray-500;
+  }
 }

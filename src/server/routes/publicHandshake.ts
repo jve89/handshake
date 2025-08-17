@@ -1,23 +1,23 @@
 // src/server/routes/publicHandshake.ts
-import { Router } from 'express';
-import { db } from '../db/client';
-import validator from 'validator';
+import { Router } from "express";
+import { db } from "../db/client";
+import validator from "validator";
 
 const router = Router();
 
 // GET /api/handshake/:slug
-router.get('/:slug', async (req, res) => {
+router.get("/:slug", async (req, res) => {
   const { slug } = req.params;
 
   try {
     const handshakeResult = await db.query(
       `SELECT id, slug, title, description, created_at, expires_at
        FROM handshakes WHERE slug = $1`,
-      [slug]
+      [slug],
     );
 
     if (handshakeResult.rowCount === 0) {
-      return res.status(404).json({ error: 'Handshake not found' });
+      return res.status(404).json({ error: "Handshake not found" });
     }
 
     const handshake = handshakeResult.rows[0];
@@ -27,7 +27,7 @@ router.get('/:slug', async (req, res) => {
          FROM requests
         WHERE handshake_id = $1
         ORDER BY id`,
-      [handshake.id]
+      [handshake.id],
     );
 
     res.json({
@@ -37,27 +37,27 @@ router.get('/:slug', async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('Error loading handshake:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error loading handshake:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // POST /api/handshake/:slug/submit
-router.post('/:slug/submit', async (req, res) => {
+router.post("/:slug/submit", async (req, res) => {
   const { slug } = req.params;
   const { responses } = req.body;
 
   if (!Array.isArray(responses) || responses.length === 0) {
-    return res.status(400).json({ error: 'Missing or invalid responses' });
+    return res.status(400).json({ error: "Missing or invalid responses" });
   }
 
   try {
     const handshakeResult = await db.query(
       `SELECT id FROM handshakes WHERE slug = $1`,
-      [slug]
+      [slug],
     );
     if (handshakeResult.rowCount === 0) {
-      return res.status(404).json({ error: 'Handshake not found' });
+      return res.status(404).json({ error: "Handshake not found" });
     }
 
     const handshakeId = handshakeResult.rows[0].id;
@@ -66,7 +66,7 @@ router.post('/:slug/submit', async (req, res) => {
       `SELECT id, label, type, required, options
          FROM requests
         WHERE handshake_id = $1`,
-      [handshakeId]
+      [handshakeId],
     );
 
     const requests = requestsResult.rows;
@@ -74,58 +74,82 @@ router.post('/:slug/submit', async (req, res) => {
 
     for (const r of responses) {
       if (
-        typeof r.request_id !== 'number' ||
-        typeof r.value !== 'string' ||
+        typeof r.request_id !== "number" ||
+        typeof r.value !== "string" ||
         !requestsMap.has(r.request_id)
       ) {
-        return res.status(400).json({ error: 'Invalid response format or unknown request_id' });
+        return res
+          .status(400)
+          .json({ error: "Invalid response format or unknown request_id" });
       }
 
       const reqDef = requestsMap.get(r.request_id);
 
       switch (reqDef.type) {
-        case 'text': {
-          if (reqDef.required && r.value.trim() === '') {
-            return res.status(400).json({ error: `Response to '${reqDef.label}' is required.` });
+        case "text": {
+          if (reqDef.required && r.value.trim() === "") {
+            return res
+              .status(400)
+              .json({ error: `Response to '${reqDef.label}' is required.` });
           }
           break;
         }
 
-        case 'email': {
+        case "email": {
           if (reqDef.required && !validator.isEmail(r.value)) {
-            return res.status(400).json({ error: `Response to '${reqDef.label}' must be a valid email.` });
+            return res
+              .status(400)
+              .json({
+                error: `Response to '${reqDef.label}' must be a valid email.`,
+              });
           }
           break;
         }
 
-        case 'select': {
+        case "select": {
           // Defensive rule (B):
           // - If required: value must be non-empty AND in options.
           // - If optional: empty is OK; if provided, it must be in options.
-          const opts: string[] = Array.isArray(reqDef.options) ? reqDef.options : [];
-          const val = typeof r.value === 'string' ? r.value.trim() : '';
+          const opts: string[] = Array.isArray(reqDef.options)
+            ? reqDef.options
+            : [];
+          const val = typeof r.value === "string" ? r.value.trim() : "";
 
           if (reqDef.required) {
             if (!opts.length || !opts.includes(val)) {
-              return res.status(400).json({ error: `Response to '${reqDef.label}' must be one of the allowed options.` });
+              return res
+                .status(400)
+                .json({
+                  error: `Response to '${reqDef.label}' must be one of the allowed options.`,
+                });
             }
           } else {
-            if (val !== '' && (!opts.length || !opts.includes(val))) {
-              return res.status(400).json({ error: `Response to '${reqDef.label}' must be one of the allowed options.` });
+            if (val !== "" && (!opts.length || !opts.includes(val))) {
+              return res
+                .status(400)
+                .json({
+                  error: `Response to '${reqDef.label}' must be one of the allowed options.`,
+                });
             }
           }
           break;
         }
 
-        case 'file': {
-          if (reqDef.required && r.value.trim() === '') {
-            return res.status(400).json({ error: `File upload for '${reqDef.label}' is required.` });
+        case "file": {
+          if (reqDef.required && r.value.trim() === "") {
+            return res
+              .status(400)
+              .json({
+                error: `File upload for '${reqDef.label}' is required.`,
+              });
           }
           break;
         }
 
         default:
-          return res.status(400).json({ error: `Unknown request type for '${reqDef.label}'.` });
+          return res
+            .status(400)
+            .json({ error: `Unknown request type for '${reqDef.label}'.` });
       }
     }
 
@@ -133,14 +157,16 @@ router.post('/:slug/submit', async (req, res) => {
     const answeredRequestIds = new Set(responses.map((r: any) => r.request_id));
     for (const reqDef of requests) {
       if (reqDef.required && !answeredRequestIds.has(reqDef.id)) {
-        return res.status(400).json({ error: `Missing required response for '${reqDef.label}'.` });
+        return res
+          .status(400)
+          .json({ error: `Missing required response for '${reqDef.label}'.` });
       }
     }
 
     // Create submission
     const submissionResult = await db.query(
       `INSERT INTO submissions (handshake_id) VALUES ($1) RETURNING id`,
-      [handshakeId]
+      [handshakeId],
     );
     const submissionId = submissionResult.rows[0].id;
 
@@ -156,14 +182,14 @@ router.post('/:slug/submit', async (req, res) => {
 
     await db.query(
       `INSERT INTO responses (submission_id, request_id, value)
-       VALUES ${insertValues.join(', ')}`,
-      params
+       VALUES ${insertValues.join(", ")}`,
+      params,
     );
 
     res.status(201).json({ submission_id: submissionId });
   } catch (err) {
-    console.error('Error saving submission:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error saving submission:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

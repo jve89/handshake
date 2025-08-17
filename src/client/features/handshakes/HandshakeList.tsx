@@ -1,12 +1,10 @@
-// src/client/features/handshakes/HandshakeList.tsx
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import ArchiveFilter from '../../components/ArchiveFilter';
-import type { Handshake } from '../../../shared/types';
-import { useUrlState } from '../../hooks/useUrlState';
-import { apiGet, apiDelete, apiPut } from '../../utils/api';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import type { Handshake } from "../../../shared/types";
+import { useUrlState } from "../../hooks/useUrlState";
+import { apiGet, apiDelete, apiPut } from "../../utils/api";
 
-type FilterValue = 'false' | 'true' | 'all';
+type FilterValue = "false" | "true" | "all";
 
 export default function HandshakeList() {
   const { archived, update, ensureDefaults } = useUrlState();
@@ -28,15 +26,15 @@ export default function HandshakeList() {
     setError(null);
     try {
       const data = await apiGet<{ handshakes: Handshake[] }>(
-        `/api/outbox/handshakes?archived=${currentArchived}`
+        `/api/outbox/handshakes?archived=${currentArchived}`,
       );
       setHandshakes(data.handshakes);
     } catch (e: any) {
-      if (e?.message === 'Unauthorized') {
-        navigate('/auth', { replace: true });
+      if (e?.message === "Unauthorized") {
+        navigate("/auth", { replace: true });
         return;
       }
-      setError(e?.message || 'Unknown error');
+      setError(e?.message || "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -58,25 +56,30 @@ export default function HandshakeList() {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
       } else {
-        const ta = document.createElement('textarea');
+        const ta = document.createElement("textarea");
         ta.value = url;
-        ta.setAttribute('readonly', '');
-        ta.style.position = 'absolute';
-        ta.style.left = '-9999px';
+        ta.setAttribute("readonly", "");
+        ta.style.position = "absolute";
+        ta.style.left = "-9999px";
         document.body.appendChild(ta);
         ta.select();
-        document.execCommand('copy');
+        document.execCommand("copy");
         document.body.removeChild(ta);
       }
       setCopiedId(id);
-      setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 1500);
+      setTimeout(
+        () => setCopiedId((prev) => (prev === id ? null : prev)),
+        1500,
+      );
     } catch {
       alert(`Copy failed. Here’s the link:\n\n${url}`);
     }
   }
 
   async function handleDelete(id: number, title: string) {
-    const confirmed = window.confirm(`Delete “${title}”? This cannot be undone.`);
+    const confirmed = window.confirm(
+      `Delete “${title}”? This cannot be undone.`,
+    );
     if (!confirmed) return;
 
     setDeletingId(id);
@@ -89,7 +92,7 @@ export default function HandshakeList() {
       await apiDelete(`/api/outbox/handshakes/${id}`);
     } catch (e: any) {
       setHandshakes(prev); // revert
-      setError(e?.message || 'Failed to delete handshake');
+      setError(e?.message || "Failed to delete handshake");
     } finally {
       setDeletingId(null);
     }
@@ -103,7 +106,7 @@ export default function HandshakeList() {
       await apiPut(url);
       await load(archived); // refetch to honor current filter
     } catch (e: any) {
-      setError(e?.message || 'Failed to toggle archive');
+      setError(e?.message || "Failed to toggle archive");
     }
   }
 
@@ -122,101 +125,109 @@ export default function HandshakeList() {
         </Link>
       </div>
 
-      {/* Keep legacy ArchiveFilter but bind it to URL-backed state */}
-      <ArchiveFilter
-        value={archived}
-        onChange={(nextVal) => update({ archived: nextVal as FilterValue })}
-      />
-
+      {/* ArchiveFilter removed — since it's no longer used, let's remove this */}
       {handshakes.length === 0 ? (
         <p>No handshakes found. Create one to get started!</p>
       ) : (
         <ul className="space-y-4">
-          {handshakes.map(({ id, slug, title, created_at, expires_at, archived: isArchived }) => (
-            <li
-              key={id}
-              className="border rounded p-4 flex flex-wrap gap-3 justify-between items-center"
-            >
-              <div>
-                <h2 className="text-lg font-medium">{title}</h2>
-                <p className="text-sm text-gray-500">Link ID: {slug}</p>
-                <p className="text-sm text-gray-500">
-                  Created: {new Date(created_at).toLocaleDateString()}
-                </p>
-                {expires_at && (
+          {handshakes.map(
+            ({
+              id,
+              slug,
+              title,
+              created_at,
+              expires_at,
+              archived: isArchived,
+            }) => (
+              <li
+                key={id}
+                className="border rounded p-4 flex flex-wrap gap-3 justify-between items-center"
+              >
+                <div>
+                  <h2 className="text-lg font-medium">{title}</h2>
+                  <p className="text-sm text-gray-500">Link ID: {slug}</p>
                   <p className="text-sm text-gray-500">
-                    Expires: {new Date(expires_at).toLocaleDateString()}
+                    Created: {new Date(created_at).toLocaleDateString()}
                   </p>
-                )}
-                {isArchived && (
-                  <p className="text-xs mt-1 inline-block px-2 py-0.5 rounded bg-gray-100 border">
-                    Archived
-                  </p>
-                )}
-              </div>
+                  {expires_at && (
+                    <p className="text-sm text-gray-500">
+                      Expires: {new Date(expires_at).toLocaleDateString()}
+                    </p>
+                  )}
+                  {isArchived && (
+                    <p className="text-xs mt-1 inline-block px-2 py-0.5 rounded bg-gray-100 border">
+                      Archived
+                    </p>
+                  )}
+                </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Link to={`/outbox/handshakes/${id}/requests`} className="px-3 py-1 border rounded" title="Add or edit the fields this handshake asks for">
-                  Manage fields
-                </Link>
-                <a
-                  href={`/handshake/${encodeURIComponent(slug)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1 bg-slate-600 text-white rounded hover:bg-slate-700"
-                  title="Open public page in a new tab"
-                >
-                  View public
-                </a>
-
-                <button
-                  onClick={() => copyLink(id, slug)}
-                  className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-                  title="Copy public link"
-                >
-                  {copiedId === id ? 'Copied!' : 'Copy link'}
-                </button>
-
-                {isArchived ? (
-                  <button
-                    onClick={() => toggleArchive(id, false)}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    to={`/outbox/handshakes/${id}/requests`}
                     className="px-3 py-1 border rounded"
-                    title="Unarchive"
+                    title="Add or edit the fields this handshake asks for"
                   >
-                    Unarchive
-                  </button>
-                ) : (
+                    Manage fields
+                  </Link>
+                  <a
+                    href={`/handshake/${encodeURIComponent(slug)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 bg-slate-600 text-white rounded hover:bg-slate-700"
+                    title="Open public page in a new tab"
+                  >
+                    View public
+                  </a>
+
                   <button
-                    onClick={() => toggleArchive(id, true)}
-                    className="px-3 py-1 border rounded"
-                    title="Archive"
+                    onClick={() => copyLink(id, slug)}
+                    className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                    title="Copy public link"
                   >
-                    Archive
+                    {copiedId === id ? "Copied!" : "Copy link"}
                   </button>
-                )}
 
-                <Link
-                  to={`/outbox/handshakes/${id}/edit`}
-                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Edit
-                </Link>
+                  {isArchived ? (
+                    <button
+                      onClick={() => toggleArchive(id, false)}
+                      className="px-3 py-1 border rounded"
+                      title="Unarchive"
+                    >
+                      Unarchive
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => toggleArchive(id, true)}
+                      className="px-3 py-1 border rounded"
+                      title="Archive"
+                    >
+                      Archive
+                    </button>
+                  )}
 
-                <button
-                  onClick={() => handleDelete(id, title)}
-                  disabled={deletingId === id}
-                  className={`px-3 py-1 text-white rounded ${
-                    deletingId === id
-                      ? 'bg-red-400 opacity-70 cursor-not-allowed'
-                      : 'bg-red-600 hover:bg-red-700'
-                  }`}
-                  aria-label={`Delete handshake ${title}`}
-                >
-                  {deletingId === id ? 'Deleting…' : 'Delete'}
-                </button>
-              </div>
-            </li>
-          ))}
+                  <Link
+                    to={`/outbox/handshakes/${id}/edit`}
+                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                  >
+                    Edit
+                  </Link>
+
+                  <button
+                    onClick={() => handleDelete(id, title)}
+                    disabled={deletingId === id}
+                    className={`px-3 py-1 text-white rounded ${
+                      deletingId === id
+                        ? "bg-red-400 opacity-70 cursor-not-allowed"
+                        : "bg-red-600 hover:bg-red-700"
+                    }`}
+                    aria-label={`Delete handshake ${title}`}
+                  >
+                    {deletingId === id ? "Deleting…" : "Delete"}
+                  </button>
+                </div>
+              </li>
+            ),
+          )}
         </ul>
       )}
     </div>

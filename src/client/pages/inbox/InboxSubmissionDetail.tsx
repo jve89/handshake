@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { ensureToken, fetchInboxSubmissionDetail, Submission } from '../../utils/inbox';
+import { useEffect, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import {
+  ensureToken,
+  fetchInboxSubmissionDetail,
+  Submission,
+} from "../../utils/inbox";
 
 export default function InboxSubmissionDetail() {
   const { submissionId } = useParams<{ submissionId: string }>();
@@ -15,13 +19,16 @@ export default function InboxSubmissionDetail() {
       setError(null);
       try {
         if (!submissionId || isNaN(Number(submissionId))) {
-          throw new Error('Invalid submission id');
+          throw new Error("Invalid submission id");
         }
         const token = ensureToken(searchParams.toString());
-        const data = await fetchInboxSubmissionDetail(Number(submissionId), token);
+        const data = await fetchInboxSubmissionDetail(
+          Number(submissionId),
+          token,
+        );
         setItem(data);
       } catch (e: any) {
-        setError(e?.message || 'Failed to load submission');
+        setError(e?.message || "Failed to load submission");
       } finally {
         setLoading(false);
       }
@@ -32,13 +39,15 @@ export default function InboxSubmissionDetail() {
   if (error) return <div className="p-4 text-red-600">{error}</div>;
   if (!item) return <div className="p-4">Not found.</div>;
 
-  const token = searchParams.get('token')!;
-  const backHandshakeId = searchParams.get('handshakeId');
+  const token = searchParams.get("token")!;
+  const backHandshakeId = searchParams.get("handshakeId");
 
   return (
     <div className="p-4 max-w-3xl mx-auto">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Submission #{item.submission_id}</h1>
+        <h1 className="text-2xl font-semibold">
+          Submission #{item.submission_id}
+        </h1>
         {backHandshakeId ? (
           <Link
             to={`/inbox/handshakes/${encodeURIComponent(backHandshakeId)}?token=${encodeURIComponent(token)}`}
@@ -68,7 +77,9 @@ export default function InboxSubmissionDetail() {
       <div className="mt-6">
         <Link
           to={`/inbox/submissions/${item.submission_id}?token=${encodeURIComponent(token)}${
-            backHandshakeId ? `&handshakeId=${encodeURIComponent(backHandshakeId)}` : ''
+            backHandshakeId
+              ? `&handshakeId=${encodeURIComponent(backHandshakeId)}`
+              : ""
           }`}
           className="text-blue-600 hover:underline"
         >

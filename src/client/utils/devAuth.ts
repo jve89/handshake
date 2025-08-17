@@ -9,36 +9,38 @@
 export default async function initDevAuth(): Promise<void> {
   if (!import.meta.env.DEV) return;
 
-  const existing = localStorage.getItem('authToken');
+  const existing = localStorage.getItem("authToken");
   if (existing) return;
 
   const email = import.meta.env.VITE_DEV_EMAIL as string | undefined;
   const password = import.meta.env.VITE_DEV_PASSWORD as string | undefined;
 
   console.debug(
-    '[devAuth]',
+    "[devAuth]",
     JSON.stringify({
       dev: import.meta.env.DEV === true,
       hasToken: Boolean(existing),
       hasEmail: Boolean(email),
       hasPassword: Boolean(password),
-    })
+    }),
   );
 
   if (!email || !password) {
-    console.warn('[devAuth] Missing VITE_DEV_EMAIL or VITE_DEV_PASSWORD; skipping.');
+    console.warn(
+      "[devAuth] Missing VITE_DEV_EMAIL or VITE_DEV_PASSWORD; skipping.",
+    );
     return;
   }
 
   const login = async (): Promise<string | null> => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) {
       const txt = await safeText(res);
-      console.warn('[devAuth] Login failed', res.status, txt);
+      console.warn("[devAuth] Login failed", res.status, txt);
       return null;
     }
     const data = await safeJson(res);
@@ -46,9 +48,9 @@ export default async function initDevAuth(): Promise<void> {
   };
 
   const signup = async (): Promise<boolean> => {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
     if (res.ok) return true;
@@ -57,7 +59,7 @@ export default async function initDevAuth(): Promise<void> {
       return true;
     }
     const txt = await safeText(res);
-    console.warn('[devAuth] Signup failed', res.status, txt);
+    console.warn("[devAuth] Signup failed", res.status, txt);
     return false;
   };
 
@@ -73,10 +75,10 @@ export default async function initDevAuth(): Promise<void> {
   }
 
   if (token) {
-    localStorage.setItem('authToken', token);
-    console.info('[devAuth] Token set in localStorage');
+    localStorage.setItem("authToken", token);
+    console.info("[devAuth] Token set in localStorage");
   } else {
-    console.warn('[devAuth] Could not obtain token');
+    console.warn("[devAuth] Could not obtain token");
   }
 }
 
@@ -84,7 +86,7 @@ async function safeText(res: Response): Promise<string> {
   try {
     return await res.text();
   } catch {
-    return '';
+    return "";
   }
 }
 

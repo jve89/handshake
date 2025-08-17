@@ -1,13 +1,13 @@
 // src/client/components/folders/MobileFolderDrawer.tsx
-import React from 'react';
-import { useUrlState } from '../../hooks/useUrlState';
+import React from "react";
+import { useUrlState } from "../../hooks/useUrlState";
 
 type Folder = { id: string; name: string };
 
 const FOLDERS: Folder[] = [
-  { id: 'all', name: 'All' },
-  { id: 'clients', name: 'Clients (UI-only)' },
-  { id: 'events', name: 'Events (UI-only)' },
+  { id: "all", name: "All" },
+  { id: "clients", name: "Clients (UI-only)" },
+  { id: "events", name: "Events (UI-only)" },
 ];
 
 export default function MobileFolderDrawer({
@@ -26,19 +26,19 @@ export default function MobileFolderDrawer({
 
   return (
     <div
-      className={`fixed inset-0 z-50 md:hidden ${open ? '' : 'pointer-events-none'}`}
+      className={`fixed inset-0 z-50 md:hidden ${open ? "" : "pointer-events-none"}`}
       aria-hidden={!open}
     >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/40 transition-opacity ${open ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-black/40 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
       />
 
       {/* Panel */}
       <div
         className={`absolute left-0 top-0 h-full w-80 bg-white shadow-xl transition-transform ${
-          open ? 'translate-x-0' : '-translate-x-full'
+          open ? "translate-x-0" : "-translate-x-full"
         }`}
         role="dialog"
         aria-label="Folders and filters"
@@ -57,7 +57,9 @@ export default function MobileFolderDrawer({
                 key={f.id}
                 role="listitem"
                 className={`w-full text-left px-3 py-2 rounded-md text-sm ${
-                  folder === f.id ? 'bg-gray-900 text-white' : 'hover:bg-gray-100'
+                  folder === f.id
+                    ? "bg-gray-900 text-white"
+                    : "hover:bg-gray-100"
                 }`}
                 onClick={() => chooseFolder(f.id)}
                 type="button"
@@ -68,7 +70,9 @@ export default function MobileFolderDrawer({
             ))}
           </div>
 
-          <div className="mb-2 text-xs font-semibold uppercase text-gray-500">Filter</div>
+          <div className="mb-2 text-xs font-semibold uppercase text-gray-500">
+            Filter
+          </div>
           <label htmlFor="archived-filter-mobile" className="sr-only">
             Archived filter
           </label>
@@ -76,7 +80,9 @@ export default function MobileFolderDrawer({
             id="archived-filter-mobile"
             className="w-full border rounded-md px-2 py-2 text-sm"
             value={archived}
-            onChange={(e) => update({ archived: e.target.value as 'false' | 'true' | 'all' })}
+            onChange={(e) =>
+              update({ archived: e.target.value as "false" | "true" | "all" })
+            }
           >
             <option value="false">Active</option>
             <option value="true">Archived</option>
@@ -84,7 +90,11 @@ export default function MobileFolderDrawer({
           </select>
 
           <div className="mt-6">
-            <button className="text-xs underline" onClick={() => chooseFolder('all')} type="button">
+            <button
+              className="text-xs underline"
+              onClick={() => chooseFolder("all")}
+              type="button"
+            >
               See all handshakes
             </button>
           </div>

@@ -1,7 +1,7 @@
 // src/client/pages/Home.tsx
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { getAuthToken, clearAuthToken } from '../utils/getAuthToken';
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getAuthToken, clearAuthToken } from "../utils/getAuthToken";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -12,10 +12,10 @@ export default function Home() {
   // Keep state in sync across tabs/windows
   useEffect(() => {
     function onStorage(e: StorageEvent) {
-      if (e.key === 'authToken') setHasToken(!!getAuthToken());
+      if (e.key === "authToken") setHasToken(!!getAuthToken());
     }
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const logout = () => {
@@ -29,13 +29,17 @@ export default function Home() {
       <div className="max-w-xl w-full space-y-6">
         <h1 className="text-3xl font-bold">Handshake</h1>
         <p className="text-gray-600">
-          Collect and manage handshakes, submissions, and requests — all in one dashboard.
+          Collect and manage handshakes, submissions, and requests — all in one
+          dashboard.
         </p>
 
         <div className="flex gap-3">
           {hasToken ? (
             <>
-              <Link to="/outbox" className="px-4 py-2 rounded bg-black text-white">
+              <Link
+                to="/outbox"
+                className="px-4 py-2 rounded bg-black text-white"
+              >
                 Go to Dashboard
               </Link>
               <button onClick={logout} className="px-4 py-2 rounded border">
@@ -50,7 +54,9 @@ export default function Home() {
         </div>
 
         {hasToken && (
-          <div className="pt-4 border-t mt-4 text-sm text-gray-600">You’re logged in.</div>
+          <div className="pt-4 border-t mt-4 text-sm text-gray-600">
+            You’re logged in.
+          </div>
         )}
       </div>
     </div>

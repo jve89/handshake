@@ -1,5 +1,5 @@
 // src/client/utils/getSubmissions.ts
-import { apiGet } from './api';
+import { apiGet } from "./api";
 
 export interface Submission {
   submission_id: number;
@@ -11,9 +11,11 @@ export interface Submission {
   }[];
 }
 
-export async function getSubmissions(handshakeId: number): Promise<Submission[]> {
+export async function getSubmissions(
+  handshakeId: number,
+): Promise<Submission[]> {
   const data = await apiGet<{ submissions: Submission[] }>(
-    `/api/outbox/handshakes/${handshakeId}/submissions`
+    `/api/outbox/handshakes/${handshakeId}/submissions`,
   );
   return data.submissions;
 }

@@ -1,9 +1,9 @@
 // src/client/utils/handshakeRequests.ts
-import { apiDelete, apiGet, apiPost, apiPut } from './api';
+import { apiDelete, apiGet, apiPost, apiPut } from "./api";
 
 export interface RequestInput {
   label: string;
-  type: 'text' | 'email' | 'select' | 'file';
+  type: "text" | "email" | "select" | "file";
   required: boolean;
   options?: string[];
 }
@@ -13,20 +13,24 @@ export interface HandshakeRequest extends RequestInput {
   handshake_id: number;
 }
 
-const API_BASE = '/api/outbox/handshakes';
+const API_BASE = "/api/outbox/handshakes";
 
-export async function fetchRequests(handshakeId: number): Promise<HandshakeRequest[]> {
-  const data = await apiGet<{ requests: HandshakeRequest[] }>(`${API_BASE}/${handshakeId}/requests`);
+export async function fetchRequests(
+  handshakeId: number,
+): Promise<HandshakeRequest[]> {
+  const data = await apiGet<{ requests: HandshakeRequest[] }>(
+    `${API_BASE}/${handshakeId}/requests`,
+  );
   return data.requests;
 }
 
 export async function createRequest(
   handshakeId: number,
-  request: RequestInput
+  request: RequestInput,
 ): Promise<HandshakeRequest> {
   const data = await apiPost<{ request: HandshakeRequest }>(
     `${API_BASE}/${handshakeId}/requests`,
-    request
+    request,
   );
   return data.request;
 }
@@ -34,15 +38,18 @@ export async function createRequest(
 export async function updateRequest(
   handshakeId: number,
   requestId: number,
-  updates: Partial<RequestInput>
+  updates: Partial<RequestInput>,
 ): Promise<HandshakeRequest> {
   const data = await apiPut<{ request: HandshakeRequest }>(
     `${API_BASE}/${handshakeId}/requests/${requestId}`,
-    updates
+    updates,
   );
   return data.request;
 }
 
-export async function deleteRequest(handshakeId: number, requestId: number): Promise<void> {
+export async function deleteRequest(
+  handshakeId: number,
+  requestId: number,
+): Promise<void> {
   await apiDelete(`${API_BASE}/${handshakeId}/requests/${requestId}`);
 }
